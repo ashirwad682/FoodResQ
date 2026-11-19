@@ -5,6 +5,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import { ProtectedRoute } from './layouts/ProtectedRoute';
 import { MainLayout } from './layouts/MainLayout';
 import { DashboardLayout } from './layouts/DashboardLayout';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 // Public Pages
 import { Home } from './pages/public/Home';
@@ -46,9 +47,10 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <NotificationProvider>
-          <Routes>
+      <ErrorBoundary>
+        <AuthProvider>
+          <NotificationProvider>
+            <Routes>
             {/* Public Layout */}
             <Route element={<MainLayout />}>
               <Route path="/" element={<Home />} />
@@ -133,6 +135,7 @@ function App() {
           </Routes>
         </NotificationProvider>
       </AuthProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

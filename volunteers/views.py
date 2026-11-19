@@ -35,6 +35,7 @@ class VolunteerStatusUpdateView(APIView):
     @extend_schema(
         summary="Update Volunteer Live Status",
         description="Volunteer toggles availability, updates GPS coordinates, or adjusts max rescue distance.",
+        request=VolunteerProfileSerializer,
         responses={200: VolunteerProfileSerializer}
     )
     def patch(self, request):

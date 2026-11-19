@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from . import views
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -7,6 +8,7 @@ from drf_spectacular.views import (
 )
 
 urlpatterns = [
+    path('', views.home, name='home'),
     path('admin/', admin.site.urls),
     
     # OpenAPI 3 Schema & Interactive Swagger / ReDoc Documentation

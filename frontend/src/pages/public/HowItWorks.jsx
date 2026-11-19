@@ -10,7 +10,8 @@ export const HowItWorks = () => {
       actor: 'Restaurants, Hotels, Caterers',
       desc: 'When kitchen shifts end or banquets conclude, the donor logs into FoodResQ and lists the remaining food batch. They specify the quantity in kg, dietary flags (Veg, Non-Veg), time prepared, and exact consumption expiry deadline.',
       icon: Utensils,
-      color: '#10b981',
+      color: '#09090b',
+      image: '/images/chef_donor_logging.jpg',
     },
     {
       num: '02',
@@ -18,7 +19,8 @@ export const HowItWorks = () => {
       actor: 'FoodResQ AI Algorithm',
       desc: 'The backend engine instantly calculates multi-factor compatibility scores across nearby verified NGOs. It weighs remaining hours until expiry (urgency decay), travel distance, recipient storage capacity, and accepted food types.',
       icon: Sparkles,
-      color: '#0ea5e9',
+      color: '#27272a',
+      image: '/images/hero_food_rescue.jpg',
     },
     {
       num: '03',
@@ -26,7 +28,7 @@ export const HowItWorks = () => {
       actor: 'Charities & Donors',
       desc: 'Matched NGOs receive real-time notifications and request the food batch. The donor approves the request with a single click, instantly transitioning the donation to APPROVED status and generating a volunteer dispatch task.',
       icon: CheckCircle2,
-      color: '#8b5cf6',
+      color: '#09090b',
     },
     {
       num: '04',
@@ -34,7 +36,8 @@ export const HowItWorks = () => {
       actor: 'Volunteer Drivers & Couriers',
       desc: 'A nearby volunteer claims the rescue mission. They pick up the food from the donor kitchen, inspect thermal packaging, mark food as COLLECTED, and safely transport it directly to the NGO delivery address.',
       icon: Truck,
-      color: '#f59e0b',
+      color: '#27272a',
+      image: '/images/volunteer_transit.jpg',
     },
     {
       num: '05',
@@ -42,7 +45,8 @@ export const HowItWorks = () => {
       actor: 'NGO & Community',
       desc: 'The NGO inspects the food batch, confirms receipt, and provides feedback rating. The rescue is marked COMPLETED, and the platform updates live metrics: kilograms saved, meals served, and carbon emissions averted.',
       icon: CheckCircle2,
-      color: '#10b981',
+      color: '#09090b',
+      image: '/images/food_bank_distribution.jpg',
     },
   ];
 
@@ -99,19 +103,40 @@ export const HowItWorks = () => {
                     </span>
                   </div>
                   <h3 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '0.6rem' }}>{s.title}</h3>
-                  <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{s.desc}</p>
+                  <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: s.image ? '1rem' : 0 }}>
+                    {s.desc}
+                  </p>
+                  {s.image && (
+                    <div
+                      style={{
+                        borderRadius: 'var(--radius-md)',
+                        overflow: 'hidden',
+                        height: '210px',
+                        width: '100%',
+                        marginTop: '0.85rem',
+                        border: '1px solid var(--border)',
+                        boxShadow: 'var(--shadow-sm)',
+                      }}
+                    >
+                      <img
+                        src={s.image}
+                        alt={s.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div style={{ textAlign: 'center', background: 'linear-gradient(135deg, #064e3b, #0f172a)', padding: '3rem 2rem', borderRadius: 'var(--radius-lg)', color: '#fff' }}>
+        <div style={{ textAlign: 'center', background: 'linear-gradient(135deg, #09090b 0%, #18181b 100%)', padding: '3.5rem 2rem', borderRadius: 'var(--radius-xl)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <h2 style={{ fontSize: '1.85rem', fontWeight: 800, marginBottom: '0.75rem', color: '#fff' }}>Ready to Save Food with Us?</h2>
-          <p style={{ color: '#cbd5e1', marginBottom: '1.5rem', maxWidth: '520px', margin: '0 auto 1.5rem' }}>
+          <p style={{ color: '#a1a1aa', marginBottom: '1.5rem', maxWidth: '520px', margin: '0 auto 1.5rem' }}>
             Whether you are a commercial kitchen with excess portions or a volunteer with a bike or car, your community needs you.
           </p>
-          <Link to="/register" className="btn btn-primary btn-lg">
+          <Link to="/register" className="btn btn-primary btn-lg" style={{ background: '#ffffff', color: '#09090b', borderColor: '#ffffff' }}>
             <span>Get Started Today</span>
             <ArrowRight size={18} />
           </Link>

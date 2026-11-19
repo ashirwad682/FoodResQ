@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { HeartHandshake, LogIn, AlertCircle, Sparkles, ShieldCheck } from 'lucide-react';
+import {
+  HeartHandshake,
+  LogIn,
+  AlertCircle,
+  Sparkles,
+  ShieldCheck,
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  CheckCircle2,
+  Building2,
+  Truck,
+  Award,
+} from 'lucide-react';
 
 export const Login = () => {
   const { login } = useAuth();
@@ -10,188 +25,534 @@ export const Login = () => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedDemo, setSelectedDemo] = useState(null);
 
-  // Quick Demo Logins
+  // Pre-configured Demo Accounts
   const demoUsers = [
-    { role: 'DONOR', name: 'Spice Garden (Donor)', user: 'donor_spice', pass: 'Donor@12345', color: '#10b981' },
-    { role: 'NGO', name: 'Feed Hope Foundation', user: 'ngo_feedhope', pass: 'Ngo@12345', color: '#3b82f6' },
-    { role: 'VOLUNTEER', name: 'Arun Kumar (Rider)', user: 'vol_arun', pass: 'Volunteer@12345', color: '#8b5cf6' },
-    { role: 'ADMIN', name: 'Platform Admin', user: 'admin', pass: 'Admin@12345', color: '#f59e0b' },
+    {
+      role: 'DONOR',
+      label: 'The Spice Garden',
+      user: 'donor_spice',
+      pass: 'Donor@12345',
+      icon: Building2,
+      tag: 'Restaurant',
+      color: '#10b981',
+      bg: '#ecfdf5',
+    },
+    {
+      role: 'NGO',
+      label: 'FeedHope Foundation',
+      user: 'ngo_feedhope',
+      pass: 'Ngo@12345',
+      icon: HeartHandshake,
+      tag: 'Food Bank',
+      color: '#3b82f6',
+      bg: '#eff6ff',
+    },
+    {
+      role: 'VOLUNTEER',
+      label: 'Arun Kumar',
+      user: 'vol_arun',
+      pass: 'Volunteer@12345',
+      icon: Truck,
+      tag: 'Rescue Rider',
+      color: '#8b5cf6',
+      bg: '#f5f3ff',
+    },
+    {
+      role: 'ADMIN',
+      label: 'Platform Admin',
+      user: 'admin',
+      pass: 'Admin@12345',
+      icon: ShieldCheck,
+      tag: 'Superuser',
+      color: '#f59e0b',
+      bg: '#fffbeb',
+    },
   ];
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
+    if (!username.trim() || !password) {
+      setError('Please enter both username and password.');
+      return;
+    }
     setError('');
     setLoading(true);
 
     try {
-      const data = await login(username, password);
-      // Route based on role
+      const data = await login(username.trim(), password);
       const role = data.user.role;
       const destination = location.state?.from?.pathname || (
         role === 'DONOR' ? '/donor/dashboard' :
         role === 'NGO' ? '/ngo/dashboard' :
-        role === 'VOLUNTEER' ? '/volunteer/dashboard' : '/'
+        role === 'VOLUNTEER' ? '/volunteer/dashboard' :
+        role === 'ADMIN' ? '/admin' : '/'
       );
       navigate(destination, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data?.error || 'Invalid credentials. Please verify username and password.');
+      const apiMsg = err.response?.data?.detail || err.response?.data?.error;
+      setError(apiMsg || 'Invalid credentials. Please verify your username and password.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDemoLogin = (user, pass) => {
-    setUsername(user);
-    setPassword(pass);
-    login(user, pass)
-      .then((data) => {
-        const role = data.user.role;
-        const destination =
-          role === 'DONOR' ? '/donor/dashboard' :
-          role === 'NGO' ? '/ngo/dashboard' :
-          role === 'VOLUNTEER' ? '/volunteer/dashboard' : '/';
-        navigate(destination, { replace: true });
-      })
-      .catch((err) => {
-        setError('Demo authentication failed. Please try typing manually.');
-      });
+  const handleDemoSelect = async (demo) => {
+    setSelectedDemo(demo.role);
+    setUsername(demo.user);
+    setPassword(demo.pass);
+    setError('');
+    setLoading(true);
+
+    try {
+      const data = await login(demo.user, demo.pass);
+      const role = data.user.role;
+      const destination =
+        role === 'DONOR' ? '/donor/dashboard' :
+        role === 'NGO' ? '/ngo/dashboard' :
+        role === 'VOLUNTEER' ? '/volunteer/dashboard' :
+        role === 'ADMIN' ? '/admin' : '/';
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setError('Demo authentication failed. Please enter credentials manually.');
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem 1rem', background: 'var(--bg-alt)' }}>
-      <div style={{ maxWidth: '460px', width: '100%' }}>
-        {/* Card */}
-        <div className="card auth-card">
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <div style={{
-              width: '54px',
-              height: '54px',
-              borderRadius: '14px',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              marginBottom: '1rem',
-              boxShadow: '0 8px 16px rgba(16, 185, 129, 0.25)'
-            }}>
-              <HeartHandshake size={28} />
-            </div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
-              Welcome to FoodResQ
+    <div
+      style={{
+        minHeight: 'calc(100vh - 80px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2.5rem 1.25rem',
+        background: 'linear-gradient(135deg, #09090b 0%, #121215 50%, #09090b 100%)',
+        color: '#ffffff',
+        position: 'relative',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1040px',
+          width: '100%',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          borderRadius: 'var(--radius-xl)',
+          overflow: 'hidden',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: '#ffffff',
+        }}
+      >
+        {/* Left Hero Column - Illustration */}
+        <div
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(160deg, #18181b 0%, #09090b 100%)',
+            padding: '1.5rem',
+            minHeight: '480px',
+          }}
+        >
+          {/* Ambient blurred backdrop so the container feels unified */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: "url('/images/login_hero.jpg')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'blur(28px) brightness(0.35)',
+              transform: 'scale(1.25)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          <img
+            src="/images/login_hero.jpg"
+            alt="FoodResQ • Rescue Surplus, Nourish Lives"
+            style={{
+              position: 'relative',
+              zIndex: 1,
+              width: '100%',
+              height: '100%',
+              maxHeight: '560px',
+              objectFit: 'contain',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: '0 20px 40px -8px rgba(0, 0, 0, 0.65)',
+              border: '1px solid rgba(255, 255, 255, 0.14)',
+              display: 'block',
+            }}
+          />
+        </div>
+
+        {/* Right Form Column */}
+        <div
+          style={{
+            padding: '3rem 2.75rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            background: '#ffffff',
+          }}
+        >
+          {/* Header */}
+          <div style={{ marginBottom: '1.75rem' }}>
+            <span
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'var(--primary)',
+                background: 'var(--primary-light)',
+                padding: '0.3rem 0.75rem',
+                borderRadius: 'var(--radius-full)',
+                display: 'inline-block',
+                marginBottom: '0.75rem',
+              }}
+            >
+              Secure Portal Access
+            </span>
+            <h1
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.02em',
+                marginBottom: '0.35rem',
+              }}
+            >
+              Sign In to Your Account
             </h1>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-              Sign in to rescue meals and transform communities
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              Enter your credentials or choose a 1-click verified role below.
             </p>
           </div>
 
-          {/* Quick Demo Access Bar */}
-          <div style={{
-            background: 'var(--bg-alt)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1rem',
-            marginBottom: '1.75rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <Sparkles size={16} color="var(--primary)" />
-              <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
-                1-Click Instant Demo Login
-              </span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-              {demoUsers.map((d) => (
-                <button
-                  key={d.user}
-                  type="button"
-                  onClick={() => handleDemoLogin(d.user, d.pass)}
-                  className="btn btn-sm"
+          {/* Quick Demo Selector */}
+          <div
+            style={{
+              background: '#f8fafc',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '1rem',
+              marginBottom: '1.75rem',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '0.75rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <Sparkles size={15} color="var(--primary)" />
+                <span
                   style={{
-                    background: '#fff',
-                    border: '1px solid var(--border)',
-                    fontSize: '0.75rem',
-                    justifyContent: 'flex-start',
-                    padding: '0.45rem 0.6rem',
-                    borderRadius: 'var(--radius-sm)'
+                    fontSize: '0.76rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: 'var(--text-secondary)',
                   }}
                 >
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: d.color, display: 'inline-block', marginRight: '0.4rem' }}></span>
-                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{d.role}</span>
-                </button>
-              ))}
+                  1-Click Role Switcher (Pre-Seeded)
+                </span>
+              </div>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Auto-logs in</span>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '0.5rem',
+              }}
+            >
+              {demoUsers.map((d) => {
+                const Icon = d.icon;
+                const isSelected = selectedDemo === d.role;
+                return (
+                  <button
+                    key={d.role}
+                    type="button"
+                    onClick={() => handleDemoSelect(d)}
+                    style={{
+                      background: isSelected ? d.bg : '#ffffff',
+                      border: `1.5px solid ${isSelected ? d.color : 'var(--border)'}`,
+                      borderRadius: 'var(--radius-md)',
+                      padding: '0.6rem 0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.6rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease',
+                      boxShadow: isSelected ? 'var(--shadow-sm)' : 'none',
+                    }}
+                    title={`Login as ${d.role}`}
+                  >
+                    <div
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '8px',
+                        background: d.bg,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: d.color,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Icon size={15} />
+                    </div>
+                    <div style={{ overflow: 'hidden', flex: 1 }}>
+                      <div
+                        style={{
+                          fontSize: '0.78rem',
+                          fontWeight: 700,
+                          color: 'var(--text-primary)',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {d.role}
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                        {d.tag}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
+          {/* Error Message */}
           {error && (
-            <div style={{
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              color: 'var(--danger)',
-              padding: '0.75rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '0.85rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              marginBottom: '1.25rem'
-            }}>
-              <AlertCircle size={16} />
-              <span>{error}</span>
+            <div
+              style={{
+                background: '#fef2f2',
+                border: '1px solid #fecaca',
+                color: 'var(--danger)',
+                padding: '0.85rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                marginBottom: '1.25rem',
+                animation: 'fadeIn 0.2s ease',
+              }}
+            >
+              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+              <span style={{ lineHeight: 1.4 }}>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+          {/* Form */}
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div className="form-group">
-              <label className="form-label" htmlFor="username">Username or Email</label>
-              <input
-                id="username"
-                type="text"
-                className="form-control"
-                placeholder="e.g. donor_spice"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
+              <label
+                className="form-label"
+                htmlFor="username"
+                style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-secondary)' }}
+              >
+                Username or Email Address
+              </label>
+              <div style={{ position: 'relative' }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <User size={17} />
+                </div>
+                <input
+                  id="username"
+                  type="text"
+                  className="form-control"
+                  style={{ paddingLeft: '2.4rem', height: '46px', fontSize: '0.92rem' }}
+                  placeholder="e.g. donor_spice, vol_arun"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                  required
+                />
+              </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                className="form-control"
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label
+                  className="form-label"
+                  htmlFor="password"
+                  style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-secondary)' }}
+                >
+                  Password
+                </label>
+                <span
+                  style={{
+                    fontSize: '0.78rem',
+                    color: 'var(--primary)',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => alert('Demo passwords follow the standard pattern: Donor@12345, Ngo@12345, Volunteer@12345, Admin@12345.')}
+                >
+                  Default credentials?
+                </span>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <Lock size={17} />
+                </div>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-control"
+                  style={{ paddingLeft: '2.4rem', paddingRight: '2.5rem', height: '46px', fontSize: '0.92rem' }}
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px',
+                  }}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
               className="btn btn-primary"
-              style={{ width: '100%', marginTop: '0.5rem', padding: '0.75rem' }}
+              style={{
+                width: '100%',
+                height: '48px',
+                marginTop: '0.5rem',
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                boxShadow: 'var(--shadow-md)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+              }}
             >
-              <LogIn size={18} />
-              <span>{loading ? 'Authenticating...' : 'Sign In'}</span>
+              {loading ? (
+                <>
+                  <div
+                    style={{
+                      width: '16px',
+                      height: '16px',
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      borderTopColor: '#fff',
+                      borderRadius: '50%',
+                      animation: 'spin 0.6s linear infinite',
+                    }}
+                  />
+                  <span>Authenticating...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight size={17} />
+                </>
+              )}
             </button>
           </form>
 
-          <div style={{ marginTop: '1.75rem', textAlign: 'center', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-            Don't have an account yet?{' '}
-            <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
+          {/* Registration Link */}
+          <div
+            style={{
+              marginTop: '2rem',
+              paddingTop: '1.5rem',
+              borderTop: '1px solid var(--border)',
+              textAlign: 'center',
+              fontSize: '0.88rem',
+              color: 'var(--text-secondary)',
+            }}
+          >
+            Don't have an enterprise account?{' '}
+            <Link
+              to="/register"
+              style={{
+                color: 'var(--primary)',
+                fontWeight: 700,
+                textDecoration: 'none',
+              }}
+            >
               Register here
             </Link>
           </div>
-        </div>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
-          <ShieldCheck size={16} color="var(--primary)" />
-          <span>FSSAI Compliant & JWT 256-bit Encrypted Platform</span>
+          {/* Security footnote */}
+          <div
+            style={{
+              textAlign: 'center',
+              marginTop: '1.25rem',
+              fontSize: '0.74rem',
+              color: 'var(--text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <ShieldCheck size={14} color="var(--primary)" />
+            <span>256-bit JWT Encryption • MongoDB Atlas Cloud Protected</span>
+          </div>
         </div>
       </div>
     </div>

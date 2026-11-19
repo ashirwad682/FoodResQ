@@ -49,6 +49,44 @@ export const Impact = () => {
           </p>
         </div>
 
+        {/* Community Distribution Impact Banner */}
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 'var(--radius-xl)',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-xl)',
+            marginBottom: '3.5rem',
+            border: '1px solid var(--border)',
+            height: '280px',
+          }}
+        >
+          <img
+            src="/images/food_bank_distribution.jpg"
+            alt="Food Bank Community Distribution"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(9, 9, 11, 0.92) 0%, rgba(9, 9, 11, 0.3) 60%, transparent 100%)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              padding: '2rem',
+              color: '#ffffff',
+            }}
+          >
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#d4d4d8' }}>
+              Direct Community Impact
+            </span>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', marginTop: '0.25rem' }}>
+              Over 100,000+ Nutritious Meals Delivered to Local Families & Shelters
+            </h2>
+          </div>
+        </div>
+
         {/* Top 4 Impact Stat Cards */}
         <div className="grid grid-cols-4 gap-6" style={{ marginBottom: '3.5rem' }}>
           <StatCard

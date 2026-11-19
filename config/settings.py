@@ -71,29 +71,33 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # MongoDB Database Configuration using django_mongodb_backend
 ATLAS_URI = (
-    'mongodb+srv://ashirwad682_db_user:3dDV7qqOLMh1ex1t@foodresq.2mspqrj.mongodb.net/foodresq_db?appName=FoodResQ'
+    'mongodb+srv://ashirwad682_db_user:7PRhEeR2zXia0ZXm@foodresq.iphq7jm.mongodb.net/foodresq_db?retryWrites=true&w=majority&appName=FoodResQ'
 )
 DEFAULT_LOCAL_URI = 'mongodb://localhost:27017/foodresq_db'
+
+env_file = BASE_DIR / '.env'
+if env_file.exists():
+    with open(env_file) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                k, v = line.split('=', 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 env_uri = os.environ.get('MONGODB_URI')
 if env_uri:
     SELECTED_MONGO_URI = env_uri
 else:
-    # Test Atlas connectivity with short timeout to detect IP whitelist issues
-    try:
-        import pymongo
-        client = pymongo.MongoClient(ATLAS_URI, serverSelectionTimeoutMS=2000)
-        client.admin.command('ping')
-        SELECTED_MONGO_URI = ATLAS_URI
-        print("✓ Connected directly to MongoDB Atlas Cloud Cluster.")
-    except Exception as e:
-        SELECTED_MONGO_URI = DEFAULT_LOCAL_URI
-        print("\n" + "=" * 70)
-        print("⚠️  NOTICE: MongoDB Atlas connection pending IP Whitelist.")
-        print("   Current IP is blocked by Atlas Network Access (SSL alert 80).")
-        print("   → Running on local MongoDB (localhost:27017) with identical schema.")
-        print("   → To switch to Atlas, add your IP or 0.0.0.0/0 to Atlas Network Access.")
-        print("=" * 70 + "\n")
+    SELECTED_MONGO_URI = ATLAS_URI
+
+# Verify connectivity on startup
+try:
+    import pymongo
+    client = pymongo.MongoClient(SELECTED_MONGO_URI, serverSelectionTimeoutMS=4000)
+    client.admin.command('ping')
+    print("✓ Connected directly to MongoDB Atlas Cloud Cluster.")
+except Exception as e:
+    print(f"⚠️  MongoDB Atlas connection notice: {e}")
 
 DATABASES = {
     'default': {

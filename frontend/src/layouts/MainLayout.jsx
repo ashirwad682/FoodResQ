@@ -94,7 +94,7 @@ export const MainLayout = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#ffffff',
-                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
               }}
             >
               <HeartHandshake size={22} />

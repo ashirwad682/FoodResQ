@@ -10,11 +10,7 @@ export const NotificationProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchNotifications = useCallback(async () => {
-    if (!isAuthenticated) {
-      setNotifications([]);
-      setUnreadCount(0);
-      return;
-    }
+    if (!isAuthenticated) return;
     try {
       const data = await notificationService.getNotifications();
       const list = Array.isArray(data) ? data : data.results || [];
@@ -26,8 +22,12 @@ export const NotificationProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
     fetchNotifications();
-    if (!isAuthenticated) return;
     const interval = setInterval(fetchNotifications, 15000); // Poll every 15s
     return () => clearInterval(interval);
   }, [isAuthenticated, fetchNotifications]);
