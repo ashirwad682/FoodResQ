@@ -21,15 +21,22 @@ export const VolunteerDashboard = () => {
       try {
         const [activeData, assignData] = await Promise.all([
           volunteerService.getActiveAssignment().catch(() => null),
-          pickupService.getAssignments().catch(() => []),
+          pickupService.getAssignments({ filter: 'available' }).catch(() => []),
         ]);
 
         setActiveMission(activeData);
 
         const all = assignData.results || assignData || [];
-        // Available assignments = not yet accepted or assigned
-        setAvailableAssignments(all.filter((a) => a.status === 'ASSIGNED' && !a.volunteer));
-        setCompletedCount(all.filter((a) => a.status === 'COMPLETED').length);
+        // Available assignments = awaiting volunteer dispatch
+        setAvailableAssignments(
+          all.filter(
+            (a) =>
+              a.status === 'PENDING_VOLUNTEER' ||
+              (!a.volunteer && a.status !== 'CONFIRMED_BY_NGO' && a.status !== 'DELIVERED')
+          )
+        );
+        // Completed count from user's volunteer profile or history
+        setCompletedCount(user?.volunteer_profile?.total_pickups_completed || 0);
       } catch (err) {
         console.error('Failed to load volunteer data', err);
       } finally {

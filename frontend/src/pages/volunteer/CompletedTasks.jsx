@@ -10,9 +10,9 @@ export const CompletedTasks = () => {
   useEffect(() => {
     const fetchCompleted = async () => {
       try {
-        const data = await pickupService.getAssignments();
+        const data = await pickupService.getAssignments({ filter: 'mine' });
         const list = data.results || data || [];
-        setTasks(list.filter((a) => a.status === 'COMPLETED'));
+        setTasks(list.filter((a) => a.status === 'CONFIRMED_BY_NGO' || a.status === 'COMPLETED' || a.status === 'DELIVERED'));
       } catch (err) {
         console.error('Failed to load completed tasks', err);
       } finally {

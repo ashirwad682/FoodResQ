@@ -258,8 +258,7 @@ class ListAvailableAssignmentsView(generics.ListAPIView):
                 return PickupAssignment.objects.filter(volunteer=user).order_by('-assigned_at')
             elif filter_type == 'available':
                 return PickupAssignment.objects.filter(
-                    status=PickupAssignmentStatus.PENDING_VOLUNTEER,
-                    volunteer__isnull=True
+                    status=PickupAssignmentStatus.PENDING_VOLUNTEER
                 ).order_by('-assigned_at')
             return PickupAssignment.objects.filter(
                 models.Q(volunteer=user) | models.Q(status=PickupAssignmentStatus.PENDING_VOLUNTEER)
@@ -337,6 +336,7 @@ class CollectFoodView(APIView):
     @extend_schema(
         summary="Confirm Food Collected",
         description="Volunteer confirms collecting the food batch from donor premises.",
+        request=None,
         responses={200: PickupAssignmentSerializer}
     )
     def post(self, request, pk):
@@ -436,6 +436,7 @@ class ConfirmDeliveryView(APIView):
     @extend_schema(
         summary="Confirm Delivery & Complete Mission",
         description="NGO verifies and confirms delivery receipt. Marks food rescue mission COMPLETED.",
+        request=None,
         responses={200: OpenApiResponse(description="Rescue completed successfully.")}
     )
     def post(self, request, pk):

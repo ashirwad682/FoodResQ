@@ -67,7 +67,8 @@ export const Home = () => {
     if (activeCategory === 'COOKED' && d.food_type === 'COOKED_MEAL') return true;
     if (activeCategory === 'BAKERY' && (d.food_type === 'BAKERY' || d.title.toLowerCase().includes('bread') || d.title.toLowerCase().includes('bake'))) return true;
     if (activeCategory === 'GROCERY' && (d.food_type === 'RAW_INGREDIENTS' || d.food_type === 'PACKAGED_FOOD')) return true;
-    if (activeCategory === 'CRITICAL' && (d.priority === 'CRITICAL' || d.priority === 'HIGH')) return true;
+    const pLevel = typeof d.priority === 'object' ? d.priority?.priority_level : d.priority;
+    if (activeCategory === 'CRITICAL' && (pLevel === 'CRITICAL' || pLevel === 'HIGH')) return true;
     return true;
   });
 
@@ -87,7 +88,8 @@ export const Home = () => {
         'Zero logistical hassle: volunteer couriers handle transportation.',
       ],
       tag: 'Step 1 • Surplus Intake',
-      color: '#10b981',
+      color: '#09090b',
+      image: '/images/chef_donor_logging.jpg',
     },
     2: {
       title: 'Real-Time AI Priority Engine',
@@ -98,7 +100,8 @@ export const Home = () => {
         'Automated dispatch alerts sent to pre-verified nearby food banks.',
       ],
       tag: 'Step 2 • Smart Matching',
-      color: '#0ea5e9',
+      color: '#27272a',
+      image: '/images/hero_food_rescue.jpg',
     },
     3: {
       title: 'Volunteer Logistics Fleet',
@@ -109,7 +112,8 @@ export const Home = () => {
         'Live turn-by-turn routing minimizes transit time to under 30 minutes.',
       ],
       tag: 'Step 3 • Chain-of-Custody Delivery',
-      color: '#f59e0b',
+      color: '#09090b',
+      image: '/images/volunteer_transit.jpg',
     },
     4: {
       title: 'Dignified Community Distribution',
@@ -120,7 +124,8 @@ export const Home = () => {
         'Closed-loop status update confirms delivery to donor within seconds.',
       ],
       tag: 'Step 4 • Community Impact',
-      color: '#8b5cf6',
+      color: '#27272a',
+      image: '/images/food_bank_distribution.jpg',
     },
   };
 
@@ -152,10 +157,10 @@ export const Home = () => {
       {/* Hero Section */}
       <section
         style={{
-          background: 'radial-gradient(ellipse at top, #064e3b 0%, #0a1f1c 45%, #090d16 100%)',
+          background: "linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(15, 23, 42, 0.94) 100%), url('/images/hero_food_rescue.jpg') center/cover no-repeat",
+          position: 'relative',
           color: '#ffffff',
           padding: '5rem 0 6.5rem',
-          position: 'relative',
           overflow: 'hidden',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         }}
@@ -169,7 +174,7 @@ export const Home = () => {
             transform: 'translateX(-50%)',
             width: '800px',
             height: '450px',
-            background: 'radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%)',
             filter: 'blur(60px)',
             pointerEvents: 'none',
           }}
@@ -184,13 +189,13 @@ export const Home = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.6rem',
-                  background: 'rgba(16, 185, 129, 0.15)',
-                  border: '1px solid rgba(16, 185, 129, 0.35)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.22)',
                   borderRadius: 'var(--radius-full)',
                   padding: '0.4rem 1.1rem',
                   fontSize: '0.85rem',
                   fontWeight: 700,
-                  color: '#34d399',
+                  color: '#f8fafc',
                   marginBottom: '1.5rem',
                 }}
               >
@@ -332,21 +337,55 @@ export const Home = () => {
                 {/* Simulated Batch Showcase */}
                 <div
                   style={{
-                    background: 'rgba(15, 23, 42, 0.85)',
+                    background: 'rgba(24, 24, 27, 0.95)',
                     borderRadius: 'var(--radius-md)',
-                    padding: '1.25rem',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
                     marginBottom: '1rem',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                    <h4 style={{ color: '#f8fafc', fontSize: '1.1rem', fontWeight: 700 }}>
-                      Royal Orchid Caterers — Fresh Buffet Trays
-                    </h4>
+                  <div style={{ position: 'relative', height: '140px', overflow: 'hidden' }}>
+                    <img
+                      src="/images/chef_donor_logging.jpg"
+                      alt="Chef logging surplus food"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(to top, rgba(24, 24, 27, 0.95) 0%, rgba(24, 24, 27, 0.2) 60%, transparent 100%)',
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: '8px',
+                        left: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: 'rgba(0, 0, 0, 0.75)',
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.72rem',
+                        color: '#ffffff',
+                      }}
+                    >
+                      <Utensils size={12} />
+                      <span>Live Commercial Kitchen Dispatch</span>
+                    </div>
                   </div>
-                  <p style={{ color: '#94a3b8', fontSize: '0.82rem', marginBottom: '0.85rem' }}>
-                    Surplus steamed basmati rice, paneer butter masala & whole wheat rotis. Cooked 2 hours ago.
-                  </p>
+
+                  <div style={{ padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                      <h4 style={{ color: '#f8fafc', fontSize: '1.1rem', fontWeight: 700 }}>
+                        Royal Orchid Caterers — Fresh Buffet Trays
+                      </h4>
+                    </div>
+                    <p style={{ color: '#94a3b8', fontSize: '0.82rem', marginBottom: '0.85rem' }}>
+                      Surplus steamed basmati rice, paneer butter masala & whole wheat rotis. Cooked 2 hours ago.
+                    </p>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', textAlign: 'center', marginBottom: '1rem' }}>
                     <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '0.6rem 0.4rem', borderRadius: 'var(--radius-sm)' }}>
@@ -370,6 +409,7 @@ export const Home = () => {
                     </div>
                     <span style={{ color: '#34d399', fontWeight: 600 }}>3 NGOs In Radius</span>
                   </div>
+                </div>
                 </div>
 
                 {/* Simulated Real-Time Dispatch Status */}
@@ -713,33 +753,60 @@ export const Home = () => {
               {/* Graphic / Visual Box for Step */}
               <div
                 style={{
-                  background: 'var(--bg-alt)',
+                  background: '#ffffff',
                   borderRadius: 'var(--radius-lg)',
-                  padding: '2rem',
+                  overflow: 'hidden',
                   border: '1px solid var(--border)',
+                  boxShadow: 'var(--shadow-md)',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '1rem',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', fontWeight: 700 }}>
-                  <span style={{ color: 'var(--text-primary)' }}>System Benchmark</span>
-                  <span style={{ color: 'var(--primary)' }}>Real-Time Validated</span>
+                <div style={{ position: 'relative', height: '230px', width: '100%', overflow: 'hidden' }}>
+                  <img
+                    src={stepDetails[activeStepTab].image}
+                    alt={stepDetails[activeStepTab].title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '10px',
+                      left: '12px',
+                      background: 'rgba(9, 9, 11, 0.88)',
+                      color: '#ffffff',
+                      padding: '4px 10px',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {stepDetails[activeStepTab].tag}
+                  </div>
                 </div>
 
-                <div style={{ background: '#ffffff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Average Matching Speed</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>&lt; 90 Seconds</div>
-                </div>
+                <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', fontWeight: 700 }}>
+                    <span style={{ color: 'var(--text-primary)' }}>System Benchmark</span>
+                    <span style={{ color: '#09090b', background: '#f4f4f5', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                      Real-Time Validated
+                    </span>
+                  </div>
 
-                <div style={{ background: '#ffffff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Cold-Chain Preservation Rate</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981' }}>99.4% Validated</div>
-                </div>
-
-                <div style={{ background: '#ffffff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Direct Beneficiary Cost</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#3b82f6' }}>₹0.00 (100% Free)</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                    <div style={{ background: '#f4f4f5', padding: '0.65rem 0.4rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Match Speed</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>&lt; 90s</div>
+                    </div>
+                    <div style={{ background: '#f4f4f5', padding: '0.65rem 0.4rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Cold-Chain</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#09090b' }}>99.4%</div>
+                    </div>
+                    <div style={{ background: '#f4f4f5', padding: '0.65rem 0.4rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Charity Cost</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>₹0 (Free)</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1109,7 +1176,11 @@ export const Home = () => {
                 </div>
                 <div>
                   <span style={{ color: 'var(--text-muted)' }}>Priority Level: </span>
-                  <strong style={{ color: 'var(--primary)' }}>{selectedBatchModal.priority || 'NORMAL'}</strong>
+                  <strong style={{ color: 'var(--primary)' }}>
+                    {typeof selectedBatchModal.priority === 'object'
+                      ? (selectedBatchModal.priority?.priority_level || 'NORMAL')
+                      : (selectedBatchModal.priority || 'NORMAL')}
+                  </strong>
                 </div>
               </div>
             </div>

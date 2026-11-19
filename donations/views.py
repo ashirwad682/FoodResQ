@@ -61,7 +61,18 @@ class FoodDonationListCreateView(generics.ListCreateAPIView):
             profile.save()
 
         # Log initial status history
-        from pickups.models import DonationStatusHistory
+        from pickups.models import (
+            DonationStatusHistory,
+            PickupRequest,
+            PickupAssignment,
+            PickupRequestStatus,
+            PickupAssignmentStatus,
+        )
+        from organizations.models import Organization
+        from notifications.models import Notification, NotificationType
+        from accounts.models import VolunteerProfile
+        from matching.services import SmartMatchingEngine
+
         DonationStatusHistory.objects.create(
             donation=donation,
             old_status='',
@@ -70,11 +81,49 @@ class FoodDonationListCreateView(generics.ListCreateAPIView):
             notes='Food donation posted and verified on FoodResQ platform.'
         )
 
-        # Broadcast notifications to verified NGOs and active volunteers
-        from organizations.models import Organization
-        from notifications.models import Notification, NotificationType
-        from accounts.models import VolunteerProfile
+        # Auto-match with closest/highest-priority verified NGO and create ready-to-dispatch pickup assignment
+        top_ngos = SmartMatchingEngine.rank_ngos_for_donation(donation, max_results=1)
+        target_org = None
+        if top_ngos:
+            try:
+                target_org = Organization.objects.get(pk=top_ngos[0]['organization_id'])
+            except Organization.DoesNotExist:
+                pass
+        if not target_org:
+            target_org = Organization.objects.filter(is_verified=True).first() or Organization.objects.first()
 
+        if target_org:
+            pickup_req, _ = PickupRequest.objects.get_or_create(
+                donation=donation,
+                organization=target_org,
+                defaults={
+                    'requested_by': target_org.user,
+                    'requested_quantity_kg': donation.quantity_kg,
+                    'status': PickupRequestStatus.APPROVED,
+                    'notes': f'Auto-matched for immediate community rescue by {target_org.name}.'
+                }
+            )
+            PickupAssignment.objects.get_or_create(
+                pickup_request=pickup_req,
+                defaults={
+                    'status': PickupAssignmentStatus.PENDING_VOLUNTEER,
+                    'volunteer': None
+                }
+            )
+            # Keep donation status AVAILABLE for NGO discovery and requests,
+            # while the pickup assignment is ready in PENDING_VOLUNTEER for volunteers
+            donation.status = DonationStatus.AVAILABLE
+            donation.save()
+
+            DonationStatusHistory.objects.create(
+                donation=donation,
+                old_status='',
+                new_status=DonationStatus.AVAILABLE,
+                changed_by=self.request.user,
+                notes=f"Auto-matched with {target_org.name}. Ready for volunteer pickup or direct NGO request."
+            )
+
+        # Broadcast notifications to verified NGOs and active volunteers
         verified_ngos = Organization.objects.filter(is_verified=True)
         for ngo in verified_ngos:
             Notification.objects.create(
@@ -89,9 +138,9 @@ class FoodDonationListCreateView(generics.ListCreateAPIView):
         for vol in available_volunteers:
             Notification.objects.create(
                 recipient=vol.user,
-                title='New Food Rescue in Area',
-                message=f"'{donation.title}' ({donation.quantity_kg} kg) has been posted for rescue.",
-                notification_type=NotificationType.NEW_DONATION,
+                title='New Rescue Mission Available',
+                message=f"Pickup for '{donation.title}' ({donation.quantity_kg} kg) is ready to claim.",
+                notification_type=NotificationType.PICKUP_ASSIGNED,
                 related_donation_id=str(donation.id)
             )
 

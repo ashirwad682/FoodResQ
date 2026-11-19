@@ -58,6 +58,44 @@ export const FoodSafety = () => {
           </p>
         </div>
 
+        {/* Safety & Chain-of-Custody Visual Banner */}
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 'var(--radius-xl)',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-xl)',
+            marginBottom: '3.5rem',
+            border: '1px solid var(--border)',
+            height: '280px',
+          }}
+        >
+          <img
+            src="/images/hero_food_rescue.jpg"
+            alt="Food Safety & Cold-Chain Transit"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(9, 9, 11, 0.92) 0%, rgba(9, 9, 11, 0.35) 60%, transparent 100%)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              padding: '2rem',
+              color: '#ffffff',
+            }}
+          >
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#d4d4d8' }}>
+              FSSAI & Good Samaritan Compliant
+            </span>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', marginTop: '0.25rem' }}>
+              Thermal Chain-of-Custody & Real-Time Expiry Verification
+            </h2>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-8" style={{ marginBottom: '4rem' }}>
           {guidelines.map((g) => {
             const Icon = g.icon;

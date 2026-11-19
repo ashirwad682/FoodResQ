@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import introBg from '../assets/intro-bg.jpg';
+import loginBg from '../assets/login-bg.jpg';
+import dashboardBg from '../assets/dashboard-bg.jpg';
 import {
   HeartHandshake,
   LayoutDashboard,
@@ -281,7 +285,7 @@ export const DashboardLayout = () => {
       </aside>
 
       {/* Main App Container */}
-      <div className="dashboard-main">
+      <div style={{ backgroundImage: `url(${dashboardBg})`, backgroundSize: 'cover', backgroundPosition: 'center', color: '#fff' }}>
         {/* Header */}
         <header className="dashboard-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -466,7 +470,9 @@ export const DashboardLayout = () => {
 
         {/* Content View */}
         <div className="dashboard-content">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </div>
     </div>

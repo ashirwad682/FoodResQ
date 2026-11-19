@@ -1,0 +1,8 @@
+django>=6.1,<6.2
+djangorestframework>=3.15
+djangorestframework-simplejwt>=5.4
+django-cors-headers>=4.7
+django-filter>=25.1
+django-mongodb-backend>=6.1
+drf-spectacular>=0.29
+pymongo>=4.11

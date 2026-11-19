@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { pickupService } from '../../services/pickupService';
-import { Truck, MapPin, Building2, Package, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Truck, MapPin, Building2, Package, Clock, CheckCircle2, AlertCircle, RotateCcw } from 'lucide-react';
 import { formatDate, formatKg } from '../../utils/formatters';
 
 export const AvailablePickups = () => {
@@ -13,12 +13,20 @@ export const AvailablePickups = () => {
 
   const loadAssignments = async () => {
     try {
-      const data = await pickupService.getAssignments();
+      setLoading(true);
+      const data = await pickupService.getAssignments({ filter: 'available' });
       const list = data.results || data || [];
-      // Filter missions that are ASSIGNED without an active rider or available to claim
-      setAssignments(list.filter((a) => a.status === 'ASSIGNED' || !a.volunteer));
+      // Filter missions awaiting volunteer dispatch
+      setAssignments(
+        list.filter(
+          (a) =>
+            a.status === 'PENDING_VOLUNTEER' ||
+            (!a.volunteer && a.status !== 'CONFIRMED_BY_NGO' && a.status !== 'DELIVERED' && a.status !== 'COLLECTED')
+        )
+      );
     } catch (err) {
       console.error('Failed to load assignments', err);
+      setError('Could not connect to pickup dispatcher. Please try refreshing.');
     } finally {
       setLoading(false);
     }
@@ -42,11 +50,22 @@ export const AvailablePickups = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div>
-        <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Available Rescue Missions</h1>
-        <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-          Commercial kitchens with surplus food approved for NGO pickup. Claim a route to deliver meals.
-        </p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Available Rescue Missions</h1>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+            Commercial kitchens with surplus food approved for NGO pickup. Claim a route to deliver meals.
+          </p>
+        </div>
+        <button
+          onClick={loadAssignments}
+          disabled={loading}
+          className="btn btn-secondary btn-sm"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <RotateCcw size={15} className={loading ? 'animate-spin' : ''} />
+          <span>Refresh Missions</span>
+        </button>
       </div>
 
       {error && (

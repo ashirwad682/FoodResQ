@@ -15,6 +15,44 @@ export const About = () => {
           </p>
         </div>
 
+        {/* Mission Showcase Visual Banner */}
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 'var(--radius-xl)',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-xl)',
+            marginBottom: '3.5rem',
+            border: '1px solid var(--border)',
+            height: '320px',
+          }}
+        >
+          <img
+            src="/images/about_mission.jpg"
+            alt="FoodResQ Mission - Community Food Rescue Team"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(9, 9, 11, 0.92) 0%, rgba(9, 9, 11, 0.3) 60%, transparent 100%)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              padding: '2rem',
+              color: '#ffffff',
+            }}
+          >
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#d4d4d8' }}>
+              Solidarity & Community Care
+            </span>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', marginTop: '0.25rem' }}>
+              Bridging Commercial Surplus with Community Nourishment
+            </h2>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-8" style={{ marginBottom: '4rem' }}>
           <div className="glass-card" style={{ padding: '2rem' }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: '#b91c1c' }}>The Food Paradox</h3>

@@ -6,8 +6,12 @@ export const DonationCard = ({ donation, actionButton }) => {
   const isUrgent = donation.hours_until_expiry != null && donation.hours_until_expiry <= 4;
   const isExpired = donation.status === 'EXPIRED' || donation.is_expired;
 
-  const getPriorityBadgeClass = (priority) => {
-    switch (priority) {
+  const priorityLevel = typeof donation.priority === 'object'
+    ? donation.priority?.priority_level
+    : (donation.priority || null);
+
+  const getPriorityBadgeClass = (level) => {
+    switch (level) {
       case 'CRITICAL':
         return 'badge-CRITICAL';
       case 'HIGH':
@@ -42,9 +46,9 @@ export const DonationCard = ({ donation, actionButton }) => {
             <span className={`badge badge-${donation.status}`}>
               {donation.status?.replace('_', ' ')}
             </span>
-            {donation.priority && (
-              <span className={`badge ${getPriorityBadgeClass(donation.priority)}`}>
-                {donation.priority}
+            {priorityLevel && (
+              <span className={`badge ${getPriorityBadgeClass(priorityLevel)}`}>
+                {priorityLevel}
               </span>
             )}
           </div>
