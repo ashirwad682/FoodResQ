@@ -41,9 +41,12 @@ export const DashboardLayout = () => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchExpanded, setSearchExpanded] = useState(false);
 
   const notifRef = useRef(null);
   const userRef = useRef(null);
+  const searchBoxRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   // Close popovers on outside click
   useEffect(() => {
@@ -54,9 +57,25 @@ export const DashboardLayout = () => {
       if (userRef.current && !userRef.current.contains(e.target)) {
         setShowUserDropdown(false);
       }
+      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
+        setSearchExpanded(false);
+      }
     };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  // Keyboard shortcut Cmd+K / Ctrl+K to trigger search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchExpanded((prev) => !prev);
+        setTimeout(() => searchInputRef.current?.focus(), 50);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Close mobile drawer on route transition
@@ -146,8 +165,8 @@ export const DashboardLayout = () => {
       default:
         return {
           title: 'ResQFood Console',
-          accent: '#fb7185',
-          glow: 'rgba(244, 63, 94, 0.4)',
+          accent: '#27272a',
+          glow: 'rgba(0, 0, 0, 0.2)',
           quickAction: null,
           navItems: [],
         };
@@ -158,42 +177,101 @@ export const DashboardLayout = () => {
 
   return (
     <div className="resq-console-root">
-      {/* 1. Executive Top Glass Navigation Bar */}
+      {/* Executive Unified Single-Row Dashboard Header */}
       <header className="resq-console-header">
-        {/* Left: Brand Mark */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+        {/* Left: Mobile Trigger + Clean Brand Identity */}
+        <div className="resq-header-left">
           <button
             onClick={() => setMobileDrawerOpen(true)}
             className="resq-mobile-menu-trigger btn btn-secondary btn-sm"
             aria-label="Open portal navigation"
           >
-            <Menu size={20} />
+            <Menu size={18} />
           </button>
 
           <BrandLogo
             variant="hybrid"
             theme="light"
-            size="md"
-            subtitle={config.title.toUpperCase()}
+            size="sm"
+            showTagline={false}
             to="/"
           />
         </div>
 
-        {/* Center: Omnibar Universal Quick Search */}
-        <form onSubmit={handleSearchSubmit} className="resq-omnibar-box">
-          <Search size={15} style={{ color: '#94a3b8', flexShrink: 0 }} />
-          <input
-            type="text"
-            className="resq-omnibar-input"
-            placeholder={`Search ${role.toLowerCase()} operations, batches, or locations...`}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <span className="resq-kbd-hint">⌘K</span>
-        </form>
+        {/* Center: Integrated Segmented Navigation Tabs */}
+        <nav className="resq-header-nav-segmented">
+          {config.navItems.map((item) => {
+            const Icon = item.icon;
+            const active = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`resq-segmented-tab ${active ? 'active' : ''}`}
+                title={item.label}
+              >
+                <Icon size={15} />
+                <span>{item.label}</span>
+                {item.badge > 0 && (
+                  <span className="resq-nav-tab-badge">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
 
-        {/* Right: Quick Action, Notification Bell, User Menu */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        {/* Right: Omnibar Search, Quick Action CTA, Notifications, User Menu */}
+        <div className="resq-header-right">
+          {/* Search: Compact Icon Button (Expands on click / ⌘K) */}
+          {searchExpanded ? (
+            <form onSubmit={handleSearchSubmit} className="resq-omnibar-box expanded" ref={searchBoxRef}>
+              <Search size={14} style={{ color: '#71717a', flexShrink: 0 }} />
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="resq-omnibar-input"
+                placeholder={`Search ${role.toLowerCase()}...`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') setSearchExpanded(false);
+                }}
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setSearchExpanded(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#71717a',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '2px',
+                }}
+                title="Close (Esc)"
+              >
+                <X size={14} />
+              </button>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchExpanded(true);
+                setTimeout(() => searchInputRef.current?.focus(), 50);
+              }}
+              className="resq-search-icon-btn"
+              title="Search (⌘K)"
+              aria-label="Quick Search"
+            >
+              <Search size={16} />
+            </button>
+          )}
+
           {/* Quick Action Button */}
           {config.quickAction && (
             config.quickAction.external ? (
@@ -201,19 +279,20 @@ export const DashboardLayout = () => {
                 href={config.quickAction.path}
                 target="_blank"
                 rel="noreferrer"
-                className="btn btn-sm"
+                className="btn btn-sm resq-header-quick-action"
                 style={{
                   background: '#ffffff',
-                  color: '#0f172a',
-                  border: '1px solid #e2e8f0',
+                  color: '#09090b',
+                  border: '1px solid #e4e4e7',
                   borderRadius: 'var(--radius-full)',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.80rem',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.4rem',
-                  padding: '0.45rem 1rem',
+                  padding: '0.42rem 0.95rem',
                   boxShadow: 'var(--shadow-xs)',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 <span>{config.quickAction.label}</span>
@@ -224,17 +303,18 @@ export const DashboardLayout = () => {
                 to={config.quickAction.path}
                 className="btn btn-sm resq-header-quick-action"
                 style={{
-                  background: 'var(--brand-rose-gradient)',
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: 'var(--radius-full)',
-                  fontWeight: 800,
-                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  fontSize: '0.80rem',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.4rem',
-                  padding: '0.45rem 1.05rem',
-                  boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+                  padding: '0.42rem 1rem',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.16)',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 <config.quickAction.icon size={14} />
@@ -248,24 +328,23 @@ export const DashboardLayout = () => {
             <button
               onClick={() => setShowNotifDropdown(!showNotifDropdown)}
               style={{
-                width: '38px',
-                height: '38px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '50%',
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                color: '#334155',
+                background: '#f4f4f5',
+                border: '1px solid #e4e4e7',
+                color: '#3f3f46',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 position: 'relative',
                 transition: 'all 0.2s ease',
-                boxShadow: 'var(--shadow-xs)',
               }}
               title="Notifications"
               aria-label="View notifications"
             >
-              <Bell size={17} />
+              <Bell size={16} />
               {unreadCount > 0 && (
                 <span
                   style={{
@@ -274,15 +353,15 @@ export const DashboardLayout = () => {
                     right: '-2px',
                     background: '#ef4444',
                     color: '#ffffff',
-                    fontSize: '0.66rem',
+                    fontSize: '0.65rem',
                     fontWeight: 900,
-                    width: '18px',
-                    height: '18px',
+                    width: '17px',
+                    height: '17px',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 0 8px rgba(239, 68, 68, 0.6)',
+                    boxShadow: '0 0 6px rgba(239, 68, 68, 0.5)',
                   }}
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
@@ -295,26 +374,26 @@ export const DashboardLayout = () => {
               <div
                 style={{
                   position: 'absolute',
-                  top: '48px',
+                  top: '46px',
                   right: 0,
                   width: 'min(360px, calc(100vw - 2rem))',
                   maxWidth: 'calc(100vw - 2rem)',
                   background: '#ffffff',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid #e4e4e7',
                   borderRadius: 'var(--radius-lg)',
                   boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
                   zIndex: 80,
                   overflow: 'hidden',
                 }}
               >
-                <div style={{ padding: '0.9rem 1.1rem', borderBottom: '1px solid #f1f5f9', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a' }}>
+                <div style={{ padding: '0.85rem 1.1rem', borderBottom: '1px solid #f1f5f9', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#09090b' }}>
                     Notifications ({unreadCount} new)
                   </div>
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllAsRead}
-                      style={{ background: 'none', border: 'none', color: '#f43f5e', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                      style={{ background: 'none', border: 'none', color: '#27272a', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                     >
                       Mark all read
                     </button>
@@ -334,7 +413,7 @@ export const DashboardLayout = () => {
                         style={{
                           padding: '0.85rem 1.1rem',
                           borderBottom: '1px solid #f1f5f9',
-                          background: notif.is_read ? 'transparent' : 'rgba(251, 113, 133, 0.05)',
+                          background: notif.is_read ? 'transparent' : 'rgba(0, 0, 0, 0.03)',
                           cursor: 'pointer',
                           display: 'flex',
                           flexDirection: 'column',
@@ -342,7 +421,7 @@ export const DashboardLayout = () => {
                           transition: 'background 0.15s ease',
                         }}
                       >
-                        <div style={{ fontSize: '0.84rem', fontWeight: notif.is_read ? 600 : 800, color: '#0f172a' }}>
+                        <div style={{ fontSize: '0.84rem', fontWeight: notif.is_read ? 600 : 800, color: '#09090b' }}>
                           {notif.title}
                         </div>
                         <div style={{ fontSize: '0.76rem', color: '#64748b', lineHeight: 1.4 }}>
@@ -357,7 +436,7 @@ export const DashboardLayout = () => {
                   <Link
                     to={role === 'DONOR' ? '/donor/notifications' : role === 'NGO' ? '/ngo/notifications' : role === 'VOLUNTEER' ? '/volunteer/notifications' : '/admin'}
                     onClick={() => setShowNotifDropdown(false)}
-                    style={{ fontSize: '0.78rem', color: '#e11d48', fontWeight: 700, textDecoration: 'none' }}
+                    style={{ fontSize: '0.78rem', color: '#18181b', fontWeight: 700, textDecoration: 'none' }}
                   >
                     View All Notifications →
                   </Link>
@@ -373,49 +452,48 @@ export const DashboardLayout = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.6rem',
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
+                gap: '0.5rem',
+                background: '#f4f4f5',
+                border: '1px solid #e4e4e7',
                 borderRadius: 'var(--radius-full)',
-                padding: '0.35rem 0.75rem 0.35rem 0.45rem',
+                padding: '0.28rem 0.65rem 0.28rem 0.35rem',
                 cursor: 'pointer',
-                color: '#0f172a',
+                color: '#09090b',
                 transition: 'all 0.2s ease',
-                boxShadow: 'var(--shadow-xs)',
               }}
             >
               <div
                 style={{
-                  width: '30px',
-                  height: '30px',
+                  width: '28px',
+                  height: '28px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
-                  border: `1.5px solid rgba(251, 237, 228, 0.4)`,
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
+                  border: `1px solid rgba(255, 255, 255, 0.2)`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#ffffff',
                   fontWeight: 900,
-                  fontSize: '0.8rem',
+                  fontSize: '0.76rem',
                 }}
               >
                 {user?.first_name ? user.first_name[0] : (user?.username?.[0] || 'U').toUpperCase()}
               </div>
-              <span className="desktop-username" style={{ fontSize: '0.84rem', fontWeight: 700, maxWidth: '100px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span className="desktop-username" style={{ fontSize: '0.82rem', fontWeight: 700, maxWidth: '100px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {user?.first_name || user?.username}
               </span>
-              <ChevronDown size={14} style={{ color: '#94a3b8' }} />
+              <ChevronDown size={13} style={{ color: '#71717a' }} />
             </button>
 
             {showUserDropdown && (
               <div
                 style={{
                   position: 'absolute',
-                  top: '48px',
+                  top: '46px',
                   right: 0,
                   width: '250px',
                   background: '#ffffff',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid #e4e4e7',
                   borderRadius: 'var(--radius-lg)',
                   boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
                   zIndex: 80,
@@ -423,13 +501,13 @@ export const DashboardLayout = () => {
                 }}
               >
                 <div style={{ padding: '0.75rem 0.85rem', borderBottom: '1px solid #f1f5f9', marginBottom: '0.4rem' }}>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#09090b' }}>
                     {user?.first_name ? `${user.first_name} ${user.last_name || ''}` : user?.username}
                   </div>
                   <div style={{ fontSize: '0.74rem', color: '#64748b' }}>
                     {user?.email || `${user?.username}@resqfood.org`}
                   </div>
-                  <div style={{ marginTop: '0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#e11d48', fontSize: '0.72rem', fontWeight: 800 }}>
+                  <div style={{ marginTop: '0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#18181b', fontSize: '0.72rem', fontWeight: 800 }}>
                     <ShieldCheck size={13} />
                     <span>{role} Verified Partner</span>
                   </div>
@@ -480,31 +558,6 @@ export const DashboardLayout = () => {
           </div>
         </div>
       </header>
-
-      {/* 2. Fluid Horizontal Segmented Command Rail */}
-      <nav className="resq-command-rail">
-        <div className="resq-command-rail-inner">
-          {config.navItems.map((item) => {
-            const Icon = item.icon;
-            const active = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`resq-nav-tab ${active ? 'active' : ''}`}
-              >
-                <Icon size={16} />
-                <span>{item.label}</span>
-                {item.badge > 0 && (
-                  <span className="resq-nav-tab-badge">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
 
       {/* 3. Mobile Slide-Out Drawer Navigation */}
       {mobileDrawerOpen && (

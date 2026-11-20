@@ -130,9 +130,9 @@ export const DonationDetails = () => {
                   fontWeight: 800,
                   padding: '0.25rem 0.75rem',
                   borderRadius: 'var(--radius-full)',
-                  background: 'rgba(251, 113, 133, 0.1)',
-                  color: '#e11d48',
-                  border: '1px solid rgba(251, 113, 133, 0.3)',
+                  background: 'rgba(24, 24, 27, 0.06)',
+                  color: '#18181b',
+                  border: '1px solid rgba(24, 24, 27, 0.16)',
                 }}
               >
                 STATUS: {donation.status?.replace('_', ' ')}
@@ -170,19 +170,19 @@ export const DonationDetails = () => {
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid rgba(251, 113, 133, 0.25)',
+              border: '1px solid rgba(24, 24, 27, 0.12)',
               borderRadius: 'var(--radius-lg)',
               padding: '1.25rem 1.75rem',
               display: 'flex',
               gap: '2rem',
-              boxShadow: '0 10px 30px -5px rgba(244, 63, 94, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03)',
+              boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03)',
             }}
           >
             <div>
               <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700 }}>
                 Total Weight
               </div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#e11d48', fontFamily: 'var(--font-heading)' }}>
+              <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#18181b', fontFamily: 'var(--font-heading)' }}>
                 {donation.quantity_kg} kg
               </div>
             </div>

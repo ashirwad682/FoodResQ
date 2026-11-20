@@ -7,10 +7,10 @@ export const About = () => {
       <div className="container" style={{ maxWidth: '960px' }}>
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
           <span className="badge badge-AVAILABLE" style={{ marginBottom: '0.75rem' }}>Our Mission</span>
-          <h1 style={{ fontSize: '2.75rem', fontWeight: 800, marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.85rem' }}>
             Zero Food Waste. Zero Hunger.
           </h1>
-          <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             ResQFood is a community-driven technology platform dedicated to preventing wholesome food from entering landfills while feeding vulnerable populations.
           </p>
         </div>

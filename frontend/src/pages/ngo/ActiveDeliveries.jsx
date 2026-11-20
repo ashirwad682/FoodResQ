@@ -246,7 +246,7 @@ export const ActiveDeliveries = () => {
                         borderRadius: 'var(--radius-full)',
                         padding: '0.7rem 1.6rem',
                         fontSize: '0.92rem',
-                        boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.5rem',
@@ -347,7 +347,7 @@ export const ActiveDeliveries = () => {
                     border: 'none',
                     borderRadius: 'var(--radius-full)',
                     padding: '0.75rem 1.6rem',
-                    boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
                   }}
                 >
                   <CheckCircle2 size={16} />

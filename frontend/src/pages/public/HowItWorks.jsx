@@ -55,10 +55,10 @@ export const HowItWorks = () => {
       <div className="container" style={{ maxWidth: '900px' }}>
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
           <span className="badge badge-APPROVED" style={{ marginBottom: '0.75rem' }}>Operational Workflow</span>
-          <h1 style={{ fontSize: '2.75rem', fontWeight: 800, marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.85rem' }}>
             How ResQFood Works
           </h1>
-          <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>
             A streamlined 5-step operational pipeline connecting donors, algorithms, volunteers, and hungry mouths.
           </p>
         </div>

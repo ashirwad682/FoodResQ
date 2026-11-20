@@ -137,18 +137,18 @@ export const DonorDashboard = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: 'rgba(251, 113, 133, 0.08)',
-                border: '1px solid rgba(251, 113, 133, 0.28)',
+                background: 'rgba(24, 24, 27, 0.06)',
+                border: '1px solid rgba(24, 24, 27, 0.15)',
                 borderRadius: 'var(--radius-full)',
                 padding: '0.35rem 1rem',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                color: '#e11d48',
+                color: '#18181b',
                 marginBottom: '1rem',
                 backdropFilter: 'blur(8px)',
               }}
             >
-              <ShieldCheck size={15} style={{ color: '#f43f5e' }} />
+              <ShieldCheck size={15} style={{ color: '#27272a' }} />
               <span>Verified Commercial Donor • {user?.is_verified ? 'FSSAI Certified Partner' : 'Kitchen Member'}</span>
             </div>
 
@@ -165,7 +165,7 @@ export const DonorDashboard = () => {
               Welcome back,{' '}
               <span
                 style={{
-                  background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -186,7 +186,7 @@ export const DonorDashboard = () => {
                   background: 'var(--brand-rose-gradient)',
                   border: 'none',
                   borderRadius: 'var(--radius-full)',
-                  boxShadow: '0 8px 24px rgba(244, 63, 94, 0.35)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.18)',
                   padding: '0.85rem 1.75rem',
                   fontSize: '0.95rem',
                   fontWeight: 800,
@@ -221,13 +221,13 @@ export const DonorDashboard = () => {
                 {pendingRequests.length > 0 && (
                   <span
                     style={{
-                      background: 'rgba(251, 113, 133, 0.15)',
-                      color: '#e11d48',
+                      background: 'rgba(24, 24, 27, 0.08)',
+                      color: '#18181b',
                       fontSize: '0.72rem',
                       fontWeight: 800,
                       padding: '0.15rem 0.55rem',
                       borderRadius: 'var(--radius-full)',
-                      border: '1px solid rgba(251, 113, 133, 0.3)',
+                      border: '1px solid rgba(24, 24, 27, 0.16)',
                     }}
                   >
                     {pendingRequests.length}
@@ -242,14 +242,14 @@ export const DonorDashboard = () => {
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid rgba(251, 113, 133, 0.25)',
+              border: '1px solid rgba(24, 24, 27, 0.12)',
               borderRadius: 'var(--radius-xl)',
               padding: '1.75rem 2rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
               minWidth: 'min(260px, 100%)',
-              boxShadow: '0 10px 30px -5px rgba(244, 63, 94, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03)',
+              boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.25rem' }}>
@@ -259,11 +259,11 @@ export const DonorDashboard = () => {
                 </div>
                 <div
                   style={{
-                    fontSize: '2.2rem',
+                    fontSize: '1.85rem',
                     fontWeight: 900,
                     fontFamily: 'var(--font-heading)',
                     marginTop: '0.2rem',
-                    background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 60%, #e11d48 100%)',
+                    background: 'linear-gradient(135deg, #27272a 0%, #18181b 60%, #09090b 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                   }}
@@ -279,8 +279,8 @@ export const DonorDashboard = () => {
               <svg width="68" height="68" viewBox="0 0 36 36">
                 <defs>
                   <linearGradient id="donorRoseRing" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#fb7185" />
-                    <stop offset="100%" stopColor="#f43f5e" />
+                    <stop offset="0%" stopColor="#27272a" />
+                    <stop offset="100%" stopColor="#27272a" />
                   </linearGradient>
                 </defs>
                 <path
@@ -302,7 +302,7 @@ export const DonorDashboard = () => {
 
             <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem' }}>
               <span style={{ color: '#64748b' }}>Pending Claims:</span>
-              <span style={{ fontWeight: 800, color: pendingRequests.length > 0 ? '#e11d48' : '#059669' }}>
+              <span style={{ fontWeight: 800, color: pendingRequests.length > 0 ? '#18181b' : '#059669' }}>
                 {pendingRequests.length} Waiting
               </span>
             </div>
@@ -386,8 +386,8 @@ export const DonorDashboard = () => {
             value={completedDonations.length}
             subtext="Completed courier missions"
             icon={Award}
-            color="#fb7185"
-            background="rgba(244, 63, 94, 0.14)"
+            color="#27272a"
+            background="rgba(24, 24, 27, 0.08)"
           />
           <StatCard
             title="Active Batches"
@@ -466,7 +466,7 @@ export const DonorDashboard = () => {
                     onClick={() => handleApproveRequest(req.id)}
                     disabled={actionLoading === req.id}
                     className="btn btn-primary btn-sm"
-                    style={{ background: 'var(--brand-rose-gradient)', borderColor: 'transparent', borderRadius: 'var(--radius-full)', fontWeight: 800, boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)' }}
+                    style={{ background: 'var(--brand-rose-gradient)', borderColor: 'transparent', borderRadius: 'var(--radius-full)', fontWeight: 800, boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)' }}
                   >
                     <CheckCircle2 size={15} />
                     <span>Approve & Dispatch</span>

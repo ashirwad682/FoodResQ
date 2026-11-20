@@ -49,7 +49,7 @@ export const NotificationsPage = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
-            <Bell size={24} style={{ color: '#fb7185' }} />
+            <Bell size={24} style={{ color: '#27272a' }} />
             <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
               Notifications & Rescue Alerts
             </h1>
@@ -111,7 +111,7 @@ export const NotificationsPage = () => {
                 alignItems: 'flex-start',
                 gap: '1.25rem',
                 background: n.is_read ? '#ffffff' : '#fff5f6',
-                borderLeft: `4px solid ${n.is_read ? 'var(--border)' : '#fb7185'}`,
+                borderLeft: `4px solid ${n.is_read ? 'var(--border)' : '#27272a'}`,
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
               }}
@@ -121,7 +121,7 @@ export const NotificationsPage = () => {
                   width: '42px',
                   height: '42px',
                   borderRadius: '12px',
-                  background: n.is_read ? 'var(--bg-alt)' : 'rgba(244, 63, 94, 0.14)',
+                  background: n.is_read ? 'var(--bg-alt)' : 'rgba(24, 24, 27, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -144,7 +144,7 @@ export const NotificationsPage = () => {
                           width: '8px',
                           height: '8px',
                           borderRadius: '50%',
-                          background: '#fb7185',
+                          background: '#27272a',
                           display: 'inline-block',
                         }}
                       />

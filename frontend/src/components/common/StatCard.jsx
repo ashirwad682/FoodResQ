@@ -7,8 +7,8 @@ export const StatCard = ({
   value,
   subtext,
   icon: Icon,
-  color = 'var(--brand-rose, #fb7185)',
-  background = 'rgba(251, 113, 133, 0.12)',
+  color = 'var(--brand-rose, #27272a)',
+  background = 'rgba(24, 24, 27, 0.08)',
   trend = null,
 }) => {
   const cardTitle = title || label;

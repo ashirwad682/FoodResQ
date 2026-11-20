@@ -111,7 +111,7 @@ export const NgoProfile = () => {
               justifyContent: 'center',
               fontWeight: 900,
               fontSize: '1.6rem',
-              boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
               flexShrink: 0,
             }}
           >
@@ -238,7 +238,7 @@ export const NgoProfile = () => {
                   gap: '0.6rem',
                   padding: '0.65rem 0.85rem',
                   borderRadius: 'var(--radius-md)',
-                  background: formData[cat.name] ? 'rgba(251, 113, 133, 0.12)' : 'var(--bg-alt)',
+                  background: formData[cat.name] ? 'rgba(24, 24, 27, 0.08)' : 'var(--bg-alt)',
                   border: `1px solid ${formData[cat.name] ? 'var(--brand-rose)' : 'var(--border)'}`,
                   cursor: 'pointer',
                   fontSize: '0.84rem',
@@ -269,7 +269,7 @@ export const NgoProfile = () => {
               borderRadius: 'var(--radius-full)',
               padding: '0.8rem 2rem',
               fontSize: '0.95rem',
-              boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
             }}
           >
             {loading ? 'Saving...' : 'Save Organization Profile'}

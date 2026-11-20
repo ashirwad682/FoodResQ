@@ -83,11 +83,18 @@ if env_file.exists():
             line = line.strip()
             if line and not line.startswith('#') and '=' in line:
                 k, v = line.split('=', 1)
-                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+                os.environ[k.strip()] = v.strip().strip('"').strip("'")
 
 env_uri = os.environ.get('MONGODB_URI')
 if env_uri:
-    SELECTED_MONGO_URI = env_uri
+    SELECTED_MONGO_URI = env_uri.strip()
+    # Ensure database path is included if URI is root cluster URL
+    if '@' in SELECTED_MONGO_URI and '/' not in SELECTED_MONGO_URI.split('@')[-1].split('?')[0]:
+        if '?' in SELECTED_MONGO_URI:
+            base, qs = SELECTED_MONGO_URI.split('?', 1)
+            SELECTED_MONGO_URI = f"{base.rstrip('/')}/foodresq_db?{qs}"
+        else:
+            SELECTED_MONGO_URI = f"{SELECTED_MONGO_URI.rstrip('/')}/foodresq_db"
 else:
     SELECTED_MONGO_URI = ATLAS_URI
 

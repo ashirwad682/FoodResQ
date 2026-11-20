@@ -47,8 +47,8 @@ export const Login = () => {
       pass: 'Donor@12345',
       icon: Building2,
       tag: 'Restaurant',
-      color: '#fb7185',
-      bg: 'rgba(251, 113, 133, 0.12)',
+      color: '#27272a',
+      bg: 'rgba(24, 24, 27, 0.08)',
     },
     {
       role: 'NGO',
@@ -153,8 +153,8 @@ export const Login = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
           borderRadius: 'var(--radius-xl)',
           overflow: 'hidden',
-          boxShadow: '0 20px 45px -10px rgba(244, 63, 94, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04)',
-          border: '1px solid rgba(251, 113, 133, 0.22)',
+          boxShadow: '0 20px 45px -10px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
+          border: '1px solid rgba(24, 24, 27, 0.12)',
           background: '#ffffff',
         }}
       >
@@ -196,8 +196,8 @@ export const Login = () => {
               maxHeight: '560px',
               objectFit: 'contain',
               borderRadius: 'var(--radius-lg)',
-              boxShadow: '0 16px 36px -6px rgba(244, 63, 94, 0.12)',
-              border: '1px solid rgba(251, 113, 133, 0.25)',
+              boxShadow: '0 16px 36px -6px rgba(0, 0, 0, 0.08)',
+              border: '1px solid rgba(24, 24, 27, 0.12)',
               display: 'block',
             }}
           />
@@ -230,9 +230,9 @@ export const Login = () => {
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: '#e11d48',
-                background: 'rgba(251, 113, 133, 0.08)',
-                border: '1px solid rgba(251, 113, 133, 0.28)',
+                color: '#18181b',
+                background: 'rgba(24, 24, 27, 0.06)',
+                border: '1px solid rgba(24, 24, 27, 0.15)',
                 padding: '0.25rem 0.75rem',
                 borderRadius: 'var(--radius-full)',
                 display: 'inline-block',
@@ -295,9 +295,9 @@ export const Login = () => {
                     style={{
                       fontSize: '0.62rem',
                       fontWeight: 800,
-                      background: 'rgba(251, 113, 133, 0.12)',
+                      background: 'rgba(24, 24, 27, 0.08)',
                       color: 'var(--brand-rose)',
-                      border: '1px solid rgba(251, 113, 133, 0.28)',
+                      border: '1px solid rgba(24, 24, 27, 0.15)',
                       padding: '0.12rem 0.5rem',
                       borderRadius: 'var(--radius-full)',
                       letterSpacing: '0.04em',

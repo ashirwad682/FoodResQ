@@ -105,7 +105,7 @@ export const DonorProfile = () => {
               justifyContent: 'center',
               fontWeight: 900,
               fontSize: '1.6rem',
-              boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
               flexShrink: 0,
             }}
           >
@@ -269,7 +269,7 @@ export const DonorProfile = () => {
               borderRadius: 'var(--radius-full)',
               padding: '0.8rem 2rem',
               fontSize: '0.95rem',
-              boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
             }}
           >
             {loading ? 'Saving...' : 'Save Kitchen Credentials'}

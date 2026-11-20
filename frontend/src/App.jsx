@@ -94,8 +94,8 @@ const PageFallback = () => (
         width: '42px',
         height: '42px',
         borderRadius: '50%',
-        border: '3px solid rgba(251, 113, 133, 0.2)',
-        borderTopColor: '#fb7185',
+        border: '3px solid rgba(24, 24, 27, 0.1)',
+        borderTopColor: '#27272a',
         animation: 'spin 0.75s linear infinite',
       }}
     />

@@ -77,7 +77,7 @@ export const MyDonations = () => {
             background: 'var(--brand-rose-gradient)',
             border: 'none',
             borderRadius: 'var(--radius-full)',
-            boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',

@@ -21,4 +21,21 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    port: 3005,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8004',
+        changeOrigin: true,
+      },
+      '/admin': {
+        target: 'http://127.0.0.1:8004',
+        changeOrigin: true,
+      },
+      '/static/admin': {
+        target: 'http://127.0.0.1:8004',
+        changeOrigin: true,
+      },
+    },
+  },
 });
