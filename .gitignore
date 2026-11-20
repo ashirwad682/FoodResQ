@@ -72,5 +72,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
-frontend/.vite/
+staticfiles/
+.vercel/
 frontend/.vite/
