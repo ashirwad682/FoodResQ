@@ -77,18 +77,18 @@ export const CompletedTasks = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.45rem',
-                background: 'rgba(251, 113, 133, 0.08)',
-                border: '1px solid rgba(251, 113, 133, 0.28)',
+                background: 'rgba(24, 24, 27, 0.06)',
+                border: '1px solid rgba(24, 24, 27, 0.15)',
                 borderRadius: 'var(--radius-full)',
                 padding: '0.35rem 0.95rem',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                color: '#e11d48',
+                color: '#18181b',
                 marginBottom: '1rem',
                 backdropFilter: 'blur(8px)',
               }}
             >
-              <ShieldCheck size={15} style={{ color: '#f43f5e' }} />
+              <ShieldCheck size={15} style={{ color: '#27272a' }} />
               <span>Verified Food Rescue Logistics • Courier Custody Ledger</span>
             </div>
 
@@ -105,7 +105,7 @@ export const CompletedTasks = () => {
               Completed{' '}
               <span
                 style={{
-                  background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -123,21 +123,21 @@ export const CompletedTasks = () => {
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid rgba(251, 113, 133, 0.25)',
+              border: '1px solid rgba(24, 24, 27, 0.12)',
               borderRadius: 'var(--radius-lg)',
               padding: '1.5rem 1.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.85rem',
               minWidth: '240px',
-              boxShadow: '0 10px 30px -5px rgba(244, 63, 94, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03)',
+              boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03)',
             }}
           >
             <div>
               <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', fontWeight: 700 }}>
                 Lifetime Meals Delivered
               </div>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: '#e11d48', fontFamily: 'var(--font-heading)', marginTop: '0.15rem' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 900, color: '#18181b', fontFamily: 'var(--font-heading)', marginTop: '0.15rem' }}>
                 {formatNumber(totalMeals)}
               </div>
             </div>
@@ -208,8 +208,8 @@ export const CompletedTasks = () => {
               <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>
                 Courier Quality Rating
               </span>
-              <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(244, 63, 94, 0.14)', color: '#fb7185', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Star size={18} fill="#fb7185" color="#fb7185" />
+              <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(24, 24, 27, 0.08)', color: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Star size={18} fill="#27272a" color="#27272a" />
               </div>
             </div>
             <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>

@@ -16,7 +16,7 @@ class OrganizationListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Organization.objects.all()
+        queryset = Organization.objects.all().order_by('-created_at')
         verified_param = self.request.query_params.get('verified')
         if verified_param is not None:
             is_ver = verified_param.lower() in ['true', '1']

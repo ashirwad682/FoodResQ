@@ -192,11 +192,11 @@ export const MainLayout = () => {
                   borderRadius: 'var(--radius-full)',
                   color: active ? '#ffffff' : '#334155',
                   background: active
-                    ? 'linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%)'
+                    ? 'linear-gradient(135deg, #27272a 0%, #18181b 55%, #09090b 100%)'
                     : 'transparent',
                   fontWeight: active ? 800 : 600,
                   textDecoration: 'none',
-                  boxShadow: active ? '0 4px 14px rgba(244, 63, 94, 0.35)' : 'none',
+                  boxShadow: active ? '0 4px 14px rgba(0, 0, 0, 0.18)' : 'none',
                 }}
               >
                 {link.name}
@@ -287,7 +287,7 @@ export const MainLayout = () => {
               </p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#0f172a', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', border: '1px solid #1e293b', fontSize: '0.78rem' }}>
                 <span className="live-pulse" />
-                <span style={{ color: '#fb7185', fontWeight: 600 }}>MongoDB Atlas Active</span>
+                <span style={{ color: '#27272a', fontWeight: 600 }}>MongoDB Atlas Active</span>
               </div>
             </div>
 

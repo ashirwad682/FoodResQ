@@ -15,10 +15,10 @@ export const Contact = () => {
       <div className="container" style={{ maxWidth: '960px' }}>
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
           <span className="badge badge-APPROVED" style={{ marginBottom: '0.75rem' }}>Get in Touch</span>
-          <h1 style={{ fontSize: '2.75rem', fontWeight: 800, marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.85rem' }}>
             We're Here to Support Your Rescue Operations
           </h1>
-          <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>
             Have questions about integrating with ResQFood or need emergency dispatch assistance? Reach out.
           </p>
         </div>
@@ -31,7 +31,7 @@ export const Contact = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(251, 113, 133, 0.12)', color: 'var(--brand-rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(24, 24, 27, 0.08)', color: 'var(--brand-rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Phone size={18} />
                   </div>
                   <div>

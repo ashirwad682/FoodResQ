@@ -194,19 +194,19 @@ export const AdminDashboard = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: 'rgba(251, 113, 133, 0.08)',
-                border: '1px solid rgba(251, 113, 133, 0.28)',
+                background: 'rgba(24, 24, 27, 0.06)',
+                border: '1px solid rgba(24, 24, 27, 0.15)',
                 borderRadius: 'var(--radius-full)',
                 padding: '0.35rem 0.95rem',
                 fontSize: '0.78rem',
                 fontWeight: 800,
-                color: '#e11d48',
+                color: '#18181b',
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
                 marginBottom: '1rem',
               }}
             >
-              <ShieldCheck size={15} style={{ color: '#f43f5e' }} />
+              <ShieldCheck size={15} style={{ color: '#27272a' }} />
               <span>ResQ Governance • Platform Mission Control</span>
             </div>
 
@@ -224,7 +224,7 @@ export const AdminDashboard = () => {
               ResQFood{' '}
               <span
                 style={{
-                  background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -245,7 +245,7 @@ export const AdminDashboard = () => {
                 rel="noopener noreferrer"
                 className="btn btn-primary"
                 style={{
-                  background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: 'var(--radius-full)',
@@ -255,7 +255,7 @@ export const AdminDashboard = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  boxShadow: '0 8px 24px rgba(244, 63, 94, 0.35)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.18)',
                 }}
               >
                 <FileCode size={16} />
@@ -316,11 +316,11 @@ export const AdminDashboard = () => {
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid rgba(251, 113, 133, 0.25)',
+              border: '1px solid rgba(24, 24, 27, 0.12)',
               borderRadius: 'var(--radius-xl)',
               padding: '1.65rem 1.85rem',
               minWidth: 'min(290px, 100%)',
-              boxShadow: '0 10px 30px -5px rgba(244, 63, 94, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03)',
+              boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03)',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.15rem' }}>
@@ -369,7 +369,7 @@ export const AdminDashboard = () => {
               </div>
 
               <div>
-                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#e11d48', fontFamily: 'var(--font-heading)', lineHeight: 1 }}>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#18181b', fontFamily: 'var(--font-heading)', lineHeight: 1 }}>
                   {metrics.verified_ngos ?? 0}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.35rem', fontWeight: 600 }}>Verified Shelters</div>
@@ -523,8 +523,8 @@ export const AdminDashboard = () => {
               title="Meals Provided"
               value={formatNumber(metrics.meals_redistributed || 0)}
               icon={HeartHandshake}
-              color="#fb7185"
-              background="rgba(244, 63, 94, 0.14)"
+              color="#27272a"
+              background="rgba(24, 24, 27, 0.08)"
               subtext="Direct hunger alleviation impact"
             />
             <StatCard
@@ -594,12 +594,12 @@ export const AdminDashboard = () => {
                         width: '42px',
                         height: '42px',
                         borderRadius: 'var(--radius-md)',
-                        background: 'rgba(244, 63, 94, 0.12)',
-                        border: '1px solid rgba(251, 113, 133, 0.3)',
+                        background: 'rgba(24, 24, 27, 0.06)',
+                        border: '1px solid rgba(24, 24, 27, 0.16)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#fb7185',
+                        color: '#27272a',
                         flexShrink: 0,
                       }}
                     >
@@ -791,7 +791,7 @@ export const AdminDashboard = () => {
                           padding: '0.7rem 1.5rem',
                           fontWeight: 800,
                           fontSize: '0.88rem',
-                          boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '0.45rem',
@@ -979,7 +979,7 @@ export const AdminDashboard = () => {
 
                 <div
                   style={{
-                    fontSize: '3.5rem',
+                    fontSize: '2.6rem',
                     fontWeight: 900,
                     fontFamily: 'var(--font-heading)',
                     color:
@@ -1295,7 +1295,7 @@ export const AdminDashboard = () => {
                     borderRadius: 'var(--radius-full)',
                     padding: '0.7rem 1.6rem',
                     fontWeight: 800,
-                    boxShadow: confirmModal.action === 'approve' ? '0 4px 14px rgba(244, 63, 94, 0.35)' : 'none',
+                    boxShadow: confirmModal.action === 'approve' ? '0 4px 14px rgba(0, 0, 0, 0.18)' : 'none',
                   }}
                 >
                   {confirmModal.action === 'approve' ? 'Yes, Certify NGO' : 'Yes, Revoke Status'}

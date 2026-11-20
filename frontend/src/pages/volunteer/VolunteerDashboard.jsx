@@ -121,18 +121,18 @@ export const VolunteerDashboard = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.45rem',
-                background: 'rgba(251, 113, 133, 0.08)',
-                border: '1px solid rgba(251, 113, 133, 0.28)',
+                background: 'rgba(24, 24, 27, 0.06)',
+                border: '1px solid rgba(24, 24, 27, 0.15)',
                 borderRadius: 'var(--radius-full)',
                 padding: '0.35rem 1rem',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                color: '#e11d48',
+                color: '#18181b',
                 marginBottom: '1rem',
                 backdropFilter: 'blur(8px)',
               }}
             >
-              <ShieldCheck size={15} style={{ color: '#f43f5e' }} />
+              <ShieldCheck size={15} style={{ color: '#27272a' }} />
               <span>Verified Courier Rider • Rapid Thermal Food Fleet</span>
             </div>
 
@@ -149,7 +149,7 @@ export const VolunteerDashboard = () => {
               Courier Cockpit,{' '}
               <span
                 style={{
-                  background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -171,7 +171,7 @@ export const VolunteerDashboard = () => {
                   background: 'var(--brand-rose-gradient)',
                   border: 'none',
                   borderRadius: 'var(--radius-full)',
-                  boxShadow: '0 8px 24px rgba(244, 63, 94, 0.35)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.18)',
                   padding: '0.85rem 1.75rem',
                   fontSize: '0.95rem',
                   fontWeight: 800,
@@ -203,7 +203,7 @@ export const VolunteerDashboard = () => {
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                   }}
                 >
-                  <Navigation size={16} style={{ color: '#f43f5e' }} />
+                  <Navigation size={16} style={{ color: '#27272a' }} />
                   <span>In-Flight Mission Control</span>
                 </Link>
               )}
@@ -214,14 +214,14 @@ export const VolunteerDashboard = () => {
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid rgba(251, 113, 133, 0.25)',
+              border: '1px solid rgba(24, 24, 27, 0.12)',
               borderRadius: 'var(--radius-xl)',
               padding: '1.75rem 2rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
               minWidth: 'min(260px, 100%)',
-              boxShadow: '0 10px 30px -5px rgba(244, 63, 94, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03)',
+              boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03)',
             }}
           >
             <div>
@@ -436,8 +436,8 @@ export const VolunteerDashboard = () => {
             value={`${rating} ★`}
             subtext="Shelter satisfaction score"
             icon={Star}
-            color="#fb7185"
-            background="rgba(244, 63, 94, 0.14)"
+            color="#27272a"
+            background="rgba(24, 24, 27, 0.08)"
           />
         </div>
       </section>
@@ -556,7 +556,7 @@ export const VolunteerDashboard = () => {
                       borderRadius: 'var(--radius-full)',
                       fontWeight: 800,
                       padding: '0.5rem 1.25rem',
-                      boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+                      boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
                     }}
                   >
                     <Check size={14} />

@@ -268,8 +268,8 @@ export const Register = () => {
               border: '1px solid rgba(255, 255, 255, 0.22)',
             }}
           >
-            <Sparkles size={14} color="#fb7185" />
-            <span style={{ color: '#fbede4' }}>Join the ResQFood Network</span>
+            <Sparkles size={14} color="#27272a" />
+            <span style={{ color: '#f4f4f5' }}>Join the ResQFood Network</span>
           </div>
           <h1
             style={{
@@ -462,7 +462,7 @@ export const Register = () => {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '0.4rem',
-                      boxShadow: '0 4px 12px rgba(244, 63, 94, 0.35)',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.18)',
                     }}
                   >
                     <span>Proceed to Sign In</span>

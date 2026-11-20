@@ -133,18 +133,18 @@ export const NgoDashboard = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.45rem',
-                background: 'rgba(251, 113, 133, 0.08)',
-                border: '1px solid rgba(251, 113, 133, 0.28)',
+                background: 'rgba(24, 24, 27, 0.06)',
+                border: '1px solid rgba(24, 24, 27, 0.15)',
                 borderRadius: 'var(--radius-full)',
                 padding: '0.35rem 1rem',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                color: '#e11d48',
+                color: '#18181b',
                 marginBottom: '1rem',
                 backdropFilter: 'blur(8px)',
               }}
             >
-              <ShieldCheck size={15} style={{ color: '#f43f5e' }} />
+              <ShieldCheck size={15} style={{ color: '#27272a' }} />
               <span>Verified Shelter Intake • {user?.organization?.is_verified ? '80G Registered Partner' : 'Community Food Bank'}</span>
             </div>
 
@@ -161,7 +161,7 @@ export const NgoDashboard = () => {
               Shelter Command,{' '}
               <span
                 style={{
-                  background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -179,10 +179,10 @@ export const NgoDashboard = () => {
                 to="/ngo/available-food"
                 className="btn btn-primary"
                 style={{
-                  background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                  background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
                   border: 'none',
                   borderRadius: 'var(--radius-full)',
-                  boxShadow: '0 8px 24px rgba(244, 63, 94, 0.35)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.18)',
                   padding: '0.85rem 1.75rem',
                   fontSize: '0.95rem',
                   fontWeight: 800,
@@ -213,7 +213,7 @@ export const NgoDashboard = () => {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                 }}
               >
-                <Sparkles size={16} style={{ color: '#f43f5e' }} />
+                <Sparkles size={16} style={{ color: '#27272a' }} />
                 <span>AI Urgent Matches</span>
               </Link>
             </div>
@@ -223,14 +223,14 @@ export const NgoDashboard = () => {
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid rgba(251, 113, 133, 0.25)',
+              border: '1px solid rgba(24, 24, 27, 0.12)',
               borderRadius: 'var(--radius-xl)',
               padding: '1.75rem 2rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
               minWidth: 'min(260px, 100%)',
-              boxShadow: '0 10px 30px -5px rgba(244, 63, 94, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03)',
+              boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.25rem' }}>
@@ -240,11 +240,11 @@ export const NgoDashboard = () => {
                 </div>
                 <div
                   style={{
-                    fontSize: '2.2rem',
+                    fontSize: '1.85rem',
                     fontWeight: 900,
                     fontFamily: 'var(--font-heading)',
                     marginTop: '0.2rem',
-                    background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 60%, #e11d48 100%)',
+                    background: 'linear-gradient(135deg, #27272a 0%, #18181b 60%, #09090b 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                   }}
@@ -260,8 +260,8 @@ export const NgoDashboard = () => {
               <svg width="68" height="68" viewBox="0 0 36 36">
                 <defs>
                   <linearGradient id="ngoRoseRing" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#fb7185" />
-                    <stop offset="100%" stopColor="#f43f5e" />
+                    <stop offset="0%" stopColor="#27272a" />
+                    <stop offset="100%" stopColor="#27272a" />
                   </linearGradient>
                 </defs>
                 <path
@@ -345,7 +345,7 @@ export const NgoDashboard = () => {
                 </p>
               </div>
             </div>
-            <Link to="/ngo/active-deliveries" className="btn btn-sm" style={{ background: 'var(--brand-rose-gradient)', color: '#fff', borderRadius: 'var(--radius-full)', fontWeight: 800, padding: '0.45rem 1.1rem', border: 'none', boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)' }}>
+            <Link to="/ngo/active-deliveries" className="btn btn-sm" style={{ background: 'var(--brand-rose-gradient)', color: '#fff', borderRadius: 'var(--radius-full)', fontWeight: 800, padding: '0.45rem 1.1rem', border: 'none', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)' }}>
               Live Courier Tracking →
             </Link>
           </div>
@@ -420,8 +420,8 @@ export const NgoDashboard = () => {
             value={formatNumber(totalCommunityMeals)}
             subtext="Dignified servings provided"
             icon={CheckCircle2}
-            color="#fb7185"
-            background="rgba(244, 63, 94, 0.14)"
+            color="#27272a"
+            background="rgba(24, 24, 27, 0.08)"
           />
         </div>
       </section>
@@ -494,7 +494,7 @@ export const NgoDashboard = () => {
                     onClick={() => setClaimDonation(donation)}
                     className="btn btn-primary btn-sm"
                     style={{
-                      background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
+                      background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
                       border: 'none',
                       borderRadius: 'var(--radius-full)',
                       display: 'inline-flex',
@@ -563,7 +563,7 @@ export const NgoDashboard = () => {
                   disabled={claiming}
                   className="btn btn-primary"
                   style={{
-                    background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
+                    background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
                     border: 'none',
                     borderRadius: 'var(--radius-full)',
                     padding: '0.75rem 1.6rem',

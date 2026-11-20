@@ -173,19 +173,19 @@ export const DonateFood = () => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.45rem',
-              background: 'rgba(251, 113, 133, 0.08)',
-              border: '1px solid rgba(251, 113, 133, 0.28)',
+              background: 'rgba(24, 24, 27, 0.06)',
+              border: '1px solid rgba(24, 24, 27, 0.15)',
               borderRadius: 'var(--radius-full)',
               padding: '0.35rem 0.95rem',
               fontSize: '0.78rem',
               fontWeight: 800,
-              color: '#e11d48',
+              color: '#18181b',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
               marginBottom: '0.85rem',
             }}
           >
-            <Sparkles size={14} style={{ color: '#f43f5e' }} />
+            <Sparkles size={14} style={{ color: '#27272a' }} />
             <span>FSSAI Safe Surplus Intake Engine</span>
           </div>
 
@@ -193,7 +193,7 @@ export const DonateFood = () => {
             Post Surplus{' '}
             <span
               style={{
-                background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
@@ -398,7 +398,7 @@ export const DonateFood = () => {
                     gap: '0.6rem',
                     padding: '0.65rem 0.85rem',
                     borderRadius: 'var(--radius-md)',
-                    background: formData[item.name] ? 'rgba(251, 113, 133, 0.12)' : 'var(--bg-alt)',
+                    background: formData[item.name] ? 'rgba(24, 24, 27, 0.08)' : 'var(--bg-alt)',
                     border: `1px solid ${formData[item.name] ? 'var(--brand-rose)' : 'var(--border)'}`,
                     cursor: 'pointer',
                     fontSize: '0.84rem',
@@ -492,7 +492,7 @@ export const DonateFood = () => {
                 border: 'none',
                 padding: '0.85rem 2rem',
                 borderRadius: 'var(--radius-full)',
-                boxShadow: '0 8px 24px rgba(244, 63, 94, 0.4)',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
                 fontSize: '0.98rem',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -528,9 +528,9 @@ export const DonateFood = () => {
                   fontWeight: 800,
                   padding: '0.2rem 0.6rem',
                   borderRadius: 'var(--radius-full)',
-                  background: 'rgba(251, 113, 133, 0.12)',
+                  background: 'rgba(24, 24, 27, 0.08)',
                   color: 'var(--brand-rose)',
-                  border: '1px solid rgba(251, 113, 133, 0.28)',
+                  border: '1px solid rgba(24, 24, 27, 0.15)',
                 }}
               >
                 AVAILABLE

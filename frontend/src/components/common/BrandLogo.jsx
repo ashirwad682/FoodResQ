@@ -1,190 +1,147 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 /**
- * ResQFood Official Animated Brand Logo Component
- * Matches the website's signature Rose Coral (#fb7185 / #f43f5e) & Warm Silk Cream (#fdf5ee / #fbede4) color scheme.
- * Features continuous GIF-like animations: rotating aura, diagonal sheen sweep, floating pulse, and star twinkle.
+ * ResQFood Simple & Professional Vector Emblem
+ * Clean, iconic geometry: Matte Charcoal Squircle with minimalist Food Cloche & Rescue Heart.
+ * 100% vector SVG: razor-sharp on all screens, zero raster pixelation, zero heavy blurs.
+ */
+export const ResQEmblem = ({ size = 32, isDark = false, className = '' }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`resq-emblem-vector ${className}`}
+    style={{
+      flexShrink: 0,
+      display: 'block',
+      filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12))',
+      transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+    }}
+  >
+    {/* Base Squircle Tile */}
+    <rect width="48" height="48" rx="12" fill="url(#resqEmblemTileGrad)" />
+    <rect
+      x="0.75"
+      y="0.75"
+      width="46.5"
+      height="46.5"
+      rx="11.25"
+      stroke="rgba(255, 255, 255, 0.14)"
+      strokeWidth="1"
+    />
+
+    {/* Cloche Top Handle Knob */}
+    <circle cx="24" cy="13.5" r="2.2" stroke="#ffffff" strokeWidth="2" fill="none" />
+
+    {/* Food Cloche Dome Arc */}
+    <path
+      d="M12 28.5C12 20.5 17 16.5 24 16.5C31 16.5 36 20.5 36 28.5"
+      stroke="#ffffff"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+    />
+
+    {/* Serving Plate Horizon Bar */}
+    <path
+      d="M10 31.5H38"
+      stroke="#ffffff"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+    />
+
+    {/* Rescue Heart at Center of Cloche */}
+    <path
+      d="M24 27.2C24 27.2 19.8 23.8 19.8 21.6C19.8 20.2 20.9 19 22.3 19C23.1 19 23.7 19.4 24 19.9C24.3 19.4 24.9 19 25.7 19C27.1 19 28.2 20.2 28.2 21.6C28.2 23.8 24 27.2 24 27.2Z"
+      fill="#ffffff"
+    />
+
+    {/* Supporting Rescue Care Arc */}
+    <path
+      d="M16 36.5C20.5 40 27.5 40 32 36.5"
+      stroke="#a1a1aa"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+
+    <defs>
+      <linearGradient id="resqEmblemTileGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#27272a" />
+        <stop offset="50%" stopColor="#18181b" />
+        <stop offset="100%" stopColor="#09090b" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+/**
+ * ResQFood Official Simple & Professional Brand Logo
  */
 const BrandLogo = ({
   size = 'md',
-  variant = 'hybrid', // 'hybrid' | 'image' | 'emblem'
+  variant = 'hybrid', // 'hybrid' | 'emblem'
   theme = 'light', // 'light' | 'dark'
   subtitle = 'SMART FOOD RESCUE NETWORK',
   showTagline = true,
-  animated = true,
   to = '/',
   className = '',
   style = {},
 }) => {
-  const [imageFailed, setImageFailed] = useState(false);
-
-  // Size configurations
+  // Proportional, balanced typography & emblem dimensions
   const sizeMap = {
-    xs: { emblemSize: 30, textMain: '1rem', subText: '0.54rem', sparkleSize: 10, imgHeight: 28 },
-    sm: { emblemSize: 36, textMain: '1.18rem', subText: '0.58rem', sparkleSize: 12, imgHeight: 34 },
-    md: { emblemSize: 44, textMain: '1.38rem', subText: '0.64rem', sparkleSize: 14, imgHeight: 42 },
-    lg: { emblemSize: 56, textMain: '1.75rem', subText: '0.72rem', sparkleSize: 17, imgHeight: 54 },
-    xl: { emblemSize: 76, textMain: '2.4rem', subText: '0.82rem', sparkleSize: 22, imgHeight: 74 },
+    xs: { emblemSize: 24, textMain: '0.88rem', subText: '0.46rem', gap: '0.45rem' },
+    sm: { emblemSize: 28, textMain: '0.98rem', subText: '0.50rem', gap: '0.5rem' },
+    md: { emblemSize: 32, textMain: '1.08rem', subText: '0.52rem', gap: '0.55rem' },
+    lg: { emblemSize: 40, textMain: '1.30rem', subText: '0.60rem', gap: '0.65rem' },
+    xl: { emblemSize: 52, textMain: '1.65rem', subText: '0.70rem', gap: '0.8rem' },
   };
 
   const currentSize = sizeMap[size] || sizeMap.md;
   const isDark = theme === 'dark';
 
-  // Render the Animated GIF-like Emblem Badge
-  const renderEmblem = (customClass = '') => (
-    <div
-      className={`brand-emblem-aura-container ${animated ? 'is-animated' : ''} ${customClass}`}
-      style={{
-        width: `${currentSize.emblemSize}px`,
-        height: `${currentSize.emblemSize}px`,
-        borderRadius: `${Math.round(currentSize.emblemSize * 0.28)}px`,
-      }}
-    >
-      {/* 1. Animated Conic Gradient Aura Ring */}
-      <div
-        className="brand-emblem-aura-ring"
-        style={{
-          borderRadius: `${Math.round(currentSize.emblemSize * 0.32)}px`,
-        }}
-      />
-
-      {/* 2. The Core Jewel Badge with Rose Coral & Silk Cream Gradient */}
-      <div
-        className="brand-emblem-badge"
-        style={{
-          width: '100%',
-          height: '100%',
-          borderRadius: `${Math.round(currentSize.emblemSize * 0.28)}px`,
-          background: isDark
-            ? 'linear-gradient(135deg, #e11d48 0%, #be123c 55%, #881337 100%)'
-            : 'linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%)',
-          border: '1.5px solid rgba(253, 245, 238, 0.75)',
-        }}
-      >
-        {/* 3. Animated Diagonal Glass Sheen Sweep */}
-        <div className="brand-emblem-sheen-sweep" />
-
-        {/* 4. Twinkling Diamond Star Sparkle */}
-        <svg
-          className="brand-emblem-sparkle"
-          style={{
-            width: `${currentSize.sparkleSize}px`,
-            height: `${currentSize.sparkleSize}px`,
-          }}
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <path
-            d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"
-            fill="url(#sparkleGradientRoseSilk)"
-          />
-          <defs>
-            <linearGradient id="sparkleGradientRoseSilk" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="60%" stopColor="#fdf5ee" />
-              <stop offset="100%" stopColor="#fbede4" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        {/* 5. Official RQ Emblem (Luminous White & Warm Silk Cream Metallic) */}
-        <img
-          src="/images/resqfood_emblem_white_silk.png"
-          alt="ResQFood"
-          className="brand-emblem-img"
-          onError={(e) => {
-            // Fallback to rose silk emblem if white silk not accessible
-            e.currentTarget.src = '/images/resqfood_emblem_rose_silk.png';
-          }}
-        />
-      </div>
-    </div>
-  );
-
-  // If variant === 'emblem'
+  // Emblem Only
   if (variant === 'emblem') {
-    const emblemOnly = renderEmblem(className);
+    const emblem = <ResQEmblem size={currentSize.emblemSize} isDark={isDark} className={className} />;
     if (to) {
       return (
         <Link to={to} style={{ textDecoration: 'none', display: 'inline-flex', ...style }} title="ResQFood Home">
-          {emblemOnly}
+          {emblem}
         </Link>
       );
     }
-    return emblemOnly;
+    return emblem;
   }
 
-  // If variant === 'image'
-  if (variant === 'image' && !imageFailed) {
-    const imageContent = (
-      <div
-        className={`brand-logo-wrap ${className}`}
-        style={{ display: 'inline-flex', alignItems: 'center', ...style }}
-      >
-        <img
-          src={isDark ? '/images/resqfood_logo_transparent.png' : '/images/resqfood_logo_tight.png'}
-          alt="ResQFood — Smart Food Rescue Network"
-          style={{
-            height: `${currentSize.imgHeight}px`,
-            width: 'auto',
-            objectFit: 'contain',
-            filter: 'drop-shadow(0 4px 14px rgba(244, 63, 94, 0.35))',
-            transition: 'transform 0.25s ease',
-          }}
-          onError={() => setImageFailed(true)}
-        />
-      </div>
-    );
-
-    if (to) {
-      return (
-        <Link to={to} style={{ textDecoration: 'none', display: 'inline-block' }} title="ResQFood Home">
-          {imageContent}
-        </Link>
-      );
-    }
-    return imageContent;
-  }
-
-  // Hybrid variant (Emblem Badge + High-Precision Wordmark & Animated Gradient Tagline)
-  const hybridContent = (
+  // Hybrid: Vector Emblem + Clean Modern Wordmark
+  const content = (
     <div
       className={`brand-logo-wrap ${className}`}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: size === 'xs' ? '0.5rem' : size === 'sm' ? '0.65rem' : '0.8rem',
+        gap: currentSize.gap,
+        textDecoration: 'none',
         ...style,
       }}
     >
-      {/* Animated Emblem Badge */}
-      {renderEmblem()}
+      <ResQEmblem size={currentSize.emblemSize} isDark={isDark} />
 
-      {/* Brand Wordmark & Dynamic Tagline */}
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div
           className="brand-name-text"
           style={{
             fontSize: currentSize.textMain,
             fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.05,
-            color: isDark ? '#ffffff' : '#0f172a',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.1,
             display: 'flex',
             alignItems: 'baseline',
           }}
         >
-          <span>ResQ</span>
-          <span
-            className="brand-text-animated-gradient"
-            style={{
-              marginLeft: '2px',
-              fontWeight: 900,
-            }}
-          >
-            Food
-          </span>
+          <span style={{ color: isDark ? '#ffffff' : '#09090b', fontWeight: 800 }}>ResQ</span>
+          <span style={{ color: isDark ? '#a1a1aa' : '#52525b', fontWeight: 600, marginLeft: '2px' }}>Food</span>
         </div>
 
         {showTagline && (
@@ -192,11 +149,11 @@ const BrandLogo = ({
             className="brand-tagline-text"
             style={{
               fontSize: currentSize.subText,
-              color: isDark ? '#cbd5e1' : '#64748b',
+              color: isDark ? '#94a3b8' : '#71717a',
               fontWeight: 700,
-              letterSpacing: '0.08em',
+              letterSpacing: '0.10em',
               textTransform: 'uppercase',
-              marginTop: '2px',
+              marginTop: '1.5px',
               whiteSpace: 'nowrap',
             }}
           >
@@ -210,12 +167,12 @@ const BrandLogo = ({
   if (to) {
     return (
       <Link to={to} style={{ textDecoration: 'none', display: 'inline-block' }} title="ResQFood Platform Home">
-        {hybridContent}
+        {content}
       </Link>
     );
   }
 
-  return hybridContent;
+  return content;
 };
 
 export default BrandLogo;

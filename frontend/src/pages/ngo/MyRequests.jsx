@@ -56,10 +56,10 @@ export const MyRequests = () => {
           to="/ngo/available-food"
           className="btn btn-primary"
           style={{
-            background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
+            background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
             border: 'none',
             borderRadius: 'var(--radius-full)',
-            boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.4rem',

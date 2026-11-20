@@ -206,7 +206,7 @@ export const AvailableFood = () => {
                   onClick={() => handleClaimClick(donation)}
                   className="btn btn-primary btn-sm"
                   style={{
-                    background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
+                    background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
                     border: 'none',
                     borderRadius: 'var(--radius-full)',
                     display: 'inline-flex',
@@ -288,7 +288,7 @@ export const AvailableFood = () => {
                   disabled={submitting}
                   className="btn btn-primary"
                   style={{
-                    background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
+                    background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
                     border: 'none',
                     borderRadius: 'var(--radius-full)',
                     padding: '0.75rem 1.6rem',

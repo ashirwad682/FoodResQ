@@ -18,7 +18,7 @@ class VolunteerListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        queryset = VolunteerProfile.objects.all()
+        queryset = VolunteerProfile.objects.all().order_by('-total_pickups_completed')
         avail = self.request.query_params.get('available')
         if avail is not None:
             queryset = queryset.filter(is_available=avail.lower() in ['true', '1'])
