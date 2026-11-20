@@ -2,7 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { donationService } from '../../services/donationService';
 import { DonationCard } from '../../components/cards/DonationCard';
-import { PlusCircle, Search, Filter, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
+import {
+  PlusCircle,
+  Search,
+  Filter,
+  CheckCircle2,
+  AlertCircle,
+  Trash2,
+  Package,
+  Clock,
+  ArrowRight,
+  ExternalLink,
+} from 'lucide-react';
 
 export const MyDonations = () => {
   const location = useLocation();
@@ -14,7 +25,7 @@ export const MyDonations = () => {
 
   const loadDonations = async () => {
     try {
-      const data = await donationService.getDonations();
+      const data = await donationService.getDonations({ my_donations: true });
       setDonations(data.results || data || []);
     } catch (err) {
       console.error('Failed to load donations', err);
@@ -28,7 +39,7 @@ export const MyDonations = () => {
   }, []);
 
   const handleDelete = async (id, title) => {
-    if (!window.confirm(`Are you sure you want to cancel the donation "${title}"?`)) return;
+    if (!window.confirm(`Are you sure you want to cancel the surplus donation "${title}"?`)) return;
     try {
       await donationService.deleteDonation(id);
       setDonations((prev) => prev.filter((d) => d.id !== id));
@@ -40,129 +51,182 @@ export const MyDonations = () => {
 
   const filtered = donations.filter((d) => {
     const matchesStatus = filterStatus === 'ALL' || d.status === filterStatus;
-    const matchesSearch = d.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          d.food_type?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      d.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.food_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.pickup_address?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {/* Header Banner */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>My Food Donations</h1>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Surplus Food Inventory
+          </h1>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-            Track and manage all surplus food items posted from your commercial kitchen.
+            Complete audit log and live management of all surplus batches posted from your kitchen.
           </p>
         </div>
-        <Link to="/donor/donate" className="btn btn-primary">
+        <Link
+          to="/donor/donate"
+          className="btn btn-primary"
+          style={{
+            background: 'var(--brand-rose-gradient)',
+            border: 'none',
+            borderRadius: 'var(--radius-full)',
+            boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
           <PlusCircle size={18} />
-          <span>New Surplus Batch</span>
+          <span>Post New Batch</span>
         </Link>
       </div>
 
       {bannerMessage && (
-        <div style={{
-          background: '#ecfdf5',
-          border: '1px solid #a7f3d0',
-          color: '#065f46',
-          padding: '0.85rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '0.88rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
+        <div
+          style={{
+            background: '#ecfdf5',
+            border: '1px solid #a7f3d0',
+            color: '#065f46',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <CheckCircle2 size={18} />
             <span>{bannerMessage}</span>
           </div>
-          <button onClick={() => setBannerMessage('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#065f46', fontWeight: 700 }}>✕</button>
+          <button
+            onClick={() => setBannerMessage('')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#065f46', fontWeight: 700 }}
+          >
+            ✕
+          </button>
         </div>
       )}
 
-      {/* Filters & Search */}
-      <div className="card" style={{ padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '240px' }}>
-          <Search size={18} color="var(--text-muted)" />
+      {/* Filter and Search Bar */}
+      <div
+        className="card"
+        style={{
+          padding: '1.1rem 1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          borderRadius: 'var(--radius-lg)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            flex: 1,
+            minWidth: '260px',
+            background: 'var(--bg-alt)',
+            padding: '0.45rem 0.85rem',
+            borderRadius: 'var(--radius-full)',
+            border: '1px solid var(--border)',
+          }}
+        >
+          <Search size={16} color="var(--text-muted)" />
           <input
             type="text"
-            placeholder="Search by food name or category..."
+            placeholder="Search by dish name, food type, or address..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.9rem' }}
+            style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.85rem', background: 'transparent' }}
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Filter size={16} color="var(--text-muted)" />
-          {['ALL', 'AVAILABLE', 'REQUESTED', 'ASSIGNED', 'IN_TRANSIT', 'COMPLETED'].map((status) => (
+        <div className="filter-pills-row">
+          {[
+            { id: 'ALL', label: 'All Batches' },
+            { id: 'AVAILABLE', label: 'Available' },
+            { id: 'REQUESTED', label: 'Requested' },
+            { id: 'ASSIGNED', label: 'Assigned' },
+            { id: 'IN_TRANSIT', label: 'In Transit' },
+            { id: 'COMPLETED', label: 'Rescued' },
+          ].map((pill) => (
             <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              className="btn btn-sm"
-              style={{
-                background: filterStatus === status ? 'var(--primary)' : 'var(--bg-alt)',
-                color: filterStatus === status ? '#fff' : 'var(--text-secondary)',
-                border: '1px solid var(--border)',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-              }}
+              key={pill.id}
+              onClick={() => setFilterStatus(pill.id)}
+              className={`filter-pill ${filterStatus === pill.id ? 'active' : ''}`}
             >
-              {status.replace('_', ' ')}
+              {pill.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Donations List */}
+      {/* Content Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-          Loading your donations from live MongoDB Atlas database...
+        <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
+          Loading kitchen surplus records from MongoDB...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3.5rem' }}>
-          <AlertCircle size={44} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>No donations matching your filter</h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            Try adjusting your search criteria or register a new batch.
+        <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
+          <Package size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            No surplus donations found
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem', maxWidth: '420px', margin: '0.35rem auto 1.5rem' }}>
+            {searchTerm || filterStatus !== 'ALL'
+              ? 'Try adjusting your search criteria or filter pills.'
+              : 'You have not registered any surplus food batches yet. Post excess items to save food.'}
           </p>
+          <Link to="/donor/donate" className="btn btn-primary btn-sm" style={{ borderRadius: 'var(--radius-full)' }}>
+            <PlusCircle size={16} />
+            <span>Post First Surplus Batch</span>
+          </Link>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1.25rem' }}>
           {filtered.map((d) => (
-            <div key={d.id} style={{ position: 'relative' }}>
-              <DonationCard
-                donation={d}
-                actionLabel="Details & Matching"
-                actionTo={`/donor/donations/${d.id}`}
-              />
-              {d.status === 'AVAILABLE' && (
-                <button
-                  onClick={() => handleDelete(d.id, d.title)}
-                  title="Cancel this donation"
-                  style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    background: 'rgba(255, 255, 255, 0.9)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm)',
-                    padding: '0.35rem 0.5rem',
-                    color: 'var(--danger)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                  }}
-                >
-                  <Trash2 size={13} />
-                  <span>Cancel</span>
-                </button>
-              )}
-            </div>
+            <DonationCard
+              key={d.id}
+              donation={d}
+              actionButton={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  {['AVAILABLE', 'REQUESTED'].includes(d.status) && (
+                    <button
+                      onClick={() => handleDelete(d.id, d.title)}
+                      className="btn btn-secondary btn-sm"
+                      title="Cancel Donation"
+                      style={{ padding: '0.45rem', borderRadius: 'var(--radius-full)', color: 'var(--danger)' }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
+                  <Link
+                    to={`/donor/donations/${d.id}`}
+                    className="btn btn-primary btn-sm"
+                    style={{
+                      borderRadius: 'var(--radius-full)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      background: 'var(--primary)',
+                    }}
+                  >
+                    <span>Inspect</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              }
+            />
           ))}
         </div>
       )}

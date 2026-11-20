@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { donationService } from '../../services/donationService';
 import { pickupService } from '../../services/pickupService';
 import { DonationCard } from '../../components/cards/DonationCard';
-import { Search, Filter, ShoppingBag, AlertCircle, CheckCircle2, X, Send } from 'lucide-react';
+import { Search, Filter, ShoppingBag, AlertCircle, CheckCircle2, X, Send, Clock, ArrowRight } from 'lucide-react';
 import { formatKg } from '../../utils/formatters';
 
 export const AvailableFood = () => {
@@ -16,6 +16,7 @@ export const AvailableFood = () => {
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [requestNotes, setRequestNotes] = useState('');
+  const [requestedQty, setRequestedQty] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [bannerMessage, setBannerMessage] = useState(null);
 
@@ -29,7 +30,10 @@ export const AvailableFood = () => {
       const claimId = searchParams.get('claim');
       if (claimId) {
         const target = items.find((item) => String(item.id) === String(claimId));
-        if (target) setSelectedDonation(target);
+        if (target) {
+          setSelectedDonation(target);
+          setRequestedQty(target.quantity_kg);
+        }
       }
     } catch (err) {
       console.error('Failed to load available food', err);
@@ -44,6 +48,7 @@ export const AvailableFood = () => {
 
   const handleClaimClick = (donation) => {
     setSelectedDonation(donation);
+    setRequestedQty(donation.quantity_kg);
     setRequestNotes('');
   };
 
@@ -55,6 +60,7 @@ export const AvailableFood = () => {
     try {
       await pickupService.createRequest({
         donation: selectedDonation.id,
+        requested_quantity_kg: parseFloat(requestedQty) || selectedDonation.quantity_kg,
         notes: requestNotes || 'Standard shelter pickup request.',
       });
       setBannerMessage({
@@ -62,7 +68,6 @@ export const AvailableFood = () => {
         text: `Pickup request sent for "${selectedDonation.title}"! Waiting for donor confirmation.`,
       });
       setSelectedDonation(null);
-      // Clean query params
       setSearchParams({});
       loadAvailableFood();
     } catch (err) {
@@ -76,173 +81,221 @@ export const AvailableFood = () => {
     const matchesCat = categoryFilter === 'ALL' || d.food_type === categoryFilter;
     const matchesSearch =
       d.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      d.pickup_address?.toLowerCase().includes(searchTerm.toLowerCase());
+      d.pickup_address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.food_type?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCat && matchesSearch;
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {/* Header */}
       <div>
-        <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Available Food Marketplace</h1>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          Available Food Marketplace
+        </h1>
         <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-          Browse verified surplus food available for immediate rescue. Claim a batch to dispatch volunteer riders.
+          Browse verified surplus food available for immediate shelter rescue. Claim a batch to dispatch volunteer riders.
         </p>
       </div>
 
       {bannerMessage && (
-        <div style={{
-          background: bannerMessage.type === 'success' ? '#ecfdf5' : '#fef2f2',
-          border: `1px solid ${bannerMessage.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
-          color: bannerMessage.type === 'success' ? '#065f46' : 'var(--danger)',
-          padding: '0.85rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '0.88rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
+        <div
+          style={{
+            background: bannerMessage.type === 'success' ? '#ecfdf5' : '#fef2f2',
+            border: `1px solid ${bannerMessage.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+            color: bannerMessage.type === 'success' ? '#065f46' : 'var(--danger)',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <CheckCircle2 size={18} />
             <span>{bannerMessage.text}</span>
           </div>
-          <button onClick={() => setBannerMessage(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>✕</button>
+          <button
+            onClick={() => setBannerMessage(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}
+          >
+            ✕
+          </button>
         </div>
       )}
 
-      {/* Filters & Search */}
-      <div className="card" style={{ padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '240px' }}>
-          <Search size={18} color="var(--text-muted)" />
+      {/* Filter and Search Bar */}
+      <div
+        className="card"
+        style={{
+          padding: '1.1rem 1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          borderRadius: 'var(--radius-lg)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            flex: 1,
+            minWidth: '260px',
+            background: 'var(--bg-alt)',
+            padding: '0.45rem 0.85rem',
+            borderRadius: 'var(--radius-full)',
+            border: '1px solid var(--border)',
+          }}
+        >
+          <Search size={16} color="var(--text-muted)" />
           <input
             type="text"
-            placeholder="Search by meal name or pickup area..."
+            placeholder="Search by food name, category, or pickup area..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.9rem' }}
+            style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.85rem', background: 'transparent' }}
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Filter size={16} color="var(--text-muted)" />
-          {['ALL', 'COOKED_MEAL', 'BAKED_GOODS', 'RAW_INGREDIENTS', 'PACKAGED'].map((cat) => (
+        <div className="filter-pills-row">
+          {[
+            { id: 'ALL', label: 'All Categories' },
+            { id: 'COOKED_MEAL', label: 'Cooked Meals' },
+            { id: 'BAKERY', label: 'Bakery' },
+            { id: 'RAW_INGREDIENTS', label: 'Fresh Produce' },
+            { id: 'PACKAGED_FOOD', label: 'Packaged' },
+          ].map((pill) => (
             <button
-              key={cat}
-              onClick={() => setCategoryFilter(cat)}
-              className="btn btn-sm"
-              style={{
-                background: categoryFilter === cat ? 'var(--primary)' : 'var(--bg-alt)',
-                color: categoryFilter === cat ? '#fff' : 'var(--text-secondary)',
-                border: '1px solid var(--border)',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-              }}
+              key={pill.id}
+              onClick={() => setCategoryFilter(pill.id)}
+              className={`filter-pill ${categoryFilter === pill.id ? 'active' : ''}`}
             >
-              {cat.replace('_', ' ')}
+              {pill.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Food Cards Grid */}
+      {/* Grid of Available Food */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-          Fetching available surplus batches...
+        <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
+          Loading available surplus batches from MongoDB Atlas...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3.5rem' }}>
-          <ShoppingBag size={44} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>No Food Batches Available</h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            There are currently no unclaimed food donations matching this criteria.
+        <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
+          <ShoppingBag size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            No surplus food matches your search
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
+            Try clearing search keywords or selecting a different food category.
           </p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
-          {filtered.map((d) => (
+          {filtered.map((donation) => (
             <DonationCard
-              key={d.id}
-              donation={d}
-              actionLabel="Claim This Food"
-              onAction={handleClaimClick}
+              key={donation.id}
+              donation={donation}
+              actionButton={
+                <button
+                  onClick={() => handleClaimClick(donation)}
+                  className="btn btn-primary btn-sm"
+                  style={{
+                    background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                  }}
+                >
+                  <span>Claim Batch</span>
+                  <ArrowRight size={14} />
+                </button>
+              }
             />
           ))}
         </div>
       )}
 
-      {/* Claim Modal */}
+      {/* Claim Modal Dialog */}
       {selectedDonation && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(15, 23, 42, 0.65)',
-          backdropFilter: 'blur(4px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1.5rem',
-          zIndex: 100,
-        }}>
-          <div className="card" style={{ maxWidth: '520px', width: '100%', padding: '2rem', position: 'relative' }}>
-            <button
-              onClick={() => setSelectedDonation(null)}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--text-muted)',
-              }}
-            >
-              <X size={20} />
-            </button>
-
-            <div style={{ marginBottom: '1.25rem' }}>
-              <span className="badge badge-info" style={{ marginBottom: '0.5rem' }}>
-                {selectedDonation.food_type}
-              </span>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                Request Pickup: {selectedDonation.title}
-              </h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                Weight: <strong>{formatKg(selectedDonation.quantity_kg)}</strong> (~{selectedDonation.servings || Math.round(selectedDonation.quantity_kg * 2.5)} meals)
-              </p>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                Pickup: {selectedDonation.pickup_address}
-              </p>
+        <div className="modal-backdrop-dark" onClick={() => setSelectedDonation(null)}>
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Claim Surplus Food Batch
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  "{selectedDonation.title}" • Total available: {selectedDonation.quantity_kg} kg
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedDonation(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+              >
+                <X size={20} />
+              </button>
             </div>
 
-            <form onSubmit={handleConfirmRequest} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div className="form-group">
-                <label className="form-label">Notes for Donor & Volunteer (Optional)</label>
-                <textarea
+            <form onSubmit={handleConfirmRequest} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Requested Quantity (kg)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  max={selectedDonation.quantity_kg}
                   className="form-control"
-                  rows={3}
-                  placeholder="e.g. Shelter is open 24/7. Our gatekeeper will accept the boxes..."
-                  value={requestNotes}
-                  onChange={(e) => setRequestNotes(e.target.value)}
+                  value={requestedQty}
+                  onChange={(e) => setRequestedQty(e.target.value)}
+                  required
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Distribution Plan & Shelter Notes for Donor
+                </label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  placeholder="e.g. FeedHope Shelter will distribute these portions during our evening community meal drive."
+                  value={requestNotes}
+                  onChange={(e) => setRequestNotes(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
                 <button
                   type="button"
                   onClick={() => setSelectedDonation(null)}
-                  className="btn btn-secondary btn-sm"
+                  className="btn btn-secondary"
+                  style={{ borderRadius: 'var(--radius-full)' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary"
+                  style={{
+                    background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '0.75rem 1.6rem',
+                  }}
                 >
-                  <Send size={16} />
-                  <span>{submitting ? 'Submitting...' : 'Confirm Request'}</span>
+                  <Send size={15} />
+                  <span>{submitting ? 'Submitting Claim...' : 'Send Claim Request'}</span>
                 </button>
               </div>
             </form>

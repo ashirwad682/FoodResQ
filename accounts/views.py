@@ -16,6 +16,19 @@ from .serializers import (
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
+        username_or_email = attrs.get(self.username_field, '')
+        if username_or_email:
+            raw_input = username_or_email.strip()
+            # 1. Resolve registered email to user's username
+            user_by_email = User.objects.filter(email__iexact=raw_input).first()
+            if user_by_email:
+                attrs[self.username_field] = user_by_email.username
+            else:
+                # 2. Case-insensitive username lookup
+                user_by_uname = User.objects.filter(username__iexact=raw_input).first()
+                if user_by_uname:
+                    attrs[self.username_field] = user_by_uname.username
+
         data = super().validate(attrs)
         user_serializer = UserSerializer(self.user)
         data['user'] = user_serializer.data
@@ -106,20 +119,38 @@ class ProfileView(APIView):
         # Update role-specific profile fields
         if user.role == UserRole.DONOR and hasattr(user, 'donor_profile'):
             profile = user.donor_profile
-            p_serializer = DonorProfileSerializer(profile, data=data.get('donor_profile', data), partial=True)
+            donor_data = dict(data.get('donor_profile') or {})
+            for k in ['business_name', 'organization_name', 'fssai_license', 'food_license_number', 'address', 'pickup_instructions', 'donor_type']:
+                if k in data and k not in donor_data:
+                    donor_data[k] = data[k]
+            if 'business_name' in donor_data and 'organization_name' not in donor_data:
+                donor_data['organization_name'] = donor_data['business_name']
+            if 'food_license_number' in donor_data and 'fssai_license' not in donor_data:
+                donor_data['fssai_license'] = donor_data['food_license_number']
+            p_serializer = DonorProfileSerializer(profile, data=donor_data, partial=True)
             if p_serializer.is_valid():
                 p_serializer.save()
 
         elif user.role == UserRole.VOLUNTEER and hasattr(user, 'volunteer_profile'):
             profile = user.volunteer_profile
-            p_serializer = VolunteerProfileSerializer(profile, data=data.get('volunteer_profile', data), partial=True)
+            v_data = dict(data.get('volunteer_profile') or {})
+            for k in ['vehicle_type', 'vehicle_number', 'max_distance_km', 'is_available', 'address', 'emergency_contact']:
+                if k in data and k not in v_data:
+                    v_data[k] = data[k]
+            p_serializer = VolunteerProfileSerializer(profile, data=v_data, partial=True)
             if p_serializer.is_valid():
                 p_serializer.save()
 
         elif user.role == UserRole.NGO and hasattr(user, 'organization'):
             from organizations.serializers import OrganizationSerializer
             org = user.organization
-            o_serializer = OrganizationSerializer(org, data=data.get('organization', data), partial=True)
+            org_data = dict(data.get('organization') or {})
+            for k in ['name', 'registration_number', 'capacity_kg', 'max_capacity_kg', 'address', 'phone', 'contact_email', 'accepts_cooked', 'accepts_raw', 'accepts_packaged']:
+                if k in data and k not in org_data:
+                    org_data[k] = data[k]
+            if 'capacity_kg' in org_data and 'max_capacity_kg' not in org_data:
+                org_data['max_capacity_kg'] = org_data['capacity_kg']
+            o_serializer = OrganizationSerializer(org, data=org_data, partial=True)
             if o_serializer.is_valid():
                 o_serializer.save()
 

@@ -192,7 +192,9 @@ class ApprovePickupRequestView(APIView):
                 related_donation_id=str(donation.id)
             )
 
-        return Response(PickupRequestSerializer(pickup_req).data, status=status.HTTP_200_OK)
+        resp_data = PickupRequestSerializer(pickup_req).data
+        resp_data['assignment_id'] = str(assignment.id)
+        return Response(resp_data, status=status.HTTP_200_OK)
 
 
 class RejectPickupRequestView(APIView):

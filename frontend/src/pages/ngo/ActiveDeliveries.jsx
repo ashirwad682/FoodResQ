@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { pickupService } from '../../services/pickupService';
-import { Truck, MapPin, User, CheckCircle2, AlertCircle, Clock, ShieldCheck, Phone } from 'lucide-react';
+import {
+  Truck,
+  MapPin,
+  User,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  ShieldCheck,
+  Phone,
+  Thermometer,
+  Star,
+  Send,
+  X,
+} from 'lucide-react';
 import { formatDate, formatKg } from '../../utils/formatters';
 
 export const ActiveDeliveries = () => {
@@ -9,12 +22,19 @@ export const ActiveDeliveries = () => {
   const [actionLoading, setActionLoading] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
+  // Delivery Receipt Confirmation Modal State
+  const [confirmModalItem, setConfirmModalItem] = useState(null);
+  const [rating, setRating] = useState(5.0);
+  const [confirmNotes, setConfirmNotes] = useState('Food inspected and verified safe above 65°C by shelter intake staff.');
+
   const loadDeliveries = async () => {
     try {
       const data = await pickupService.getAssignments();
       const list = data.results || data || [];
-      // Show active or recently delivered
-      setAssignments(list.filter((a) => ['ASSIGNED', 'IN_TRANSIT', 'DELIVERED'].includes(a.status)));
+      // Show active or delivered assignments
+      setAssignments(
+        list.filter((a) => ['ASSIGNED', 'IN_TRANSIT', 'DELIVERED', 'COLLECTED'].includes(a.status))
+      );
     } catch (err) {
       console.error('Failed to load deliveries', err);
     } finally {
@@ -26,62 +46,95 @@ export const ActiveDeliveries = () => {
     loadDeliveries();
   }, []);
 
-  const handleConfirmReceipt = async (id) => {
-    setActionLoading(id);
+  const handleOpenConfirmModal = (item) => {
+    setConfirmModalItem(item);
+    setRating(5.0);
+    setConfirmNotes('Food inspected and verified safe above 65°C by shelter intake staff.');
+  };
+
+  const handleConfirmReceipt = async (e) => {
+    e.preventDefault();
+    if (!confirmModalItem) return;
+
+    setActionLoading(confirmModalItem.id);
     setFeedback(null);
     try {
-      await pickupService.confirmDelivery(id, { notes: 'Food received and verified safe by NGO staff.' });
-      setFeedback({ type: 'success', message: 'Delivery confirmed! Impact metrics have been logged into the global food rescue ledger.' });
+      await pickupService.confirmDelivery(confirmModalItem.id, {
+        rating: parseFloat(rating),
+        notes: confirmNotes,
+      });
+      setFeedback({
+        type: 'success',
+        message: 'Delivery confirmed! Digital receipt generated and impact logged into the food rescue ledger.',
+      });
+      setConfirmModalItem(null);
       loadDeliveries();
     } catch (err) {
-      setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to confirm receipt.' });
+      setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to confirm delivery receipt.' });
     } finally {
       setActionLoading(null);
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {/* Header */}
       <div>
-        <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Active Inbound Deliveries</h1>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          Active Inbound Deliveries
+        </h1>
         <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-          Track real-time volunteer rescue riders transporting surplus food to your shelter.
+          Track real-time volunteer courier riders transporting surplus food to your shelter.
         </p>
       </div>
 
       {feedback && (
-        <div style={{
-          background: feedback.type === 'success' ? '#ecfdf5' : '#fef2f2',
-          border: `1px solid ${feedback.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
-          color: feedback.type === 'success' ? '#065f46' : 'var(--danger)',
-          padding: '0.85rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '0.88rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}>
-          {feedback.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-          <span>{feedback.message}</span>
+        <div
+          style={{
+            background: feedback.type === 'success' ? '#ecfdf5' : '#fef2f2',
+            border: `1px solid ${feedback.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+            color: feedback.type === 'success' ? '#065f46' : 'var(--danger)',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <CheckCircle2 size={18} />
+            <span>{feedback.message}</span>
+          </div>
+          <button
+            onClick={() => setFeedback(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}
+          >
+            ✕
+          </button>
         </div>
       )}
 
+      {/* Deliveries List */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-          Tracking active rescue deliveries...
+        <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
+          Connecting to live delivery dispatch telemetry...
         </div>
       ) : assignments.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3.5rem' }}>
-          <Truck size={44} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>No In-Flight Deliveries</h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            When an approved food request is assigned to a volunteer, live tracking details will appear here.
+        <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
+          <Truck size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            No in-flight deliveries currently
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
+            When an approved food request is picked up by a volunteer courier, live tracking details will appear here.
           </p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {assignments.map((item) => {
             const isDelivered = item.status === 'DELIVERED';
+            const isCollected = item.status === 'COLLECTED';
             const isInTransit = item.status === 'IN_TRANSIT';
 
             return (
@@ -94,115 +147,215 @@ export const ActiveDeliveries = () => {
                   flexDirection: 'column',
                   gap: '1.25rem',
                   borderLeft: `4px solid ${
-                    isDelivered ? 'var(--primary)' : isInTransit ? '#3b82f6' : 'var(--warning)'
-                  }`
+                    isDelivered ? '#059669' : isCollected || isInTransit ? '#0284c7' : '#f59e0b'
+                  }`,
                 }}
               >
-                {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 700 }}>
-                      Mission #{item.id}
+                {/* Status Bar */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <span
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: 'var(--radius-full)',
+                        background: isDelivered ? '#ecfdf5' : '#eff6ff',
+                        color: isDelivered ? '#059669' : '#0284c7',
+                        border: `1px solid ${isDelivered ? '#a7f3d0' : '#bfdbfe'}`,
+                      }}
+                    >
+                      {item.status?.replace('_', ' ')}
                     </span>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
-                      {item.donation_title || `Food Batch #${item.donation?.slice(-6)}`}
-                    </h3>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Mission #{item.id?.slice(-6)}
+                    </span>
                   </div>
 
-                  <span className={`badge badge-${item.status.toLowerCase()}`} style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}>
-                    {item.status.replace('_', ' ')}
-                  </span>
+                  {isDelivered && (
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <CheckCircle2 size={16} />
+                      <span>Arrived at Facility • Pending Signoff</span>
+                    </span>
+                  )}
                 </div>
 
-                {/* Tracking Steps Bar */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', background: 'var(--bg-alt)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>1. Assigned</div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--primary)' }}>✓ Rider Dispatched</div>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: isInTransit || isDelivered ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                      2. Food Collected
-                    </div>
-                    <div style={{ fontSize: '0.72rem', color: isInTransit || isDelivered ? '#3b82f6' : 'var(--text-muted)' }}>
-                      {isInTransit || isDelivered ? '✓ Picked up from kitchen' : 'Pending pickup'}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: isDelivered ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                      3. Arrived at Shelter
-                    </div>
-                    <div style={{ fontSize: '0.72rem', color: isDelivered ? 'var(--primary)' : 'var(--text-muted)' }}>
-                      {isDelivered ? '✓ Arrived, awaiting sign-off' : 'In transit'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Volunteer & Destination info */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
+                {/* Details Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '1.5rem', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Rescue Volunteer</span>
-                    <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <User size={16} color="var(--primary)" />
-                      <span>{item.volunteer_name || 'Volunteer Rider'}</span>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+                      {item.donation_title || 'Surplus Food Batch'}
+                    </h3>
+                    <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+                      Quantity: <strong>{formatKg(item.donation_quantity)}</strong> • Category: <strong>{item.donation_food_type}</strong>
                     </div>
-                    {item.volunteer_phone && (
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.2rem' }}>
-                        <Phone size={13} />
-                        <span>{item.volunteer_phone}</span>
+
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.6rem' }}>
+                      <MapPin size={15} style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <span>Origin: {item.pickup_address}</span>
+                    </div>
+                  </div>
+
+                  {/* Courier Card */}
+                  <div
+                    style={{
+                      background: 'var(--bg-alt)',
+                      padding: '1rem 1.25rem',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '1rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
+                        Assigned Courier Rider
                       </div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.15rem' }}>
+                        {item.volunteer_name || 'Volunteer Courier'}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                        Vehicle: {item.volunteer_vehicle || 'Motorcycle'}
+                      </div>
+                    </div>
+
+                    {item.volunteer_phone && (
+                      <a
+                        href={`tel:${item.volunteer_phone}`}
+                        className="btn btn-secondary btn-sm"
+                        style={{ borderRadius: 'var(--radius-full)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                      >
+                        <Phone size={13} />
+                        <span>Call</span>
+                      </a>
                     )}
                   </div>
-
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Pickup Origin</span>
-                    <div style={{ color: 'var(--text-secondary)', marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <MapPin size={16} color="var(--danger)" />
-                      <span>{item.pickup_address || 'Commercial Kitchen'}</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Timing</span>
-                    <div style={{ color: 'var(--text-secondary)', marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <Clock size={16} />
-                      <span>Assigned {formatDate(item.assigned_at)}</span>
-                    </div>
-                  </div>
                 </div>
 
-                {/* Confirm Action Button */}
+                {/* Actions Footer */}
                 {isDelivered && (
-                  <div style={{
-                    background: '#f0fdf4',
-                    border: '1px solid #bbf7d0',
-                    padding: '1rem 1.25rem',
-                    borderRadius: 'var(--radius-md)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: '1rem'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <ShieldCheck size={20} color="var(--primary)" />
-                      <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#166534' }}>
-                        Rider has delivered the food boxes to your shelter! Inspect items and confirm delivery.
-                      </span>
-                    </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
                     <button
-                      onClick={() => handleConfirmReceipt(item.id)}
-                      disabled={actionLoading === item.id}
-                      className="btn btn-primary btn-sm"
+                      onClick={() => handleOpenConfirmModal(item)}
+                      className="btn btn-primary"
+                      style={{
+                        background: 'var(--brand-rose-gradient)',
+                        border: 'none',
+                        borderRadius: 'var(--radius-full)',
+                        padding: '0.7rem 1.6rem',
+                        fontSize: '0.92rem',
+                        boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                      }}
                     >
                       <CheckCircle2 size={16} />
-                      <span>{actionLoading === item.id ? 'Confirming...' : 'Confirm Receipt & Inspect'}</span>
+                      <span>Confirm Safe Receipt & Rate Courier</span>
                     </button>
                   </div>
                 )}
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Confirm Delivery Modal Dialog */}
+      {confirmModalItem && (
+        <div className="modal-backdrop-dark" onClick={() => setConfirmModalItem(null)}>
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Confirm Delivery & Digital Receipt
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  "{confirmModalItem.donation_title}" • {confirmModalItem.donation_quantity} kg
+                </span>
+              </div>
+              <button
+                onClick={() => setConfirmModalItem(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmReceipt} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Courier Service Rating (1 to 5 Stars)
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem' }}>
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <button
+                      type="button"
+                      key={s}
+                      onClick={() => setRating(s)}
+                      style={{
+                        background: rating >= s ? '#fffbeb' : '#f8fafc',
+                        border: `1px solid ${rating >= s ? '#fde68a' : 'var(--border)'}`,
+                        borderRadius: 'var(--radius-md)',
+                        padding: '0.5rem 0.85rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
+                        fontSize: '0.9rem',
+                        fontWeight: 700,
+                        color: rating >= s ? '#d97706' : 'var(--text-muted)',
+                      }}
+                    >
+                      <Star size={16} fill={rating >= s ? '#f59e0b' : 'none'} color="#f59e0b" />
+                      <span>{s}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Intake Quality & Temperature Verification Notes
+                </label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  value={confirmNotes}
+                  onChange={(e) => setConfirmNotes(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmModalItem(null)}
+                  className="btn btn-secondary"
+                  style={{ borderRadius: 'var(--radius-full)' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading === confirmModalItem.id}
+                  className="btn btn-primary"
+                  style={{
+                    background: 'var(--brand-rose-gradient)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '0.75rem 1.6rem',
+                    boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+                  }}
+                >
+                  <CheckCircle2 size={16} />
+                  <span>{actionLoading === confirmModalItem.id ? 'Signing...' : 'Sign Digital Receipt'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

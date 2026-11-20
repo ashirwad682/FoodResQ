@@ -8,7 +8,7 @@ export const HowItWorks = () => {
       num: '01',
       title: 'Donor Posts Surplus Batch',
       actor: 'Restaurants, Hotels, Caterers',
-      desc: 'When kitchen shifts end or banquets conclude, the donor logs into FoodResQ and lists the remaining food batch. They specify the quantity in kg, dietary flags (Veg, Non-Veg), time prepared, and exact consumption expiry deadline.',
+      desc: 'When kitchen shifts end or banquets conclude, the donor logs into ResQFood and lists the remaining food batch. They specify the quantity in kg, dietary flags (Veg, Non-Veg), time prepared, and exact consumption expiry deadline.',
       icon: Utensils,
       color: '#09090b',
       image: '/images/chef_donor_logging.jpg',
@@ -16,7 +16,7 @@ export const HowItWorks = () => {
     {
       num: '02',
       title: 'Smart Priority Matching Engine',
-      actor: 'FoodResQ AI Algorithm',
+      actor: 'ResQFood AI Algorithm',
       desc: 'The backend engine instantly calculates multi-factor compatibility scores across nearby verified NGOs. It weighs remaining hours until expiry (urgency decay), travel distance, recipient storage capacity, and accepted food types.',
       icon: Sparkles,
       color: '#27272a',
@@ -56,7 +56,7 @@ export const HowItWorks = () => {
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
           <span className="badge badge-APPROVED" style={{ marginBottom: '0.75rem' }}>Operational Workflow</span>
           <h1 style={{ fontSize: '2.75rem', fontWeight: 800, marginBottom: '1rem' }}>
-            How FoodResQ Works
+            How ResQFood Works
           </h1>
           <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
             A streamlined 5-step operational pipeline connecting donors, algorithms, volunteers, and hungry mouths.

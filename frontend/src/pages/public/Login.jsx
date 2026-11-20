@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import BrandLogo from '../../components/common/BrandLogo';
 import {
   HeartHandshake,
   LogIn,
@@ -23,6 +24,13 @@ export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isLocalhost =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname === '0.0.0.0' ||
+      window.location.hostname.endsWith('.localhost'));
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -39,8 +47,8 @@ export const Login = () => {
       pass: 'Donor@12345',
       icon: Building2,
       tag: 'Restaurant',
-      color: '#10b981',
-      bg: '#ecfdf5',
+      color: '#fb7185',
+      bg: 'rgba(251, 113, 133, 0.12)',
     },
     {
       role: 'NGO',
@@ -102,6 +110,7 @@ export const Login = () => {
   };
 
   const handleDemoSelect = async (demo) => {
+    if (!isLocalhost) return;
     setSelectedDemo(demo.role);
     setUsername(demo.user);
     setPassword(demo.pass);
@@ -118,7 +127,7 @@ export const Login = () => {
         role === 'ADMIN' ? '/admin' : '/';
       navigate(destination, { replace: true });
     } catch (err) {
-      setError('Demo authentication failed. Please enter credentials manually.');
+      setError('Local demo account authentication failed. Verify pre-seeded database records.');
       setLoading(false);
     }
   };
@@ -131,8 +140,8 @@ export const Login = () => {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '2.5rem 1.25rem',
-        background: 'linear-gradient(135deg, #09090b 0%, #121215 50%, #09090b 100%)',
-        color: '#ffffff',
+        background: 'linear-gradient(135deg, #fbfbfd 0%, #fffbfb 45%, #fdf5f2 80%, #ffffff 100%)',
+        color: 'var(--text-primary)',
         position: 'relative',
       }}
     >
@@ -144,8 +153,8 @@ export const Login = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
           borderRadius: 'var(--radius-xl)',
           overflow: 'hidden',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 20px 45px -10px rgba(244, 63, 94, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04)',
+          border: '1px solid rgba(251, 113, 133, 0.22)',
           background: '#ffffff',
         }}
       >
@@ -157,7 +166,7 @@ export const Login = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(160deg, #18181b 0%, #09090b 100%)',
+            background: 'linear-gradient(160deg, #fffbfb 0%, #fdf5f2 100%)',
             padding: '1.5rem',
             minHeight: '480px',
           }}
@@ -170,7 +179,7 @@ export const Login = () => {
               backgroundImage: "url('/images/login_hero.jpg')",
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              filter: 'blur(28px) brightness(0.35)',
+              filter: 'blur(28px) brightness(0.95) opacity(0.35)',
               transform: 'scale(1.25)',
               pointerEvents: 'none',
             }}
@@ -178,7 +187,7 @@ export const Login = () => {
 
           <img
             src="/images/login_hero.jpg"
-            alt="FoodResQ • Rescue Surplus, Nourish Lives"
+            alt="ResQFood • Rescue Surplus, Nourish Lives"
             style={{
               position: 'relative',
               zIndex: 1,
@@ -187,8 +196,8 @@ export const Login = () => {
               maxHeight: '560px',
               objectFit: 'contain',
               borderRadius: 'var(--radius-lg)',
-              boxShadow: '0 20px 40px -8px rgba(0, 0, 0, 0.65)',
-              border: '1px solid rgba(255, 255, 255, 0.14)',
+              boxShadow: '0 16px 36px -6px rgba(244, 63, 94, 0.12)',
+              border: '1px solid rgba(251, 113, 133, 0.25)',
               display: 'block',
             }}
           />
@@ -206,21 +215,31 @@ export const Login = () => {
         >
           {/* Header */}
           <div style={{ marginBottom: '1.75rem' }}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <BrandLogo
+                variant="hybrid"
+                theme="light"
+                size="md"
+                subtitle="SMART FOOD RESCUE NETWORK"
+                to="/"
+              />
+            </div>
             <span
               style={{
-                fontSize: '0.75rem',
+                fontSize: '0.74rem',
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: 'var(--primary)',
-                background: 'var(--primary-light)',
-                padding: '0.3rem 0.75rem',
+                color: '#e11d48',
+                background: 'rgba(251, 113, 133, 0.08)',
+                border: '1px solid rgba(251, 113, 133, 0.28)',
+                padding: '0.25rem 0.75rem',
                 borderRadius: 'var(--radius-full)',
                 display: 'inline-block',
                 marginBottom: '0.75rem',
               }}
             >
-              Secure Portal Access
+              Secure Stakeholder Access
             </span>
             <h1
               style={{
@@ -234,112 +253,131 @@ export const Login = () => {
               Sign In to Your Account
             </h1>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              Enter your credentials or choose a 1-click verified role below.
+              {isLocalhost
+                ? 'Enter your registered credentials or select a pre-seeded local role below.'
+                : 'Enter your registered account credentials to authenticate against the database.'}
             </p>
           </div>
 
-          {/* Quick Demo Selector */}
-          <div
-            style={{
-              background: '#f8fafc',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '1rem',
-              marginBottom: '1.75rem',
-            }}
-          >
+          {/* Quick Demo Selector — Enabled ONLY on Localhost for Development */}
+          {isLocalhost && (
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '0.75rem',
+                background: '#f8fafc',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '1rem',
+                marginBottom: '1.75rem',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <Sparkles size={15} color="var(--primary)" />
-                <span
-                  style={{
-                    fontSize: '0.76rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    color: 'var(--text-secondary)',
-                  }}
-                >
-                  1-Click Role Switcher (Pre-Seeded)
-                </span>
-              </div>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Auto-logs in</span>
-            </div>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '0.5rem',
-              }}
-            >
-              {demoUsers.map((d) => {
-                const Icon = d.icon;
-                const isSelected = selectedDemo === d.role;
-                return (
-                  <button
-                    key={d.role}
-                    type="button"
-                    onClick={() => handleDemoSelect(d)}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <Sparkles size={15} color="var(--primary)" />
+                  <span
                     style={{
-                      background: isSelected ? d.bg : '#ffffff',
-                      border: `1.5px solid ${isSelected ? d.color : 'var(--border)'}`,
-                      borderRadius: 'var(--radius-md)',
-                      padding: '0.6rem 0.75rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.6rem',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.15s ease',
-                      boxShadow: isSelected ? 'var(--shadow-sm)' : 'none',
+                      fontSize: '0.76rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      color: 'var(--text-secondary)',
                     }}
-                    title={`Login as ${d.role}`}
                   >
-                    <div
+                    1-Click Role Switcher (Pre-Seeded)
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      background: 'rgba(251, 113, 133, 0.12)',
+                      color: 'var(--brand-rose)',
+                      border: '1px solid rgba(251, 113, 133, 0.28)',
+                      padding: '0.12rem 0.5rem',
+                      borderRadius: 'var(--radius-full)',
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Localhost Only
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Auto-logs in</span>
+              </div>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '0.5rem',
+                }}
+              >
+                {demoUsers.map((d) => {
+                  const Icon = d.icon;
+                  const isSelected = selectedDemo === d.role;
+                  return (
+                    <button
+                      key={d.role}
+                      type="button"
+                      onClick={() => handleDemoSelect(d)}
                       style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '8px',
-                        background: d.bg,
+                        background: isSelected ? d.bg : '#ffffff',
+                        border: `1.5px solid ${isSelected ? d.color : 'var(--border)'}`,
+                        borderRadius: 'var(--radius-md)',
+                        padding: '0.6rem 0.75rem',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        color: d.color,
-                        flexShrink: 0,
+                        gap: '0.6rem',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease',
+                        boxShadow: isSelected ? 'var(--shadow-sm)' : 'none',
                       }}
+                      title={`Login as ${d.role}`}
                     >
-                      <Icon size={15} />
-                    </div>
-                    <div style={{ overflow: 'hidden', flex: 1 }}>
                       <div
                         style={{
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          color: 'var(--text-primary)',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          overflow: 'hidden',
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '8px',
+                          background: d.bg,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: d.color,
+                          flexShrink: 0,
                         }}
                       >
-                        {d.role}
+                        <Icon size={15} />
                       </div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                        {d.tag}
+                      <div style={{ overflow: 'hidden', flex: 1 }}>
+                        <div
+                          style={{
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            color: 'var(--text-primary)',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {d.role}
+                        </div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                          {d.tag}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Error Message */}
           {error && (

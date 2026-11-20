@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import BrandLogo from '../components/common/BrandLogo';
 import {
   HeartHandshake,
   LogIn,
@@ -23,6 +24,15 @@ export const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 15);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const getDashboardPath = () => {
     if (role === 'DONOR') return '/donor/dashboard';
@@ -46,112 +56,31 @@ export const MainLayout = () => {
     navigate('/');
   };
 
+  const isLandingPage = location.pathname === '/';
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-main)' }}>
-      {/* Real-Time Platform Status Ticker */}
-      <div
-        style={{
-          background: 'linear-gradient(90deg, #090d16 0%, #0f172a 50%, #090d16 100%)',
-          color: '#cbd5e1',
-          fontSize: '0.78rem',
-          padding: '0.45rem 1rem',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        }}
-      >
-        <div className="container flex items-center justify-between" style={{ padding: 0 }}>
-          <div className="flex items-center gap-2">
-            <span className="live-pulse" />
-            <span style={{ fontWeight: 600, color: '#f8fafc' }}>FoodResQ Real-Time Network</span>
-            <span style={{ color: 'var(--text-muted)' }}>— Connecting Commercial Surplus with Verified Local Food Banks</span>
-          </div>
-          <div className="flex items-center gap-4" style={{ display: 'none' }}>
-            <span style={{ color: '#34d399', fontWeight: 600 }}>Zero Waste Protocol Active</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating Sticky Glass Navbar */}
-      <header
-        className="glass-panel"
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
-          boxShadow: 'var(--shadow-xs)',
-        }}
-      >
-        <div className="container flex items-center justify-between" style={{ height: '72px' }}>
+      {/* Floating Transparent Glass Island Navbar */}
+      <div className="floating-glass-header-wrapper">
+        <header className={`floating-glass-header ${scrolled ? 'is-scrolled' : ''}`}>
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3" style={{ textDecoration: 'none' }}>
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'var(--primary-gradient)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ffffff',
-                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
-              }}
-            >
-              <HeartHandshake size={22} />
-            </div>
-            <div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: '1.4rem',
-                  fontWeight: 800,
-                  color: '#0f172a',
-                  letterSpacing: '-0.03em',
-                  lineHeight: 1.1,
-                }}
-              >
-                Food<span style={{ color: 'var(--primary)' }}>ResQ</span>
-              </div>
-              <div
-                style={{
-                  fontSize: '0.66rem',
-                  color: '#64748b',
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Smart Food Rescue
-              </div>
-            </div>
-          </Link>
+          <BrandLogo
+            variant="hybrid"
+            theme="light"
+            size="md"
+            subtitle="SMART FOOD RESCUE NETWORK"
+            to="/"
+          />
 
-          {/* Desktop Navigation Links */}
-          <nav
-            className="desktop-nav flex items-center gap-1"
-            style={{
-              background: 'rgba(241, 245, 249, 0.7)',
-              padding: '0.35rem 0.5rem',
-              borderRadius: 'var(--radius-full)',
-              border: '1px solid rgba(226, 232, 240, 0.9)',
-            }}
-          >
+          {/* Desktop Navigation Links (Frosted Glass Pill) */}
+          <nav className="desktop-nav floating-glass-nav-pill">
             {navLinks.map((link) => {
               const active = location.pathname === link.path;
               return (
                 <Link
                   key={link.name}
                   to={link.path}
-                  style={{
-                    fontSize: '0.88rem',
-                    fontWeight: active ? 700 : 500,
-                    color: active ? '#ffffff' : 'var(--text-secondary)',
-                    backgroundColor: active ? 'var(--primary)' : 'transparent',
-                    textDecoration: 'none',
-                    padding: '0.45rem 0.95rem',
-                    borderRadius: 'var(--radius-full)',
-                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  }}
+                  className={`floating-glass-nav-link ${active ? 'is-active' : ''}`}
                 >
                   {link.name}
                 </Link>
@@ -165,16 +94,15 @@ export const MainLayout = () => {
               <div className="flex items-center gap-2">
                 <Link
                   to={getDashboardPath()}
-                  className="btn btn-primary btn-sm"
-                  style={{ borderRadius: 'var(--radius-full)', padding: '0.5rem 1.1rem' }}
+                  className="floating-glass-btn-join"
+                  style={{ textDecoration: 'none' }}
                 >
                   <LayoutDashboard size={15} />
                   <span>{role} Portal</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="btn btn-secondary btn-sm"
-                  style={{ borderRadius: 'var(--radius-full)', padding: '0.5rem 0.75rem' }}
+                  className="floating-glass-btn-login"
                   title="Sign Out"
                 >
                   <LogOut size={15} />
@@ -184,16 +112,14 @@ export const MainLayout = () => {
               <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className="btn btn-secondary btn-sm"
-                  style={{ borderRadius: 'var(--radius-full)', padding: '0.5rem 0.95rem' }}
+                  className="floating-glass-btn-login"
                 >
                   <LogIn size={15} />
                   <span>Log In</span>
                 </Link>
                 <Link
                   to="/register"
-                  className="btn btn-primary btn-sm nav-join-btn"
-                  style={{ borderRadius: 'var(--radius-full)', padding: '0.5rem 1.1rem' }}
+                  className="floating-glass-btn-join nav-join-btn"
                 >
                   <UserPlus size={15} />
                   <span>Join Platform</span>
@@ -205,14 +131,25 @@ export const MainLayout = () => {
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="btn btn-secondary btn-sm mobile-menu-btn"
-              style={{ padding: '0.5rem', borderRadius: 'var(--radius-sm)' }}
+              style={{
+                borderRadius: 'var(--radius-full)',
+                width: '40px',
+                height: '40px',
+                padding: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(255, 255, 255, 0.75)',
+                border: '1px solid rgba(226, 232, 240, 0.9)',
+                boxShadow: 'var(--shadow-xs)',
+              }}
               aria-label="Toggle navigation menu"
             >
               <Menu size={20} />
             </button>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       {/* Mobile Drawer Backdrop */}
       {mobileMenuOpen && (
@@ -225,28 +162,16 @@ export const MainLayout = () => {
       {/* Mobile Drawer */}
       <aside className={`mobile-nav-drawer ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="flex items-center justify-between" style={{ marginBottom: '2rem' }}>
-          <div className="flex items-center gap-2">
-            <div
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                background: 'var(--primary-gradient)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-              }}
-            >
-              <HeartHandshake size={20} />
-            </div>
-            <span style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
-              Food<span style={{ color: 'var(--primary)' }}>ResQ</span>
-            </span>
-          </div>
+          <BrandLogo
+            variant="hybrid"
+            theme="light"
+            size="sm"
+            subtitle="SMART FOOD RESCUE"
+            to="/"
+          />
           <button
             onClick={() => setMobileMenuOpen(false)}
-            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '0.5rem' }}
+            style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '0.5rem' }}
             aria-label="Close menu"
           >
             <X size={24} />
@@ -264,11 +189,14 @@ export const MainLayout = () => {
                 style={{
                   display: 'block',
                   padding: '0.75rem 1rem',
-                  borderRadius: 'var(--radius-md)',
-                  color: active ? '#ffffff' : '#94a3b8',
-                  background: active ? 'var(--primary)' : 'transparent',
-                  fontWeight: active ? 700 : 500,
+                  borderRadius: 'var(--radius-full)',
+                  color: active ? '#ffffff' : '#334155',
+                  background: active
+                    ? 'linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%)'
+                    : 'transparent',
+                  fontWeight: active ? 800 : 600,
                   textDecoration: 'none',
+                  boxShadow: active ? '0 4px 14px rgba(244, 63, 94, 0.35)' : 'none',
                 }}
               >
                 {link.name}
@@ -277,7 +205,7 @@ export const MainLayout = () => {
           })}
         </nav>
 
-        <div style={{ paddingTop: '1.5rem', borderTop: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {isAuthenticated ? (
             <>
               <Link
@@ -327,7 +255,7 @@ export const MainLayout = () => {
       </aside>
 
       {/* Main Page Body */}
-      <main style={{ flex: 1 }}>
+      <main className={`main-public-content ${isLandingPage ? 'has-hero-landing' : ''}`}>
         <Outlet />
       </main>
 
@@ -345,40 +273,21 @@ export const MainLayout = () => {
           <div className="grid grid-cols-4 gap-8" style={{ marginBottom: '3.5rem' }}>
             {/* Column 1: Brand & Purpose */}
             <div>
-              <div className="flex items-center gap-2" style={{ marginBottom: '1.25rem' }}>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    background: 'var(--primary-gradient)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
-                  }}
-                >
-                  <HeartHandshake size={20} />
-                </div>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-heading)',
-                    fontSize: '1.35rem',
-                    fontWeight: 800,
-                    color: '#ffffff',
-                    letterSpacing: '-0.02em',
-                  }}
-                >
-                  Food<span style={{ color: 'var(--primary)' }}>ResQ</span>
-                </span>
+              <div style={{ marginBottom: '1.25rem' }}>
+                <BrandLogo
+                  variant="hybrid"
+                  theme="dark"
+                  size="md"
+                  subtitle="SMART FOOD RESCUE NETWORK"
+                  to="/"
+                />
               </div>
               <p style={{ fontSize: '0.88rem', lineHeight: 1.65, color: '#94a3b8', marginBottom: '1.25rem' }}>
                 Autonomous, closed-loop food recovery infrastructure uniting commercial kitchens, certified NGOs, and volunteer logistics networks in real-time.
               </p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#0f172a', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', border: '1px solid #1e293b', fontSize: '0.78rem' }}>
                 <span className="live-pulse" />
-                <span style={{ color: '#34d399', fontWeight: 600 }}>MongoDB Atlas Active</span>
+                <span style={{ color: '#fb7185', fontWeight: 600 }}>MongoDB Atlas Active</span>
               </div>
             </div>
 
@@ -404,7 +313,7 @@ export const MainLayout = () => {
                 {isAdmin && (
                   <li>
                     <a
-                      href="http://127.0.0.1:8000/api/docs/"
+                      href="/api/docs/"
                       target="_blank"
                       rel="noreferrer"
                       style={{ color: '#94a3b8', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
@@ -523,7 +432,7 @@ export const MainLayout = () => {
               color: '#64748b',
             }}
           >
-            <p>© {new Date().getFullYear()} FoodResQ Platform. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} ResQFood Network. All rights reserved.</p>
             <p>Certified FSSAI Surplus Redistribution Protocol</p>
           </div>
         </div>

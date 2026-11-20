@@ -131,7 +131,7 @@ export const Home = () => {
 
   const faqs = [
     {
-      q: 'Who can donate food through FoodResQ?',
+      q: 'Who can donate food through ResQFood?',
       a: 'Any commercial food establishment—including restaurants, hotels, banquet halls, corporate cafeterias, supermarkets, and certified event caterers—can register as a Donor Kitchen. All donors adhere to basic hygiene and preparation timestamp logging.',
     },
     {
@@ -148,7 +148,7 @@ export const Home = () => {
     },
     {
       q: 'Can volunteers use personal vehicles for deliveries?',
-      a: 'Yes. Volunteers can sign up with two-wheelers or cars. FoodResQ provides insulated thermal bags to ensure hot and cold food items maintain safe storage temperatures during rapid local transit.',
+      a: 'Yes. Volunteers can sign up with two-wheelers or cars. ResQFood provides insulated thermal bags to ensure hot and cold food items maintain safe storage temperatures during rapid local transit.',
     },
   ];
 
@@ -156,11 +156,11 @@ export const Home = () => {
     <div>
       {/* Hero Section */}
       <section
+        className="home-hero-section"
         style={{
           background: "linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(15, 23, 42, 0.94) 100%), url('/images/hero_food_rescue.jpg') center/cover no-repeat",
           position: 'relative',
           color: '#ffffff',
-          padding: '5rem 0 6.5rem',
           overflow: 'hidden',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         }}
@@ -214,7 +214,9 @@ export const Home = () => {
                 }}
               >
                 Bridge Commercial Surplus Food To{' '}
-                <span className="text-gradient-emerald">Those in Need.</span>
+                <span style={{ background: 'var(--brand-duo-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  Those in Need.
+                </span>
               </h1>
 
               <p
@@ -226,7 +228,7 @@ export const Home = () => {
                   maxWidth: '560px',
                 }}
               >
-                Every day, quality surplus meals are wasted while community shelters face shortages. FoodResQ instantly routes fresh, safe food to nearby verified charities in minutes.
+                Every day, quality surplus meals are wasted while community shelters face shortages. ResQFood instantly routes fresh, safe food to nearby verified charities in minutes.
               </p>
 
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -234,7 +236,7 @@ export const Home = () => {
                   to="/register"
                   className="btn btn-primary btn-lg"
                   style={{
-                    boxShadow: '0 8px 24px rgba(16, 185, 129, 0.4)',
+                    boxShadow: '0 8px 24px rgba(244, 63, 94, 0.4)',
                     padding: '0.9rem 2rem',
                     fontSize: '1.05rem',
                     borderRadius: 'var(--radius-full)',
@@ -266,7 +268,8 @@ export const Home = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '1.75rem',
+                  flexWrap: 'wrap',
+                  gap: '1.25rem',
                   marginTop: '2.5rem',
                   paddingTop: '1.75rem',
                   borderTop: '1px solid rgba(255, 255, 255, 0.12)',
@@ -503,7 +506,7 @@ export const Home = () => {
                   style={{
                     fontSize: '2.6rem',
                     fontWeight: 900,
-                    color: '#10b981',
+                    color: 'var(--brand-rose)',
                     fontFamily: 'var(--font-heading)',
                     lineHeight: 1.1,
                   }}
@@ -980,7 +983,7 @@ export const Home = () => {
               Rigorous Safety & Cold-Chain Standards
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6 }}>
-              Rescuing food never compromises human health. FoodResQ enforces strict FSSAI safety criteria on all food transfers.
+              Rescuing food never compromises human health. ResQFood enforces strict FSSAI safety criteria on all food transfers.
             </p>
           </div>
 
@@ -1061,47 +1064,118 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* High-Conversion Bottom CTA Banner */}
+      {/* High-Conversion Bottom CTA Banner - ResQ Luxury Obsidian & Champagne Gold */}
       <section
         style={{
-          background: 'linear-gradient(135deg, #064e3b 0%, #047857 100%)',
+          background: "linear-gradient(135deg, rgba(9, 9, 11, 0.94) 0%, rgba(18, 18, 23, 0.9) 50%, rgba(9, 9, 11, 0.98) 100%), url('/images/hero_food_rescue.jpg') center/cover no-repeat",
           color: '#ffffff',
-          padding: '5rem 0',
+          padding: '6rem 0',
           textAlign: 'center',
           position: 'relative',
+          overflow: 'hidden',
+          borderTop: '1px solid rgba(251, 113, 133, 0.3)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         }}
       >
-        <div className="container" style={{ maxWidth: '720px' }}>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
-            Ready to Transform Surplus into Sustenance?
+        {/* Warm Ambient Rose & Cream Glow */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '680px',
+            height: '400px',
+            background: 'radial-gradient(circle, rgba(244, 63, 94, 0.22) 0%, rgba(251, 237, 228, 0.1) 50%, transparent 70%)',
+            filter: 'blur(60px)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div className="container" style={{ maxWidth: '760px', position: 'relative', zIndex: 2 }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(244, 63, 94, 0.14)',
+              border: '1px solid rgba(251, 113, 133, 0.35)',
+              borderRadius: 'var(--radius-full)',
+              padding: '0.35rem 1rem',
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              color: '#fb7185',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              marginBottom: '1.25rem',
+            }}
+          >
+            <Sparkles size={14} />
+            <span>ResQFood Real-Time Network • Nationwide Impact</span>
+          </div>
+
+          <h2
+            style={{
+              fontSize: 'clamp(2.1rem, 3.8vw, 2.85rem)',
+              fontWeight: 900,
+              color: '#ffffff',
+              letterSpacing: '-0.025em',
+              lineHeight: 1.2,
+              marginBottom: '1.15rem',
+              fontFamily: 'var(--font-heading)',
+            }}
+          >
+            Ready to Transform Surplus into <span style={{ color: '#fb7185' }}>Sustenance</span>?
           </h2>
-          <p style={{ fontSize: '1.1rem', color: '#a7f3d0', lineHeight: 1.6, marginBottom: '2.25rem' }}>
+
+          <p
+            style={{
+              fontSize: '1.08rem',
+              color: '#fbede4',
+              lineHeight: 1.65,
+              marginBottom: '2.5rem',
+              maxWidth: '680px',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+          >
             Whether you are a commercial kitchen with extra trays, a charity serving local families, or a volunteer with a vehicle—you are essential to the mission.
           </p>
+
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <Link
               to="/register"
-              className="btn btn-secondary btn-lg"
+              className="btn btn-primary btn-lg"
               style={{
-                background: '#ffffff',
-                color: '#064e3b',
+                background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                color: '#ffffff',
                 fontWeight: 800,
                 borderRadius: 'var(--radius-full)',
-                padding: '0.9rem 2rem',
-                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)',
+                padding: '0.9rem 2.2rem',
+                boxShadow: '0 8px 25px rgba(244, 63, 94, 0.35)',
+                border: '1px solid rgba(251, 237, 228, 0.35)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.98rem',
               }}
             >
               <span>Get Started Now</span>
               <ArrowRight size={18} />
             </Link>
+
             <Link
               to="/how-it-works"
-              className="btn btn-outline btn-lg"
+              className="btn btn-secondary btn-lg"
               style={{
-                borderColor: '#ffffff',
-                color: '#ffffff',
+                background: 'rgba(255, 255, 255, 0.08)',
+                borderColor: 'rgba(251, 237, 228, 0.25)',
+                color: '#fbede4',
+                backdropFilter: 'blur(10px)',
                 borderRadius: 'var(--radius-full)',
-                padding: '0.9rem 1.8rem',
+                padding: '0.9rem 2rem',
+                fontWeight: 700,
+                fontSize: '0.98rem',
               }}
             >
               <span>Learn How It Works</span>

@@ -14,6 +14,9 @@ import {
   Navigation,
   CheckSquare,
   ArrowRight,
+  Thermometer,
+  Layers,
+  Send,
 } from 'lucide-react';
 import { formatDate, formatKg } from '../../utils/formatters';
 
@@ -23,16 +26,14 @@ export const ActiveDelivery = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [checklist, setChecklist] = useState({
-    insulated_bag: true,
-    containers_sealed: true,
-    hygiene_verified: true,
-  });
+  const [feedback, setFeedback] = useState(null);
+
+  const [collectNotes, setCollectNotes] = useState('Collected in insulated thermal carrier. Food temperature verified.');
+  const [deliverNotes, setDeliverNotes] = useState('Delivered to shelter entrance. Handed over to intake supervisor.');
 
   const loadActiveMission = async () => {
     try {
       const data = await volunteerService.getActiveAssignment();
-      // Backend returns { active_assignment: ... } or direct assignment object
       const active = data?.active_assignment || (data?.id ? data : null);
       setMission(active);
     } catch (err) {
@@ -52,7 +53,8 @@ export const ActiveDelivery = () => {
     setActionLoading(true);
     setError(null);
     try {
-      await pickupService.collectFood(mission.id, { notes: 'Food collected by volunteer in thermal carrier.' });
+      await pickupService.collectFood(mission.id, { notes: collectNotes });
+      setFeedback({ type: 'success', text: 'Food collected! Proceed to the shelter for delivery.' });
       await loadActiveMission();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update status to Collected.');
@@ -66,7 +68,8 @@ export const ActiveDelivery = () => {
     setActionLoading(true);
     setError(null);
     try {
-      await pickupService.deliverFood(mission.id, { notes: 'Food delivered to shelter entrance.' });
+      await pickupService.deliverFood(mission.id, { notes: deliverNotes });
+      setFeedback({ type: 'success', text: 'Mission completed! Food delivered to shelter for community distribution.' });
       await loadActiveMission();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update status to Delivered.');
@@ -77,92 +80,105 @@ export const ActiveDelivery = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-        <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>Fetching active mission telemetry...</div>
-        <p style={{ fontSize: '0.85rem' }}>Connecting to rescue dispatch system</p>
+      <div style={{ textAlign: 'center', padding: '5rem 1rem', color: 'var(--text-muted)' }}>
+        <Truck size={32} className="spin" style={{ margin: '0 auto 0.75rem' }} />
+        <div>Querying live rescue courier dispatch on MongoDB Atlas...</div>
       </div>
     );
   }
 
   if (!mission || !mission.id) {
     return (
-      <div
-        className="card"
-        style={{
-          textAlign: 'center',
-          padding: '4rem 2rem',
-          maxWidth: '680px',
-          margin: '2rem auto',
-          background: '#ffffff',
-          borderRadius: 'var(--radius-xl)',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <div
-          style={{
-            width: '64px',
-            height: '64px',
-            borderRadius: '50%',
-            background: 'rgba(16, 185, 129, 0.1)',
-            color: 'var(--primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 1.25rem',
-          }}
-        >
-          <Truck size={32} />
-        </div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+      <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem', maxWidth: '580px', margin: '2rem auto' }}>
+        <Truck size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>
           No Active Rescue Mission
-        </h2>
-        <p
+        </h3>
+        <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginTop: '0.35rem', marginBottom: '1.5rem' }}>
+          You do not have an active in-flight pickup. Check open routes and claim a mission to start courier transit!
+        </p>
+        <Link
+          to="/volunteer/pickups"
+          className="btn btn-primary"
           style={{
-            fontSize: '0.92rem',
-            color: 'var(--text-secondary)',
-            maxWidth: '460px',
-            margin: '0 auto 1.75rem',
-            lineHeight: 1.6,
+            background: 'var(--brand-rose-gradient)',
+            border: 'none',
+            borderRadius: 'var(--radius-full)',
+            padding: '0.75rem 1.75rem',
+            boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
           }}
         >
-          You do not currently have any active food deliveries in transit. Browse available surplus batches in your area to accept a new delivery route.
-        </p>
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-          <Link to="/volunteer/pickups" className="btn btn-primary" style={{ borderRadius: 'var(--radius-full)', padding: '0.65rem 1.4rem' }}>
-            <Truck size={17} />
-            <span>Browse Available Pickups</span>
-          </Link>
-          <Link to="/volunteer/dashboard" className="btn btn-secondary" style={{ borderRadius: 'var(--radius-full)', padding: '0.65rem 1.2rem' }}>
-            <span>Volunteer Hub</span>
-          </Link>
-        </div>
+          <Package size={16} />
+          <span>Browse Open Missions</span>
+        </Link>
       </div>
     );
   }
 
-  const currentStatus = mission.status || 'ASSIGNED';
-  const isAssigned = currentStatus === 'ASSIGNED' || currentStatus === 'EN_ROUTE_PICKUP';
-  const isInTransit = currentStatus === 'COLLECTED' || currentStatus === 'EN_ROUTE_DELIVERY' || currentStatus === 'IN_TRANSIT';
-  const isDelivered = currentStatus === 'DELIVERED';
-  const isCompleted = currentStatus === 'CONFIRMED_BY_NGO' || currentStatus === 'COMPLETED';
+  const isAssigned = mission.status === 'ASSIGNED' || mission.status === 'PENDING_VOLUNTEER';
+  const isCollected = mission.status === 'COLLECTED' || mission.status === 'PICKED_UP';
+  const isDelivered = mission.status === 'DELIVERED';
+  const isConfirmed = mission.status === 'CONFIRMED_BY_NGO' || mission.status === 'COMPLETED';
 
   return (
-    <div style={{ maxWidth: '840px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '920px', margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--primary)', fontWeight: 700 }}>
-            Live Rescue Mission #{mission.id}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
+          <span
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              padding: '0.25rem 0.75rem',
+              borderRadius: 'var(--radius-full)',
+              background: '#fffbeb',
+              color: '#d97706',
+              border: '1px solid #fde68a',
+            }}
+          >
+            ACTIVE FLIGHT DECK
           </span>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
-            {mission.donation_title || `Batch #${mission.id}`}
-          </h1>
+          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+            Mission ID #{mission.id?.slice(-8)}
+          </span>
         </div>
-        <span className={`badge badge-${currentStatus.toLowerCase()}`} style={{ fontSize: '0.88rem', padding: '0.45rem 0.9rem' }}>
-          {currentStatus.replace(/_/g, ' ')}
-        </span>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          {mission.donation_title || 'Surplus Food Rescue Mission'}
+        </h1>
+        <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+          Payload: <strong>{formatKg(mission.donation_quantity)}</strong> • Category: <strong>{mission.donation_food_type}</strong>
+        </p>
       </div>
+
+      {feedback && (
+        <div
+          style={{
+            background: '#ecfdf5',
+            border: '1px solid #a7f3d0',
+            color: '#065f46',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <CheckCircle2 size={18} />
+            <span>{feedback.text}</span>
+          </div>
+          <button
+            onClick={() => setFeedback(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {error && (
         <div
@@ -184,221 +200,227 @@ export const ActiveDelivery = () => {
       )}
 
       {/* Progress Stepper */}
-      <div className="card" style={{ padding: '1.5rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', position: 'relative' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: '#10b981',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 0.4rem',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-              }}
-            >
-              ✓
+      <div className="card" style={{ padding: '1.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+          {[
+            { step: 1, label: 'Mission Claimed', done: true },
+            { step: 2, label: 'En Route to Kitchen', done: isAssigned || isCollected || isDelivered || isConfirmed },
+            { step: 3, label: 'Food Collected', done: isCollected || isDelivered || isConfirmed },
+            { step: 4, label: 'Delivered to Shelter', done: isDelivered || isConfirmed },
+          ].map((item, idx) => (
+            <div key={item.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', zIndex: 2, flex: 1 }}>
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: item.done ? '#10b981' : '#f1f5f9',
+                  border: `2px solid ${item.done ? '#10b981' : '#cbd5e1'}`,
+                  color: item.done ? '#fff' : '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  boxShadow: item.done ? '0 0 12px rgba(16, 185, 129, 0.4)' : 'none',
+                }}
+              >
+                {item.done ? '✓' : item.step}
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: item.done ? 'var(--text-primary)' : 'var(--text-muted)', textAlign: 'center' }}>
+                {item.label}
+              </span>
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>Mission Accepted</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Assigned to you</div>
-          </div>
-
-          <div style={{ textAlign: 'center' }}>
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: isInTransit || isDelivered || isCompleted ? '#10b981' : isAssigned ? '#f59e0b' : '#e2e8f0',
-                color: isInTransit || isDelivered || isCompleted ? '#fff' : isAssigned ? '#fff' : '#64748b',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 0.4rem',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-              }}
-            >
-              {isInTransit || isDelivered || isCompleted ? '✓' : '2'}
-            </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>Food Collected</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>From donor kitchen</div>
-          </div>
-
-          <div style={{ textAlign: 'center' }}>
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: isDelivered || isCompleted ? '#10b981' : isInTransit ? '#3b82f6' : '#e2e8f0',
-                color: isDelivered || isCompleted ? '#fff' : '#64748b',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 0.4rem',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-              }}
-            >
-              {isDelivered || isCompleted ? '✓' : '3'}
-            </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>Delivered to Shelter</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Awaiting shelter inspection</div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Action Controller Card */}
-      <div className="card" style={{ padding: '2rem', background: '#f8fafc', border: '2px solid var(--border)' }}>
+      {/* Route Legs: Donor & Shelter Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        {/* Donor Pickup Card */}
+        <div
+          className="card"
+          style={{
+            padding: '1.5rem',
+            borderTop: '4px solid #dc2626',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#dc2626' }}>
+                Step 1: Origin Kitchen
+              </span>
+              <MapPin size={18} color="#dc2626" />
+            </div>
+
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+              Donor Pickup Bay
+            </h3>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+              {mission.pickup_address}
+            </p>
+          </div>
+
+          <a
+            href={`https://maps.google.com/?q=${encodeURIComponent(mission.pickup_address)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary btn-sm"
+            style={{ borderRadius: 'var(--radius-full)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
+          >
+            <Navigation size={14} />
+            <span>Open in Google Maps</span>
+          </a>
+        </div>
+
+        {/* Shelter Dropoff Card */}
+        <div
+          className="card"
+          style={{
+            padding: '1.5rem',
+            borderTop: '4px solid #0284c7',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#0284c7' }}>
+                Step 2: Destination Shelter
+              </span>
+              <Building2 size={18} color="#0284c7" />
+            </div>
+
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+              {mission.organization_name || 'Designated Shelter'}
+            </h3>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+              Shelter intake drop-off station
+            </p>
+          </div>
+
+          <a
+            href={`https://maps.google.com/?q=${encodeURIComponent(mission.organization_name || 'Food Bank Shelter')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary btn-sm"
+            style={{ borderRadius: 'var(--radius-full)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
+          >
+            <Navigation size={14} />
+            <span>Open in Google Maps</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Flight Control Actions */}
+      <div className="card" style={{ padding: '2rem' }}>
+        <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1rem' }}>
+          Mission Execution Actions
+        </h3>
+
         {isAssigned && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+              Once you arrive at the donor's kitchen and receive the sealed food containers inside your thermal bag, click below to mark the payload as collected:
+            </p>
             <div>
-              <span className="badge badge-warning" style={{ marginBottom: '0.5rem' }}>STEP 1: COLLECT FOOD</span>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                Proceed to Kitchen Pickup Location
-              </h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                Arrive at the kitchen, verify package sealing, and press "Confirm Food Collection".
-              </p>
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                Pickup Verification Notes
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={collectNotes}
+                onChange={(e) => setCollectNotes(e.target.value)}
+              />
             </div>
-
-            <div style={{ background: '#fff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                Pre-Pickup Safety Checklist
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.82rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={checklist.insulated_bag}
-                    onChange={(e) => setChecklist({ ...checklist, insulated_bag: e.target.checked })}
-                  />
-                  <span>Carrying thermal insulated delivery bag</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={checklist.containers_sealed}
-                    onChange={(e) => setChecklist({ ...checklist, containers_sealed: e.target.checked })}
-                  />
-                  <span>Inspected food containers for secure seals</span>
-                </label>
-              </div>
-            </div>
-
             <button
               onClick={handleMarkCollected}
               disabled={actionLoading}
-              className="btn btn-primary"
-              style={{ width: '100%', padding: '0.9rem', fontSize: '1rem' }}
+              className="btn btn-primary btn-lg"
+              style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                border: 'none',
+                borderRadius: 'var(--radius-full)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                justifyContent: 'center',
+              }}
             >
-              <CheckCircle2 size={20} />
-              <span>{actionLoading ? 'Updating Status...' : 'Mark Food Collected from Kitchen'}</span>
+              <CheckCircle2 size={18} />
+              <span>{actionLoading ? 'Updating Status...' : '1. Confirm Food Collected from Kitchen'}</span>
             </button>
           </div>
         )}
 
-        {isInTransit && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {isCollected && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+              You have collected the food! Proceed directly to the destination shelter. Once handed over to staff, confirm delivery:
+            </p>
             <div>
-              <span className="badge badge-info" style={{ marginBottom: '0.5rem' }}>STEP 2: IN TRANSIT</span>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                Food Collected! Deliver to NGO Shelter
-              </h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                Drive safely to the shelter drop-off point. Hand over the containers and press "Mark Delivered".
-              </p>
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                Delivery Drop-off Notes
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={deliverNotes}
+                onChange={(e) => setDeliverNotes(e.target.value)}
+              />
             </div>
-
             <button
               onClick={handleMarkDelivered}
               disabled={actionLoading}
-              className="btn btn-primary"
-              style={{ width: '100%', padding: '0.9rem', fontSize: '1rem', background: '#3b82f6' }}
+              className="btn btn-primary btn-lg"
+              style={{
+                background: 'var(--brand-rose-gradient)',
+                border: 'none',
+                borderRadius: 'var(--radius-full)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                justifyContent: 'center',
+                boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+              }}
             >
-              <Truck size={20} />
-              <span>{actionLoading ? 'Updating Status...' : 'Mark Delivered at NGO Shelter'}</span>
+              <CheckCircle2 size={18} />
+              <span>{actionLoading ? 'Updating Status...' : '2. Confirm Food Delivered to Shelter'}</span>
             </button>
           </div>
         )}
 
         {isDelivered && (
-          <div style={{ textAlign: 'center', padding: '1rem' }}>
-            <ShieldCheck size={48} color="var(--primary)" style={{ margin: '0 auto 0.75rem' }} />
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-              Mission Successfully Handed Over!
-            </h3>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', maxWidth: '460px', margin: '0.25rem auto 1.25rem' }}>
-              The food is now at the shelter. Once the NGO staff completes their safety inspection, this rescue will officially be logged into your completed record.
-            </p>
-            <Link to="/volunteer/dashboard" className="btn btn-secondary btn-sm">
-              Return to Volunteer Dashboard
-            </Link>
-          </div>
-        )}
-
-        {isCompleted && (
-          <div style={{ textAlign: 'center', padding: '1rem' }}>
-            <CheckCircle2 size={48} color="#10b981" style={{ margin: '0 auto 0.75rem' }} />
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-              Rescue Mission Completed & Confirmed!
-            </h3>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', maxWidth: '460px', margin: '0.25rem auto 1.25rem' }}>
-              The shelter has confirmed receiving the food safely. Thank you for your service!
-            </p>
-            <Link to="/volunteer/dashboard" className="btn btn-primary btn-sm">
-              Back to Volunteer Hub
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* Locations & Contact Card */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
-        {/* Pickup Details */}
-        <div className="card" style={{ padding: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-            <MapPin size={20} color="var(--danger)" />
-            <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>Pickup Location (Donor)</h4>
-          </div>
-          <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
-            {mission.pickup_address || 'Address registered with kitchen'}
-          </p>
-          {mission.pickup_notes && (
-            <div
-              style={{
-                fontSize: '0.82rem',
-                color: 'var(--text-secondary)',
-                background: 'var(--bg-alt)',
-                padding: '0.5rem 0.75rem',
-                borderRadius: 'var(--radius-sm)',
-                marginTop: '0.5rem',
-              }}
-            >
-              <strong>Instructions:</strong> {mission.pickup_notes}
+          <div style={{ textAlign: 'center', padding: '1.5rem', background: '#ecfdf5', borderRadius: 'var(--radius-md)', border: '1px solid #a7f3d0' }}>
+            <CheckCircle2 size={36} color="#059669" style={{ margin: '0 auto 0.5rem' }} />
+            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#065f46' }}>
+              Delivered at Shelter!
             </div>
-          )}
-        </div>
+            <p style={{ fontSize: '0.85rem', color: '#047857', marginTop: '0.25rem' }}>
+              Awaiting digital inspection and receipt confirmation from the shelter intake supervisor.
+            </p>
+          </div>
+        )}
 
-        {/* Delivery Details */}
-        <div className="card" style={{ padding: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-            <Building2 size={20} color="var(--info)" />
-            <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>Drop-Off Shelter (NGO)</h4>
+        {isConfirmed && (
+          <div style={{ textAlign: 'center', padding: '1.5rem', background: '#ecfdf5', borderRadius: 'var(--radius-md)', border: '1px solid #a7f3d0' }}>
+            <CheckCircle2 size={36} color="#059669" style={{ margin: '0 auto 0.5rem' }} />
+            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#065f46' }}>
+              Mission Completed & Confirmed!
+            </div>
+            <p style={{ fontSize: '0.85rem', color: '#047857', marginTop: '0.25rem', marginBottom: '1rem' }}>
+              The shelter has verified the food temperature and signed the digital delivery receipt.
+            </p>
+            <Link to="/volunteer/completed" className="btn btn-secondary btn-sm" style={{ borderRadius: 'var(--radius-full)' }}>
+              View Delivery History
+            </Link>
           </div>
-          <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
-            {mission.organization_name || 'Verified Shelter'}
-          </p>
-          <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-            Batch: <strong>{formatKg(mission.donation_quantity || 0)}</strong> of {mission.donation_food_type || 'Food'}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

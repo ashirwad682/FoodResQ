@@ -33,7 +33,8 @@ class MatchedNGOsView(APIView):
             'quantity_kg': donation.quantity_kg,
             'hours_until_expiry': donation.hours_until_expiry,
             'total_matches_evaluated': len(ranked_ngos),
-            'ranked_ngos': ranked_ngos
+            'ranked_ngos': ranked_ngos,
+            'matched_ngos': ranked_ngos,
         }, status=status.HTTP_200_OK)
 
 
@@ -60,7 +61,8 @@ class MatchedVolunteersView(APIView):
             'donation_id': str(donation.id),
             'pickup_location': donation.pickup_address,
             'quantity_kg': donation.quantity_kg,
-            'ranked_volunteers': ranked_volunteers
+            'ranked_volunteers': ranked_volunteers,
+            'matched_volunteers': ranked_volunteers,
         }, status=status.HTTP_200_OK)
 
 
