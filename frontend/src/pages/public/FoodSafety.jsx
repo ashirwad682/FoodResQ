@@ -36,7 +36,7 @@ export const FoodSafety = () => {
     {
       title: 'FSSAI & Regulatory Compliance',
       icon: ShieldCheck,
-      color: '#10b981',
+      color: '#fb7185',
       items: [
         'All participating restaurants and caterers maintain active commercial food licenses.',
         'Food safety checklists must be acknowledged prior to handover at donor kitchens.',
@@ -54,7 +54,7 @@ export const FoodSafety = () => {
             Uncompromising Food Safety
           </h1>
           <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
-            Every meal rescued on FoodResQ follows rigorous public health guidelines to ensure dignity and health for all recipients.
+            Every meal rescued on ResQFood follows rigorous public health guidelines to ensure dignity and health for all recipients.
           </p>
         </div>
 

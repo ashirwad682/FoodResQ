@@ -12,7 +12,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('FoodResQ React ErrorBoundary caught an error:', error, errorInfo);
+    console.error('ResQFood React ErrorBoundary caught an error:', error, errorInfo);
   }
 
   handleReload = () => {

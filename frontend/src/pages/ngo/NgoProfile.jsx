@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
-import { Building2, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
+import {
+  Building2,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  MapPin,
+  Phone,
+  Package,
+  Layers,
+  Thermometer,
+} from 'lucide-react';
 
 export const NgoProfile = () => {
   const { user, refreshProfile } = useAuth();
@@ -10,10 +20,10 @@ export const NgoProfile = () => {
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
     phone_number: user?.phone_number || '',
-    address: user?.address || '',
+    address: user?.organization?.address || user?.address || '',
     name: user?.organization?.name || '',
     registration_number: user?.organization?.registration_number || '',
-    capacity_kg: user?.organization?.capacity_kg || 250,
+    capacity_kg: user?.organization?.max_capacity_kg || user?.organization?.capacity_kg || 250,
     accepts_cooked: user?.organization?.accepts_cooked ?? true,
     accepts_raw: user?.organization?.accepts_raw ?? true,
     accepts_packaged: user?.organization?.accepts_packaged ?? true,
@@ -48,7 +58,7 @@ export const NgoProfile = () => {
         },
       });
       await refreshProfile();
-      setFeedback({ type: 'success', message: 'Organization profile updated successfully!' });
+      setFeedback({ type: 'success', message: 'Shelter organization profile updated in MongoDB Atlas!' });
     } catch (err) {
       setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to update organization profile.' });
     } finally {
@@ -57,112 +67,214 @@ export const NgoProfile = () => {
   };
 
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <div>
-        <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Organization Profile</h1>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          Shelter Organization Profile
+        </h1>
         <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-          Manage your NGO registry details, daily storage capacity, and accepted food types.
+          Manage your NGO registry details, daily storage intake capacity, and accepted food types.
         </p>
       </div>
 
       {feedback && (
-        <div style={{
-          background: feedback.type === 'success' ? '#ecfdf5' : '#fef2f2',
-          border: `1px solid ${feedback.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
-          color: feedback.type === 'success' ? '#065f46' : 'var(--danger)',
-          padding: '0.85rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '0.88rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}>
+        <div
+          style={{
+            background: feedback.type === 'success' ? '#ecfdf5' : '#fef2f2',
+            border: `1px solid ${feedback.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+            color: feedback.type === 'success' ? '#065f46' : 'var(--danger)',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
           {feedback.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
           <span>{feedback.message}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.25rem' }}>
-          <div style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            background: '#3b82f6',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: '1.5rem',
-          }}>
-            <Building2 size={30} />
+      <form onSubmit={handleSubmit} className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+        {/* NGO Identity Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: 'var(--brand-rose-gradient)',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 900,
+              fontSize: '1.6rem',
+              boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+              flexShrink: 0,
+            }}
+          >
+            {(formData.name?.[0] || user?.username?.[0] || 'N').toUpperCase()}
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-primary)' }}>
+            <div style={{ fontWeight: 900, fontSize: '1.3rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
               {formData.name || user?.username}
             </div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--info)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <div style={{ fontSize: '0.85rem', color: 'var(--brand-rose)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem' }}>
               <ShieldCheck size={16} />
-              <span>Certified Non-Profit / Shelter Partner</span>
+              <span>
+                {user?.organization?.is_verified ? 'Verified Non-Profit Shelter' : 'Pending Administrative Verification'}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="form-row-2col">
-          <div className="form-group">
-            <label className="form-label">Organization Legal Name</label>
-            <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">NGO Registration / Trust Number</label>
-            <input type="text" name="registration_number" className="form-control" value={formData.registration_number} onChange={handleChange} />
+        {/* Organization Information */}
+        <div>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1rem' }}>
+            Shelter & Registration Details
+          </h3>
+          <div className="resq-responsive-grid-2">
+            <div>
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                Organization Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                className="form-control"
+                placeholder="e.g. FeedHope Community Foundation"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                Government Registration / 80G Number
+              </label>
+              <input
+                type="text"
+                name="registration_number"
+                className="form-control"
+                placeholder="e.g. NGO-KA-2023-88214"
+                value={formData.registration_number}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                Daily Food Intake Capacity (kg) *
+              </label>
+              <input
+                type="number"
+                name="capacity_kg"
+                className="form-control"
+                placeholder="e.g. 250"
+                value={formData.capacity_kg}
+                onChange={handleChange}
+                required
+              />
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                Used by the priority matching engine to prevent over-allocation.
+              </span>
+            </div>
+
+            <div>
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                Primary Shelter Phone
+              </label>
+              <input
+                type="tel"
+                name="phone_number"
+                className="form-control"
+                placeholder="+91 98765 43210"
+                value={formData.phone_number}
+                onChange={handleChange}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="form-row-2col">
-          <div className="form-group">
-            <label className="form-label">Contact Person Name</label>
-            <input type="text" name="first_name" className="form-control" value={formData.first_name} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Contact Phone</label>
-            <input type="text" name="phone_number" className="form-control" value={formData.phone_number} onChange={handleChange} />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Shelter Street Address</label>
-          <input type="text" name="address" className="form-control" value={formData.address} onChange={handleChange} />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Daily Cold/Dry Storage Capacity (kg)</label>
-          <input type="number" name="capacity_kg" className="form-control" value={formData.capacity_kg} onChange={handleChange} />
-        </div>
-
-        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.25rem' }}>
-          <span className="form-label" style={{ marginBottom: '0.75rem', display: 'block' }}>Accepted Food Types</span>
-          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="accepts_cooked" checked={formData.accepts_cooked} onChange={handleChange} />
-              <span>Cooked & Hot Meals</span>
+        {/* Facility Address */}
+        <div>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1rem' }}>
+            Delivery Drop-off Facility Address
+          </h3>
+          <div>
+            <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+              Full Street Address
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="accepts_raw" checked={formData.accepts_raw} onChange={handleChange} />
-              <span>Raw Produce & Grains</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="accepts_packaged" checked={formData.accepts_packaged} onChange={handleChange} />
-              <span>Packaged & Canned Goods</span>
-            </label>
+            <input
+              type="text"
+              name="address"
+              className="form-control"
+              placeholder="e.g. 45 Shelter Road, Near City Hospital, Bangalore"
+              value={formData.address}
+              onChange={handleChange}
+            />
           </div>
         </div>
 
-        <button type="submit" disabled={loading} className="btn btn-primary" style={{ padding: '0.85rem' }}>
-          <CheckCircle2 size={18} />
-          <span>{loading ? 'Saving Changes...' : 'Save Organization Profile'}</span>
-        </button>
+        {/* Food Acceptance Capabilities */}
+        <div>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+            Accepted Food Categories
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+            {[
+              { name: 'accepts_cooked', label: 'Prepared Cooked Meals' },
+              { name: 'accepts_raw', label: 'Raw Produce & Ingredients' },
+              { name: 'accepts_packaged', label: 'Packaged & Bakery Goods' },
+            ].map((cat) => (
+              <label
+                key={cat.name}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: 'var(--radius-md)',
+                  background: formData[cat.name] ? 'rgba(251, 113, 133, 0.12)' : 'var(--bg-alt)',
+                  border: `1px solid ${formData[cat.name] ? 'var(--brand-rose)' : 'var(--border)'}`,
+                  cursor: 'pointer',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  name={cat.name}
+                  checked={formData[cat.name]}
+                  onChange={handleChange}
+                  style={{ accentColor: 'var(--brand-rose)' }}
+                />
+                <span>{cat.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary"
+            style={{
+              background: 'var(--brand-rose-gradient)',
+              border: 'none',
+              borderRadius: 'var(--radius-full)',
+              padding: '0.8rem 2rem',
+              fontSize: '0.95rem',
+              boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+            }}
+          >
+            {loading ? 'Saving...' : 'Save Organization Profile'}
+          </button>
+        </div>
       </form>
     </div>
   );

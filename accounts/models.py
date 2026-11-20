@@ -96,6 +96,7 @@ class VolunteerProfile(models.Model):
     )
     vehicle_number = models.CharField(max_length=50, blank=True)
     max_distance_km = models.FloatField(default=15.0)
+    address = models.TextField(blank=True)
     is_available = models.BooleanField(default=True)
     rating = models.FloatField(default=5.0)
     total_pickups_completed = models.PositiveIntegerField(default=0)

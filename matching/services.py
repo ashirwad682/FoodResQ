@@ -206,13 +206,17 @@ class SmartMatchingEngine:
             ranked_list.append({
                 'organization_id': str(ngo.id),
                 'organization_name': ngo.name,
+                'ngo_id': str(ngo.id),
+                'ngo_name': ngo.name,
                 'contact_email': ngo.contact_email,
                 'phone': ngo.phone,
                 'address': ngo.address,
                 'distance_km': distance_km,
                 'is_verified': ngo.is_verified,
+                'capacity_kg': avail_cap,
                 'available_capacity_kg': avail_cap,
                 'beneficiary_count': ngo.beneficiary_count,
+                'match_score': total_score,
                 'scores': {
                     'total_score': total_score,
                     'distance_score': distance_score,

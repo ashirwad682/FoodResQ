@@ -19,7 +19,7 @@ export const Contact = () => {
             We're Here to Support Your Rescue Operations
           </h1>
           <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
-            Have questions about integrating with FoodResQ or need emergency dispatch assistance? Reach out.
+            Have questions about integrating with ResQFood or need emergency dispatch assistance? Reach out.
           </p>
         </div>
 
@@ -31,13 +31,13 @@ export const Contact = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(251, 113, 133, 0.12)', color: 'var(--brand-rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Phone size={18} />
                   </div>
                   <div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Emergency Surplus Hotline</div>
                     <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>+91 (800) 456-RESQ (7377)</div>
-                    <div style={{ fontSize: '0.75rem', color: '#10b981' }}>24/7 Priority Emergency Support</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--brand-rose)' }}>24/7 Priority Emergency Support</div>
                   </div>
                 </div>
 
@@ -47,7 +47,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Operations & Inquiries</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>support@foodresq.org</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>support@resqfood.org</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Response within 2 hours</div>
                   </div>
                 </div>
@@ -72,7 +72,7 @@ export const Contact = () => {
 
             {submitted ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <CheckCircle2 size={48} style={{ color: '#10b981', margin: '0 auto 1rem' }} />
+                <CheckCircle2 size={48} style={{ color: 'var(--brand-rose)', margin: '0 auto 1rem' }} />
                 <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Thank You!</h4>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                   Your inquiry has been logged with our dispatch center. A coordinator will reach out shortly.

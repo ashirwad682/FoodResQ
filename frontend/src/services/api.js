@@ -10,7 +10,7 @@ const api = axios.create({
 // Add Bearer token to all outgoing requests if present
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('foodresq_token');
+    const token = localStorage.getItem('resqfood_token') || localStorage.getItem('foodresq_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,6 +26,8 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Clear token on 401 Unauthorized if not on auth routes
       if (!window.location.pathname.includes('/login')) {
+        localStorage.removeItem('resqfood_token');
+        localStorage.removeItem('resqfood_user');
         localStorage.removeItem('foodresq_token');
         localStorage.removeItem('foodresq_user');
       }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import BrandLogo from '../../components/common/BrandLogo';
 import {
   HeartHandshake,
   Building2,
@@ -55,6 +56,7 @@ export const Register = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -62,6 +64,14 @@ export const Register = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    // Clear specific field error on edit
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -72,9 +82,11 @@ export const Register = () => {
     }
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters long.');
+      setFieldErrors({ password: 'Password must be at least 8 characters long.' });
       return;
     }
     setError('');
+    setFieldErrors({});
     setLoading(true);
 
     try {
@@ -82,22 +94,24 @@ export const Register = () => {
         username: formData.username.trim(),
         email: formData.email.trim(),
         password: formData.password,
+        password_confirm: formData.password,
         role: role,
         first_name: formData.first_name.trim(),
         last_name: formData.last_name.trim(),
         phone_number: formData.phone_number.trim(),
         address: formData.address.trim(),
+        organization_name: formData.business_name.trim() || formData.org_name.trim() || `${formData.first_name.trim()}'s Kitchen`,
       };
 
       if (role === 'DONOR') {
         payload.donor_profile = {
-          business_name: formData.business_name.trim() || `${formData.first_name}'s Kitchen`,
+          business_name: formData.business_name.trim() || `${formData.first_name.trim()}'s Kitchen`,
           food_license_number: formData.food_license_number.trim(),
           pickup_instructions: formData.pickup_instructions.trim(),
         };
       } else if (role === 'NGO') {
         payload.organization = {
-          name: formData.org_name.trim() || `${formData.first_name} Community Foundation`,
+          name: formData.org_name.trim() || `${formData.first_name.trim()} Community Foundation`,
           registration_number: formData.registration_number.trim(),
           capacity_kg: parseFloat(formData.capacity_kg) || 200,
           accepts_cooked: formData.accepts_cooked,
@@ -119,17 +133,39 @@ export const Register = () => {
     } catch (err) {
       const resp = err.response?.data;
       let msg = 'Registration failed. Please check your inputs.';
+      const newFieldErrors = {};
+
       if (resp) {
-        if (typeof resp === 'string') msg = resp;
-        else if (resp.error) msg = resp.error;
-        else if (resp.detail) msg = resp.detail;
-        else if (typeof resp === 'object') {
-          // Flatten first validation error
-          const firstKey = Object.keys(resp)[0];
-          const firstVal = resp[firstKey];
-          msg = Array.isArray(firstVal) ? `${firstKey}: ${firstVal[0]}` : String(firstVal);
+        if (typeof resp === 'string') {
+          msg = resp;
+        } else if (resp.error) {
+          msg = resp.error;
+        } else if (resp.detail) {
+          msg = resp.detail;
+        } else if (typeof resp === 'object') {
+          const messages = [];
+          Object.entries(resp).forEach(([key, val]) => {
+            const text = Array.isArray(val) ? val.join(' ') : String(val);
+            newFieldErrors[key] = text;
+            const label = key.replace(/_/g, ' ');
+            if (key === 'username' && text.toLowerCase().includes('already exists')) {
+              messages.push(`Username "${formData.username}" is already taken. Please pick another or log in.`);
+            } else if (key === 'email' && text.toLowerCase().includes('already exists')) {
+              messages.push(`Email "${formData.email}" is already registered. Please log in or use a different email.`);
+            } else if (key === 'password') {
+              messages.push(`Password error: ${text}`);
+            } else {
+              messages.push(`${label.charAt(0).toUpperCase() + label.slice(1)}: ${text}`);
+            }
+          });
+          if (messages.length > 0) {
+            msg = messages.join(' • ');
+          }
         }
+      } else if (err.message) {
+        msg = err.message;
       }
+      setFieldErrors(newFieldErrors);
       setError(msg);
     } finally {
       setLoading(false);
@@ -207,6 +243,15 @@ export const Register = () => {
             position: 'relative',
           }}
         >
+          <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
+            <BrandLogo
+              variant="hybrid"
+              theme="dark"
+              size="md"
+              subtitle="SMART FOOD RESCUE NETWORK"
+              to="/"
+            />
+          </div>
           <div
             style={{
               display: 'inline-flex',
@@ -223,8 +268,8 @@ export const Register = () => {
               border: '1px solid rgba(255, 255, 255, 0.22)',
             }}
           >
-            <Sparkles size={14} color="#ffffff" />
-            <span>Join the FoodResQ Network</span>
+            <Sparkles size={14} color="#fb7185" />
+            <span style={{ color: '#fbede4' }}>Join the ResQFood Network</span>
           </div>
           <h1
             style={{
@@ -251,7 +296,7 @@ export const Register = () => {
         </div>
 
         {/* Content Area */}
-        <div style={{ padding: '2.5rem' }}>
+        <div className="register-card-body" style={{ padding: 'clamp(1.25rem, 4vw, 2.5rem)' }}>
           {/* Role Selection Cards */}
           <div style={{ marginBottom: '2.25rem' }}>
             <label
@@ -344,10 +389,9 @@ export const Register = () => {
             const activeRole = roles.find((r) => r.id === role) || roles[0];
             return (
               <div
+                className="register-role-showcase-grid"
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'minmax(240px, 300px) 1fr',
-                  gap: '1.5rem',
                   background: 'var(--bg-alt)',
                   borderRadius: 'var(--radius-lg)',
                   border: '1px solid var(--border)',
@@ -356,14 +400,14 @@ export const Register = () => {
                   boxShadow: 'var(--shadow-sm)',
                 }}
               >
-                <div style={{ height: '175px', width: '100%', overflow: 'hidden' }}>
+                <div className="register-role-showcase-img" style={{ minHeight: '160px', width: '100%', overflow: 'hidden' }}>
                   <img
                     src={activeRole.image}
                     alt={activeRole.title}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
-                <div style={{ padding: '1.25rem 1.5rem 1.25rem 0', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div className="register-role-showcase-content" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.74rem', fontWeight: 700, color: '#09090b', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>
                     <CheckCircle2 size={14} />
                     <span>Configured for {activeRole.title}</span>
@@ -385,18 +429,47 @@ export const Register = () => {
               style={{
                 background: '#fef2f2',
                 border: '1px solid #fecaca',
-                color: 'var(--danger)',
-                padding: '0.85rem 1.15rem',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.88rem',
+                color: '#b91c1c',
+                padding: '1.1rem 1.35rem',
+                borderRadius: 'var(--radius-lg)',
+                fontSize: '0.9rem',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '0.6rem',
+                flexDirection: 'column',
+                gap: '0.65rem',
                 marginBottom: '1.75rem',
+                boxShadow: '0 4px 14px rgba(239, 68, 68, 0.08)',
               }}
             >
-              <AlertCircle size={18} style={{ flexShrink: 0 }} />
-              <span>{error}</span>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
+                <AlertCircle size={20} style={{ flexShrink: 0, marginTop: '2px', color: '#ef4444' }} />
+                <div style={{ flex: 1, lineHeight: 1.5, fontWeight: 600 }}>
+                  {error}
+                </div>
+              </div>
+              {(error.toLowerCase().includes('already') || error.toLowerCase().includes('taken')) && (
+                <div style={{ display: 'flex', gap: '0.75rem', marginLeft: '1.9rem', marginTop: '0.35rem' }}>
+                  <Link
+                    to="/login"
+                    className="btn btn-sm"
+                    style={{
+                      background: 'var(--brand-rose-gradient)',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '0.45rem 1.15rem',
+                      borderRadius: 'var(--radius-full)',
+                      fontWeight: 800,
+                      fontSize: '0.84rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      boxShadow: '0 4px 12px rgba(244, 63, 94, 0.35)',
+                    }}
+                  >
+                    <span>Proceed to Sign In</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
@@ -457,12 +530,18 @@ export const Register = () => {
                       type="text"
                       name="username"
                       className="form-control"
+                      style={fieldErrors.username ? { borderColor: '#ef4444', background: '#fff5f5' } : {}}
                       placeholder="e.g. donor_kitchen"
                       required
                       value={formData.username}
                       onChange={handleChange}
                     />
                   </div>
+                  {fieldErrors.username && (
+                    <div style={{ color: '#ef4444', fontSize: '0.78rem', fontWeight: 600, marginTop: '0.35rem' }}>
+                      {fieldErrors.username}
+                    </div>
+                  )}
                 </div>
                 <div className="form-group">
                   <label className="form-label">Official Email Address *</label>
@@ -470,11 +549,17 @@ export const Register = () => {
                     type="email"
                     name="email"
                     className="form-control"
+                    style={fieldErrors.email ? { borderColor: '#ef4444', background: '#fff5f5' } : {}}
                     placeholder="name@organization.org"
                     required
                     value={formData.email}
                     onChange={handleChange}
                   />
+                  {fieldErrors.email && (
+                    <div style={{ color: '#ef4444', fontSize: '0.78rem', fontWeight: 600, marginTop: '0.35rem' }}>
+                      {fieldErrors.email}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -487,7 +572,7 @@ export const Register = () => {
                       name="password"
                       className="form-control"
                       placeholder="••••••••••••"
-                      style={{ paddingRight: '2.5rem' }}
+                      style={{ paddingRight: '2.5rem', ...(fieldErrors.password ? { borderColor: '#ef4444', background: '#fff5f5' } : {}) }}
                       required
                       value={formData.password}
                       onChange={handleChange}
@@ -510,6 +595,11 @@ export const Register = () => {
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
+                  {fieldErrors.password && (
+                    <div style={{ color: '#ef4444', fontSize: '0.78rem', fontWeight: 600, marginTop: '0.35rem' }}>
+                      {fieldErrors.password}
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -571,27 +661,25 @@ export const Register = () => {
               {role === 'DONOR' && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">Restaurant or Enterprise Name *</label>
+                    <label className="form-label">Restaurant or Enterprise Name</label>
                     <input
                       type="text"
                       name="business_name"
                       className="form-control"
-                      placeholder="e.g. The Spice Garden Restaurant"
+                      placeholder="e.g. The Spice Garden Restaurant (Defaults to First Name Kitchen)"
                       value={formData.business_name}
                       onChange={handleChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">FSSAI License / Certificate Number *</label>
+                    <label className="form-label">FSSAI License / Certificate Number</label>
                     <input
                       type="text"
                       name="food_license_number"
                       className="form-control"
-                      placeholder="14-digit FSSAI License"
+                      placeholder="14-digit FSSAI License (Optional if in review)"
                       value={formData.food_license_number}
                       onChange={handleChange}
-                      required
                     />
                   </div>
                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>
@@ -726,7 +814,7 @@ export const Register = () => {
                 style={{ marginTop: '0.2rem', cursor: 'pointer' }}
               />
               <label htmlFor="termsCheck" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5, cursor: 'pointer' }}>
-                I confirm that all surplus food operations will follow <strong>FSSAI safe temperature guidelines</strong>, hygienic packaging, and the FoodResQ Verified Rescue Charter.
+                I confirm that all surplus food operations will follow <strong>FSSAI safe temperature guidelines</strong>, hygienic packaging, and the ResQFood Verified Rescue Charter.
               </label>
             </div>
 

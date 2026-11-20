@@ -11,7 +11,7 @@ export const About = () => {
             Zero Food Waste. Zero Hunger.
           </h1>
           <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            FoodResQ is a community-driven technology platform dedicated to preventing wholesome food from entering landfills while feeding vulnerable populations.
+            ResQFood is a community-driven technology platform dedicated to preventing wholesome food from entering landfills while feeding vulnerable populations.
           </p>
         </div>
 
@@ -29,7 +29,7 @@ export const About = () => {
         >
           <img
             src="/images/about_mission.jpg"
-            alt="FoodResQ Mission - Community Food Rescue Team"
+            alt="ResQFood Mission - Community Food Rescue Team"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
           <div
@@ -64,7 +64,7 @@ export const About = () => {
           <div className="glass-card" style={{ padding: '2rem' }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>The Technology Solution</h3>
             <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              FoodResQ solves the critical timing problem. By combining real-time geo-location, perishable expiration urgency decay, and automated volunteer dispatch, we enable food transfers within hours of preparation before any degradation occurs.
+              ResQFood solves the critical timing problem. By combining real-time geo-location, perishable expiration urgency decay, and automated volunteer dispatch, we enable food transfers within hours of preparation before any degradation occurs.
             </p>
           </div>
         </div>

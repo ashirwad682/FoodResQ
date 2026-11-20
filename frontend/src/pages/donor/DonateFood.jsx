@@ -1,22 +1,29 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { donationService } from '../../services/donationService';
-import { PlusCircle, AlertCircle, CheckCircle2, UtensilsCrossed, Calendar, MapPin, Thermometer, ShieldAlert } from 'lucide-react';
+import {
+  PlusCircle,
+  AlertCircle,
+  CheckCircle2,
+  UtensilsCrossed,
+  Calendar,
+  MapPin,
+  Thermometer,
+  ShieldAlert,
+  Clock,
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  Compass,
+} from 'lucide-react';
 
 export const DonateFood = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Expiry min date/time (now + 1 hour in YYYY-MM-DDTHH:MM)
-  const getMinExpiry = () => {
-    const d = new Date(Date.now() + 60 * 60 * 1000);
-    return d.toISOString().slice(0, 16);
-  };
-
-  // Default expiry (now + 6 hours)
-  const getDefaultExpiry = () => {
-    const d = new Date(Date.now() + 6 * 60 * 60 * 1000);
+  const getDefaultExpiry = (hours = 6) => {
+    const d = new Date(Date.now() + hours * 60 * 60 * 1000);
     return d.toISOString().slice(0, 16);
   };
 
@@ -26,7 +33,7 @@ export const DonateFood = () => {
     food_type: 'COOKED_MEAL',
     quantity_kg: '',
     servings: '',
-    expiry_time: getDefaultExpiry(),
+    expiry_time: getDefaultExpiry(6),
     storage_temp: 'HOT_HOLDING',
     is_vegetarian: true,
     is_vegan: false,
@@ -59,9 +66,7 @@ export const DonateFood = () => {
         }));
         setLocating(false);
       },
-      () => {
-        setLocating(false);
-      },
+      () => setLocating(false),
       { timeout: 8000 }
     );
   };
@@ -74,11 +79,17 @@ export const DonateFood = () => {
     }));
   };
 
+  const setPresetHours = (hours) => {
+    setFormData((prev) => ({
+      ...prev,
+      expiry_time: getDefaultExpiry(hours),
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Validations
     const qty = parseFloat(formData.quantity_kg);
     if (!qty || qty <= 0) {
       setError('Quantity must be greater than 0 kg.');
@@ -95,8 +106,8 @@ export const DonateFood = () => {
     try {
       const latVal = parseFloat(formData.pickup_latitude);
       const lngVal = parseFloat(formData.pickup_longitude);
-      const safeLat = (!isNaN(latVal) && latVal >= -90 && latVal <= 90) ? latVal : 12.9716;
-      const safeLng = (!isNaN(lngVal) && lngVal >= -180 && lngVal <= 180) ? lngVal : 77.5946;
+      const safeLat = !isNaN(latVal) && latVal >= -90 && latVal <= 90 ? latVal : 12.9716;
+      const safeLng = !isNaN(lngVal) && lngVal >= -180 && lngVal <= 180 ? lngVal : 77.5946;
       const count = parseInt(formData.servings) || Math.round(qty * 2.5);
 
       const payload = {
@@ -131,7 +142,9 @@ export const DonateFood = () => {
       };
 
       await donationService.createDonation(payload);
-      navigate('/donor/donations', { state: { message: 'Donation created successfully! Matching algorithm is notifying nearby NGOs.' } });
+      navigate('/donor/donations', {
+        state: { message: 'Surplus food batch successfully registered! AI matching engine is notifying nearby shelters.' },
+      });
     } catch (err) {
       const resp = err.response?.data;
       let msg = 'Failed to register donation.';
@@ -151,265 +164,425 @@ export const DonateFood = () => {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div>
-        <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Donate Surplus Food</h1>
-        <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-          Register available surplus meals or raw items. Our matching engine will instantly pair this with verified shelters nearby.
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {/* Hero Header (Luminous Light Porcelain & Rose Silk Duo) */}
+      <section className="resq-hero-panel resq-hero-donor">
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              background: 'rgba(251, 113, 133, 0.08)',
+              border: '1px solid rgba(251, 113, 133, 0.28)',
+              borderRadius: 'var(--radius-full)',
+              padding: '0.35rem 0.95rem',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              color: '#e11d48',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              marginBottom: '0.85rem',
+            }}
+          >
+            <Sparkles size={14} style={{ color: '#f43f5e' }} />
+            <span>FSSAI Safe Surplus Intake Engine</span>
+          </div>
+
+          <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.025em', marginBottom: '0.5rem', fontFamily: 'var(--font-heading)' }}>
+            Post Surplus{' '}
+            <span
+              style={{
+                background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Food Batch
+            </span>
+          </h1>
+          <p style={{ fontSize: '0.94rem', color: '#475569', maxWidth: '640px', lineHeight: 1.6 }}>
+            Log excess prepared meals, bakery items, or raw ingredients. Our algorithmic matching system routes food to verified shelters before quality degrades.
+          </p>
+        </div>
+      </section>
 
       {error && (
-        <div style={{
-          background: '#fef2f2',
-          border: '1px solid #fecaca',
-          color: 'var(--danger)',
-          padding: '0.85rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '0.88rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}>
+        <div
+          style={{
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: 'var(--danger)',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
           <AlertCircle size={18} />
           <span>{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        {/* Basic Info */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <UtensilsCrossed size={18} color="var(--primary)" />
-            <span>Food Batch Information</span>
-          </h3>
+      {/* Grid: Form on Left, Live Preview Card on Right */}
+      <div className="resq-form-layout-grid">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+          {/* Section 1: Food Details */}
+          <div className="card" style={{ padding: '1.75rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <UtensilsCrossed size={18} color="var(--brand-rose)" />
+              <span>1. Food Specifications</span>
+            </h3>
 
-          <div className="form-group">
-            <label className="form-label">Batch Title *</label>
-            <input
-              type="text"
-              name="title"
-              className="form-control"
-              placeholder="e.g. Prepared Rice & Curry, Fresh Bread Loaves"
-              required
-              value={formData.title}
-              onChange={handleChange}
-            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Food Batch Title *
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  className="form-control"
+                  placeholder="e.g. Gourmet Vegetable Biryani & Raita (50 portions)"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="resq-responsive-grid-2">
+                <div>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                    Category *
+                  </label>
+                  <select name="food_type" className="form-control" value={formData.food_type} onChange={handleChange}>
+                    <option value="COOKED_MEAL">Cooked Meal (Ready to Eat)</option>
+                    <option value="BAKERY">Bakery & Breads</option>
+                    <option value="RAW_INGREDIENTS">Fresh Produce & Raw Ingredients</option>
+                    <option value="PACKAGED_FOOD">Packaged / Canned Goods</option>
+                    <option value="DAIRY">Dairy & Beverages</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                    Weight in Kilograms *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    name="quantity_kg"
+                    className="form-control"
+                    placeholder="e.g. 25.0"
+                    value={formData.quantity_kg}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Estimated Meals / Servings
+                </label>
+                <input
+                  type="number"
+                  name="servings"
+                  className="form-control"
+                  placeholder={formData.quantity_kg ? `Auto-calculated: ~${Math.round(parseFloat(formData.quantity_kg) * 2.5)}` : 'e.g. 50'}
+                  value={formData.servings}
+                  onChange={handleChange}
+                />
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Leave blank to auto-calculate at 2.5 meals per kg.
+                </span>
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Description & Preparation Notes
+                </label>
+                <textarea
+                  name="description"
+                  className="form-control"
+                  rows="3"
+                  placeholder="List main ingredients, packaging details, and reheat guidelines..."
+                  value={formData.description}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Description & Ingredients</label>
-            <textarea
-              name="description"
-              className="form-control"
-              rows={3}
-              placeholder="List items, preparation details, or allergen warnings..."
-              value={formData.description}
-              onChange={handleChange}
-            />
+          {/* Section 2: Safe Expiry & Storage */}
+          <div className="card" style={{ padding: '1.75rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Clock size={18} color="#0284c7" />
+              <span>2. Preservation & Expiry Window</span>
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem', margin: 0 }}>
+                    Safe Consumption Expiry Time *
+                  </label>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    {[2, 4, 6, 12, 24].map((h) => (
+                      <button
+                        type="button"
+                        key={h}
+                        onClick={() => setPresetHours(h)}
+                        style={{
+                          background: 'var(--bg-alt)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 'var(--radius-full)',
+                          padding: '0.2rem 0.55rem',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        +{h}h
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <input
+                  type="datetime-local"
+                  name="expiry_time"
+                  className="form-control"
+                  value={formData.expiry_time}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Current Holding Temperature *
+                </label>
+                <select name="storage_temp" className="form-control" value={formData.storage_temp} onChange={handleChange}>
+                  <option value="HOT_HOLDING">Hot Holding (≥ 63°C / 145°F)</option>
+                  <option value="REFRIGERATED">Refrigerated (≤ 4°C / 40°F)</option>
+                  <option value="ROOM_TEMP">Ambient / Room Temperature</option>
+                  <option value="FROZEN">Frozen (≤ -18°C / 0°F)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label">Food Category *</label>
-              <select name="food_type" className="form-control" value={formData.food_type} onChange={handleChange}>
-                <option value="COOKED_MEAL">Cooked Meal</option>
-                <option value="RAW_INGREDIENTS">Raw Ingredients / Produce</option>
-                <option value="BAKED_GOODS">Bakery & Breads</option>
-                <option value="PACKAGED">Packaged / Canned</option>
-                <option value="DAIRY">Dairy Products</option>
-                <option value="BEVERAGES">Beverages</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
+          {/* Section 3: Dietary Tags */}
+          <div className="card" style={{ padding: '1.75rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ShieldCheck size={18} color="#8b5cf6" />
+              <span>3. Dietary & Allergen Declarations</span>
+            </h3>
 
-            <div className="form-group">
-              <label className="form-label">Estimated Quantity (kg) *</label>
-              <input
-                type="number"
-                step="0.5"
-                min="0.5"
-                name="quantity_kg"
-                className="form-control"
-                placeholder="e.g. 15.0"
-                required
-                value={formData.quantity_kg}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Approximate Servings</label>
-              <input
-                type="number"
-                min="1"
-                name="servings"
-                className="form-control"
-                placeholder="e.g. 40 people"
-                value={formData.servings}
-                onChange={handleChange}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem' }}>
+              {[
+                { name: 'is_vegetarian', label: 'Vegetarian' },
+                { name: 'is_vegan', label: '100% Vegan' },
+                { name: 'is_halal', label: 'Halal Certified' },
+                { name: 'contains_nuts', label: 'Contains Tree Nuts / Peanuts' },
+                { name: 'contains_gluten', label: 'Contains Gluten / Wheat' },
+                { name: 'contains_dairy', label: 'Contains Dairy / Milk' },
+              ].map((item) => (
+                <label
+                  key={item.name}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    padding: '0.65rem 0.85rem',
+                    borderRadius: 'var(--radius-md)',
+                    background: formData[item.name] ? 'rgba(251, 113, 133, 0.12)' : 'var(--bg-alt)',
+                    border: `1px solid ${formData[item.name] ? 'var(--brand-rose)' : 'var(--border)'}`,
+                    cursor: 'pointer',
+                    fontSize: '0.84rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    name={item.name}
+                    checked={formData[item.name]}
+                    onChange={handleChange}
+                    style={{ accentColor: 'var(--brand-rose)' }}
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Expiry & Preservation */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Calendar size={18} color="var(--warning)" />
-            <span>Expiry & Storage Conditions</span>
-          </h3>
+          {/* Section 4: Pickup Logistics */}
+          <div className="card" style={{ padding: '1.75rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <MapPin size={18} color="#f59e0b" />
+              <span>4. Kitchen Pickup Location</span>
+            </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label">Safe Consumption Until *</label>
-              <input
-                type="datetime-local"
-                name="expiry_time"
-                min={getMinExpiry()}
-                className="form-control"
-                required
-                value={formData.expiry_time}
-                onChange={handleChange}
-              />
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Must be consumed before this time for safety compliance.
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem', margin: 0 }}>
+                    Pickup Street Address *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={detectLocation}
+                    disabled={locating}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--brand-rose)',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                    }}
+                  >
+                    <Compass size={14} />
+                    <span>{locating ? 'Detecting GPS...' : 'Auto-detect GPS'}</span>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  name="pickup_address"
+                  className="form-control"
+                  placeholder="e.g. 104 MG Road, Commercial Kitchen Dispatch Bay 3, Bangalore"
+                  value={formData.pickup_address}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem' }}>
+                  Dispatch Instructions for Courier Rider
+                </label>
+                <textarea
+                  name="special_instructions"
+                  className="form-control"
+                  rows="2"
+                  placeholder="e.g. Ring the rear kitchen bell; ask for Head Chef Suresh. Thermal bags required."
+                  value={formData.special_instructions}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Action */}
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <Link to="/donor/dashboard" className="btn btn-secondary">
+              Cancel
+            </Link>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary"
+              style={{
+                background: 'var(--brand-rose-gradient)',
+                border: 'none',
+                padding: '0.85rem 2rem',
+                borderRadius: 'var(--radius-full)',
+                boxShadow: '0 8px 24px rgba(244, 63, 94, 0.4)',
+                fontSize: '0.98rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <PlusCircle size={18} />
+              <span>{loading ? 'Registering on Ledger...' : 'Publish Surplus Batch'}</span>
+            </button>
+          </div>
+        </form>
+
+        {/* Live Preview Card */}
+        <div style={{ position: 'sticky', top: '90px' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+            Live Marketplace Preview
+          </div>
+
+          <div
+            className="card"
+            style={{
+              padding: '1.5rem',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border)',
+              background: '#ffffff',
+              boxShadow: 'var(--shadow-md)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: 'var(--radius-full)',
+                  background: 'rgba(251, 113, 133, 0.12)',
+                  color: 'var(--brand-rose)',
+                  border: '1px solid rgba(251, 113, 133, 0.28)',
+                }}
+              >
+                AVAILABLE
+              </span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <Clock size={12} />
+                <span>Expires ~6h</span>
               </span>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Storage Temperature Requirement *</label>
-              <select name="storage_temp" className="form-control" value={formData.storage_temp} onChange={handleChange}>
-                <option value="ROOM_TEMP">Room Temperature (Dry / Ambient)</option>
-                <option value="REFRIGERATED">Refrigerated (Below 5°C)</option>
-                <option value="FROZEN">Frozen (Below -18°C)</option>
-                <option value="HOT_HOLDING">Hot Holding (Above 63°C)</option>
-              </select>
-            </div>
-          </div>
-        </div>
+            <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem', fontFamily: 'var(--font-heading)' }}>
+              {formData.title || 'Untitled Surplus Food Batch'}
+            </h4>
 
-        {/* Dietary & Allergen Checkboxes */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <span className="form-label" style={{ marginBottom: 0 }}>Dietary & Allergen Tags</span>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.75rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="is_vegetarian" checked={formData.is_vegetarian} onChange={handleChange} />
-              <span>Vegetarian</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="is_vegan" checked={formData.is_vegan} onChange={handleChange} />
-              <span>Vegan</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="is_halal" checked={formData.is_halal} onChange={handleChange} />
-              <span>Halal</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="contains_nuts" checked={formData.contains_nuts} onChange={handleChange} />
-              <span>Contains Nuts</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="contains_gluten" checked={formData.contains_gluten} onChange={handleChange} />
-              <span>Contains Gluten</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input type="checkbox" name="contains_dairy" checked={formData.contains_dairy} onChange={handleChange} />
-              <span>Contains Dairy</span>
-            </label>
-          </div>
-        </div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: 1.5 }}>
+              {formData.description || 'Description will appear here once entered...'}
+            </p>
 
-        {/* Pickup Logistics */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <MapPin size={18} color="var(--info)" />
-            <span>Pickup Logistics</span>
-          </h3>
-
-          <div className="form-group">
-            <label className="form-label">Exact Pickup Address *</label>
-            <input
-              type="text"
-              name="pickup_address"
-              className="form-control"
-              required
-              value={formData.pickup_address}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.25rem' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              GPS Coordinates (Used by Priority Engine to find nearest NGOs)
-            </span>
-            <button
-              type="button"
-              onClick={detectLocation}
-              disabled={locating}
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.78rem', padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-sm)' }}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '0.5rem',
+                padding: '0.75rem',
+                background: 'var(--bg-alt)',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '1rem',
+              }}
             >
-              <MapPin size={13} style={{ color: 'var(--primary)' }} />
-              <span>{locating ? 'Detecting GPS...' : '📍 Auto-Detect GPS Location'}</span>
-            </button>
-          </div>
-
-          <div className="form-row-2col">
-            <div className="form-group">
-              <label className="form-label">Pickup Latitude (-90.0 to 90.0)</label>
-              <input
-                type="number"
-                step="any"
-                min="-90"
-                max="90"
-                name="pickup_latitude"
-                placeholder="e.g. 25.6093 or 12.9716"
-                className="form-control"
-                value={formData.pickup_latitude}
-                onChange={handleChange}
-              />
+              <div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  {formData.quantity_kg ? `${formData.quantity_kg} kg` : '0 kg'}
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Quantity</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  ~{formData.servings || (formData.quantity_kg ? Math.round(parseFloat(formData.quantity_kg) * 2.5) : 0)}
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Est. Meals</div>
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Pickup Longitude (-180.0 to 180.0)</label>
-              <input
-                type="number"
-                step="any"
-                min="-180"
-                max="180"
-                name="pickup_longitude"
-                placeholder="e.g. 85.1376 or 77.5946"
-                className="form-control"
-                value={formData.pickup_longitude}
-                onChange={handleChange}
-              />
+
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <MapPin size={14} style={{ flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {formData.pickup_address || 'Enter pickup location'}
+              </span>
             </div>
           </div>
-
-          <div className="form-group">
-            <label className="form-label">Pickup Instructions for Riders & Drivers</label>
-            <textarea
-              name="special_instructions"
-              className="form-control"
-              rows={2}
-              placeholder="e.g. Park at loading bay 3, call manager upon arrival..."
-              value={formData.special_instructions}
-              onChange={handleChange}
-            />
-          </div>
         </div>
-
-        {/* Actions */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-          <button type="button" onClick={() => navigate('/donor/dashboard')} className="btn btn-secondary">
-            Cancel
-          </button>
-          <button type="submit" disabled={loading} className="btn btn-primary" style={{ padding: '0.75rem 2rem' }}>
-            <PlusCircle size={18} />
-            <span>{loading ? 'Registering...' : 'Register & Broadcast Surplus'}</span>
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

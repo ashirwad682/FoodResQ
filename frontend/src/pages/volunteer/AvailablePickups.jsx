@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { pickupService } from '../../services/pickupService';
-import { Truck, MapPin, Building2, Package, Clock, CheckCircle2, AlertCircle, RotateCcw } from 'lucide-react';
+import {
+  Truck,
+  MapPin,
+  Building2,
+  Package,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  RotateCcw,
+  ArrowRight,
+  ShieldCheck,
+} from 'lucide-react';
 import { formatDate, formatKg } from '../../utils/formatters';
 
 export const AvailablePickups = () => {
@@ -16,7 +27,7 @@ export const AvailablePickups = () => {
       setLoading(true);
       const data = await pickupService.getAssignments({ filter: 'available' });
       const list = data.results || data || [];
-      // Filter missions awaiting volunteer dispatch
+      // Filter open missions awaiting volunteer dispatch
       setAssignments(
         list.filter(
           (a) =>
@@ -43,59 +54,70 @@ export const AvailablePickups = () => {
       await pickupService.acceptAssignment(id);
       navigate('/volunteer/active-delivery');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to claim this mission. It may already have been taken.');
+      setError(err.response?.data?.error || 'Failed to claim this mission. It may already have been taken by another courier.');
       setAcceptingId(null);
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Available Rescue Missions</h1>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Open Rescue Missions
+          </h1>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-            Commercial kitchens with surplus food approved for NGO pickup. Claim a route to deliver meals.
+            Surplus food approved by commercial donors awaiting volunteer transportation to shelters.
           </p>
         </div>
         <button
           onClick={loadAssignments}
           disabled={loading}
           className="btn btn-secondary btn-sm"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: 'var(--radius-full)' }}
         >
-          <RotateCcw size={15} className={loading ? 'animate-spin' : ''} />
-          <span>Refresh Missions</span>
+          <RotateCcw size={15} className={loading ? 'spin' : ''} />
+          <span>Refresh Routes</span>
         </button>
       </div>
 
       {error && (
-        <div style={{
-          background: '#fef2f2',
-          border: '1px solid #fecaca',
-          color: 'var(--danger)',
-          padding: '0.85rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '0.88rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}>
+        <div
+          style={{
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: 'var(--danger)',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
           <AlertCircle size={18} />
           <span>{error}</span>
         </div>
       )}
 
+      {/* Missions Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-          Finding available rescue routes near you...
+        <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
+          Finding available rescue routes on MongoDB Atlas...
         </div>
       ) : assignments.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3.5rem' }}>
-          <Truck size={44} color="var(--text-muted)" style={{ margin: '0 auto 1rem' }} />
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>No Open Missions Right Now</h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            All approved food pickups are currently handled. Keep your status on "Available" to get notified when donors approve requests.
+        <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
+          <Truck size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            No open missions right now
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem', maxWidth: '420px', margin: '0.35rem auto 1.5rem' }}>
+            All approved food pickups are currently handled by the fleet. Keep your duty toggle on to receive notifications!
           </p>
+          <button onClick={loadAssignments} className="btn btn-secondary btn-sm" style={{ borderRadius: 'var(--radius-full)' }}>
+            Check Again
+          </button>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -110,36 +132,46 @@ export const AvailablePickups = () => {
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
                 gap: '1.5rem',
-                borderLeft: '4px solid var(--primary)'
+                borderLeft: '4px solid #f59e0b',
               }}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1, minWidth: '280px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className="badge badge-warning">READY FOR PICKUP</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Posted {formatDate(mission.assigned_at || mission.created_at)}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minWidth: 'min(300px, 100%)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 800,
+                      padding: '0.2rem 0.65rem',
+                      borderRadius: 'var(--radius-full)',
+                      background: '#fffbeb',
+                      color: '#d97706',
+                      border: '1px solid #fde68a',
+                    }}
+                  >
+                    READY FOR PICKUP
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Mission #{mission.id?.slice(-6)}
                   </span>
                 </div>
 
-                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                  {mission.donation_title || `Surplus Food Batch #${mission.id}`}
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  {mission.donation_title || 'Surplus Food Batch'}
                 </div>
 
-                {/* Routing Waypoints */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.85rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                    <MapPin size={16} color="var(--danger)" />
-                    <span><strong>Pickup from:</strong> {mission.pickup_address || 'Commercial Kitchen'}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                    <Building2 size={16} color="var(--info)" />
-                    <span><strong>Deliver to:</strong> {mission.organization_name || 'Verified Shelter'}</span>
-                  </div>
+                <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+                  Payload Weight: <strong>{formatKg(mission.donation_quantity)}</strong> (~{Math.round((parseFloat(mission.donation_quantity) || 0) * 2.5)} meals) • Category: <strong>{mission.donation_food_type}</strong>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                  <div>Weight: <strong>{formatKg(mission.donation_quantity)}</strong></div>
-                  <div>Category: <strong>{mission.donation_food_type}</strong></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.35rem', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <MapPin size={15} color="#dc2626" style={{ flexShrink: 0 }} />
+                    <span>Pickup From: <strong>{mission.pickup_address}</strong></span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <Building2 size={15} color="#0284c7" style={{ flexShrink: 0 }} />
+                    <span>Deliver To: <strong>{mission.organization_name || 'Designated Shelter'}</strong></span>
+                  </div>
                 </div>
               </div>
 
@@ -148,10 +180,20 @@ export const AvailablePickups = () => {
                   onClick={() => handleAccept(mission.id)}
                   disabled={acceptingId === mission.id}
                   className="btn btn-primary"
-                  style={{ padding: '0.85rem 1.75rem' }}
+                  style={{
+                    background: 'var(--brand-rose-gradient)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '0.75rem 1.6rem',
+                    fontSize: '0.92rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
+                  }}
                 >
-                  <CheckCircle2 size={18} />
-                  <span>{acceptingId === mission.id ? 'Claiming Mission...' : 'Accept Mission'}</span>
+                  <Truck size={16} />
+                  <span>{acceptingId === mission.id ? 'Claiming Route...' : 'Accept Rescue Mission'}</span>
                 </button>
               </div>
             </div>
