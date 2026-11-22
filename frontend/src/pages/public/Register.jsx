@@ -895,7 +895,7 @@ export const Register = () => {
             }}
           >
             <ShieldCheck size={14} color="var(--primary)" />
-            <span>FSSAI Compliant • MongoDB Atlas Cloud Protected • ISO 27001 Standard</span>
+            <span>FSSAI Compliant • Secure Cloud Protected • ISO 27001 Standard</span>
           </div>
         </div>
       </div>

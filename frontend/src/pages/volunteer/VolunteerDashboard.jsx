@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { pickupService } from '../../services/pickupService';
 import { volunteerService } from '../../services/volunteerService';
 import { StatCard } from '../../components/common/StatCard';
+import { PickupHandoverVerificationSection } from '../../components/volunteer/PickupHandoverVerificationSection';
 import {
   Truck,
   CheckCircle2,
@@ -292,117 +293,8 @@ export const VolunteerDashboard = () => {
         </div>
       )}
 
-      {/* B. Featured In-Flight Mission Tracking Card */}
-      {activeMission && (
-        <section
-          style={{
-            background: 'linear-gradient(135deg, #fffdf5 0%, #fef3c7 100%)',
-            border: '1px solid #fde68a',
-            borderRadius: 'var(--radius-xl)',
-            padding: '1.75rem',
-            boxShadow: '0 8px 24px rgba(245, 158, 11, 0.16)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#f59e0b', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)' }}>
-                <Truck size={22} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#92400e' }}>
-                  Active Rescue Mission in Progress
-                </h3>
-                <span style={{ fontSize: '0.84rem', color: '#b45309' }}>
-                  Stage: <strong>{activeMission.status?.replace('_', ' ')}</strong>
-                </span>
-              </div>
-            </div>
-
-            <Link
-              to="/volunteer/active-delivery"
-              className="btn btn-primary"
-              style={{
-                background: '#d97706',
-                borderColor: '#d97706',
-                borderRadius: 'var(--radius-full)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                fontWeight: 800,
-                padding: '0.5rem 1.25rem',
-              }}
-            >
-              <span>Open Mission Controls</span>
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: 'var(--radius-lg)',
-              padding: '1.35rem 1.5rem',
-              border: '1px solid #fde68a',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '1.5rem',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
-                {activeMission.donation_title || `Mission #${activeMission.id}`}
-              </div>
-              <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                Payload: <strong>{formatKg(activeMission.donation_quantity)}</strong> • Category: <strong>{activeMission.donation_food_type}</strong>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.85rem', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <MapPin size={15} color="#dc2626" style={{ flexShrink: 0 }} />
-                  <span>Pickup: {activeMission.pickup_address}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <Building2 size={15} color="#0284c7" style={{ flexShrink: 0 }} />
-                  <span>Dropoff Shelter: {activeMission.organization_name || 'Designated Shelter'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stage Progress Stepper */}
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.65rem' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#92400e' }}>
-                Delivery Chain-of-Custody Status
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {['ASSIGNED', 'COLLECTED', 'DELIVERED'].map((step, idx) => {
-                  const isDone =
-                    activeMission.status === step ||
-                    (step === 'ASSIGNED' && (activeMission.status === 'COLLECTED' || activeMission.status === 'DELIVERED')) ||
-                    (step === 'COLLECTED' && activeMission.status === 'DELIVERED');
-                  return (
-                    <div
-                      key={step}
-                      style={{
-                        flex: 1,
-                        padding: '0.55rem 0.25rem',
-                        borderRadius: 'var(--radius-sm)',
-                        textAlign: 'center',
-                        fontSize: '0.74rem',
-                        fontWeight: 800,
-                        background: isDone ? '#059669' : '#e2e8f0',
-                        color: isDone ? '#fff' : '#64748b',
-                      }}
-                    >
-                      {idx + 1}. {step}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* B. Dedicated Section: Pickup & Handover Verification */}
+      <PickupHandoverVerificationSection activeMission={activeMission} onRefresh={loadVolunteerData} />
 
       {/* C. 4 Core Courier StatCards */}
       <section>
@@ -478,7 +370,7 @@ export const VolunteerDashboard = () => {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-            Loading available courier missions from MongoDB...
+            Loading available courier missions...
           </div>
         ) : filteredMissions.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '3.5rem 1.5rem', borderRadius: 'var(--radius-xl)' }}>

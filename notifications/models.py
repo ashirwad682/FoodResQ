@@ -12,6 +12,15 @@ class NotificationType(models.TextChoices):
     PICKUP_IN_TRANSIT = 'PICKUP_IN_TRANSIT', 'Pickup In Transit'
     DELIVERY_COMPLETED = 'DELIVERY_COMPLETED', 'Delivery Completed'
     SYSTEM = 'SYSTEM', 'System Alert'
+    # Verification System Workflow Notifications
+    COLLECTION_SUBMITTED = 'COLLECTION_SUBMITTED', 'Food Collection Evidence Submitted'
+    FOOD_COLLECTED = 'FOOD_COLLECTED', 'Food Successfully Collected'
+    ARRIVED_AT_NGO = 'ARRIVED_AT_NGO', 'Courier Arrived at NGO Shelter'
+    HANDOVER_PHOTO_UPLOADED = 'HANDOVER_PHOTO_UPLOADED', 'Handover Evidence Uploaded'
+    OTP_GENERATED = 'OTP_GENERATED', 'Food Delivery Verification Required'
+    OTP_EXPIRING = 'OTP_EXPIRING', 'OTP Verification Expiring'
+    OTP_EXPIRED = 'OTP_EXPIRED', 'OTP Verification Expired'
+    OTP_VERIFIED = 'OTP_VERIFIED', 'Food Handover Verified'
 
 
 class Notification(models.Model):
@@ -29,6 +38,8 @@ class Notification(models.Model):
     )
     is_read = models.BooleanField(default=False)
     related_donation_id = models.CharField(max_length=100, blank=True, null=True)
+    related_assignment_id = models.CharField(max_length=100, blank=True, null=True)
+    data = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

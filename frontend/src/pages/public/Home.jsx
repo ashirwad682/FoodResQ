@@ -602,7 +602,7 @@ export const Home = () => {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '4rem', background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
               <div style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '1.1rem' }}>Querying live database batches...</div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Connecting to MongoDB Atlas</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Connecting to ResQFood Network</p>
             </div>
           ) : filteredDonations.length === 0 ? (
             <div

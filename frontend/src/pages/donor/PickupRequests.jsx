@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { pickupService } from '../../services/pickupService';
-import { CheckCircle2, XCircle, Clock, Building2, MapPin, Package, AlertCircle, Sparkles } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Building2, MapPin, Package, AlertCircle, Sparkles, ShieldCheck } from 'lucide-react';
 import { formatDate } from '../../utils/formatters';
 
 export const PickupRequests = () => {
@@ -30,10 +30,11 @@ export const PickupRequests = () => {
     setFeedback(null);
     try {
       await pickupService.approveRequest(id);
-      setFeedback({ type: 'success', message: 'Pickup request approved! Rescue courier assignment dispatched.' });
-      loadRequests();
+      setFeedback({ type: 'success', message: 'Pickup request approved! Batch reserved exclusively and courier dispatched.' });
+      await loadRequests();
     } catch (err) {
       setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to approve request.' });
+      await loadRequests();
     } finally {
       setActionLoading(null);
     }
@@ -46,9 +47,10 @@ export const PickupRequests = () => {
     try {
       await pickupService.rejectRequest(id);
       setFeedback({ type: 'info', message: 'Pickup request declined. Food batch remains open for other shelters.' });
-      loadRequests();
+      await loadRequests();
     } catch (err) {
       setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to decline request.' });
+      await loadRequests();
     } finally {
       setActionLoading(null);
     }
@@ -70,7 +72,7 @@ export const PickupRequests = () => {
             Shelter Pickup Requests
           </h1>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-            Verified NGOs request to claim your surplus food batches here. Approve to dispatch courier riders.
+            Verified NGOs request to claim your surplus food batches here. Approve one NGO per batch to grant exclusive reservation.
           </p>
         </div>
 
@@ -119,7 +121,7 @@ export const PickupRequests = () => {
         {[
           { id: 'ALL', label: `All Requests (${requests.length})` },
           { id: 'PENDING', label: `Pending Approval (${pendingCount})` },
-          { id: 'APPROVED', label: 'Approved' },
+          { id: 'APPROVED', label: 'Approved & Reserved' },
           { id: 'REJECTED', label: 'Declined' },
         ].map((pill) => (
           <button
@@ -135,7 +137,7 @@ export const PickupRequests = () => {
       {/* Requests List */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-          Loading shelter rescue requests from MongoDB...
+          Loading shelter rescue requests...
         </div>
       ) : filteredRequests.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
@@ -152,6 +154,8 @@ export const PickupRequests = () => {
           {filteredRequests.map((req) => {
             const isPending = req.status === 'PENDING';
             const isApproved = req.status === 'APPROVED';
+            const isRejected = req.status === 'REJECTED';
+            const isCancelled = req.status === 'CANCELLED';
 
             return (
               <div
@@ -164,24 +168,45 @@ export const PickupRequests = () => {
                   justifyContent: 'space-between',
                   flexWrap: 'wrap',
                   gap: '1.25rem',
-                  borderLeft: `4px solid ${isPending ? '#f59e0b' : isApproved ? '#10b981' : '#cbd5e1'}`,
+                  borderLeft: `4px solid ${isPending ? '#f59e0b' : isApproved ? '#10b981' : isCancelled ? '#94a3b8' : '#cbd5e1'}`,
                 }}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1, minWidth: 'min(100%, 260px)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                     <span
                       style={{
                         fontSize: '0.72rem',
                         fontWeight: 800,
                         padding: '0.2rem 0.6rem',
                         borderRadius: 'var(--radius-full)',
-                        background: isPending ? '#fffbeb' : isApproved ? '#ecfdf5' : '#f1f5f9',
-                        color: isPending ? '#d97706' : isApproved ? '#059669' : '#64748b',
-                        border: `1px solid ${isPending ? '#fde68a' : isApproved ? '#a7f3d0' : '#cbd5e1'}`,
+                        background: isPending ? '#fffbeb' : isApproved ? '#ecfdf5' : isCancelled ? '#f1f5f9' : '#fef2f2',
+                        color: isPending ? '#d97706' : isApproved ? '#059669' : isCancelled ? '#64748b' : '#dc2626',
+                        border: `1px solid ${isPending ? '#fde68a' : isApproved ? '#a7f3d0' : isCancelled ? '#cbd5e1' : '#fecaca'}`,
                       }}
                     >
-                      {req.status}
+                      {isApproved ? 'CONFIRMED RESERVATION' : req.status}
                     </span>
+
+                    {isApproved && (
+                      <span
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: 'var(--radius-full)',
+                          background: '#f0fdf4',
+                          color: '#166534',
+                          border: '1px solid #bbf7d0',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                        }}
+                      >
+                        <ShieldCheck size={12} />
+                        Exclusive Recipient
+                      </span>
+                    )}
+
                     <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                       Submitted {formatDate(req.requested_at)}
                     </span>
@@ -222,7 +247,7 @@ export const PickupRequests = () => {
                       }}
                     >
                       <CheckCircle2 size={16} />
-                      <span>{actionLoading === req.id ? 'Approving...' : 'Approve & Dispatch'}</span>
+                      <span>{actionLoading === req.id ? 'Approving...' : 'Approve & Reserve'}</span>
                     </button>
                     <button
                       onClick={() => handleReject(req.id)}
@@ -233,6 +258,27 @@ export const PickupRequests = () => {
                       <XCircle size={16} />
                       <span>Decline</span>
                     </button>
+                  </div>
+                )}
+
+                {isApproved && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
+                    <CheckCircle2 size={16} />
+                    <span>Courier Dispatch Active</span>
+                  </div>
+                )}
+
+                {isRejected && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontWeight: 600, fontSize: '0.85rem' }}>
+                    <XCircle size={16} />
+                    <span>Declined</span>
+                  </div>
+                )}
+
+                {isCancelled && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontWeight: 600, fontSize: '0.85rem' }}>
+                    <Clock size={16} />
+                    <span>Cancelled by NGO</span>
                   </div>
                 )}
               </div>

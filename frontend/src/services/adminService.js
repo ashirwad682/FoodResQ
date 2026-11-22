@@ -25,4 +25,14 @@ export const adminService = {
     const response = await api.get('/pickups/assignments/', { params });
     return response.data;
   },
+
+  async getAllUsers(params = {}) {
+    const response = await api.get('/auth/users/', { params });
+    return response.data;
+  },
+
+  async getAllClaims(params = {}) {
+    const response = await api.get('/pickups/requests/', { params });
+    return response.data;
+  },
 };

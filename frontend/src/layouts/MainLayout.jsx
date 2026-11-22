@@ -287,7 +287,7 @@ export const MainLayout = () => {
               </p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#0f172a', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', border: '1px solid #1e293b', fontSize: '0.78rem' }}>
                 <span className="live-pulse" />
-                <span style={{ color: '#27272a', fontWeight: 600 }}>MongoDB Atlas Active</span>
+                <span style={{ color: '#38bdf8', fontWeight: 600 }}>Cloud Network Active</span>
               </div>
             </div>
 
@@ -384,7 +384,7 @@ export const MainLayout = () => {
             </div>
           </div>
 
-          {/* Simple & Professional Attribution Bar */}
+          {/* Copyright & Legal Row */}
           <div
             style={{
               borderTop: '1px solid #1e293b',
@@ -394,45 +394,18 @@ export const MainLayout = () => {
               alignItems: 'center',
               flexWrap: 'wrap',
               gap: '1rem',
-              fontSize: '0.86rem',
-              color: '#94a3b8',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <span>
-                Backend & System Architecture by{' '}
-                <strong style={{ color: '#34d399', fontWeight: 700 }}>Ashirwad Kumar</strong>
-              </span>
-              <span style={{ color: '#334155' }}>•</span>
-              <span>
-                UI & Frontend Design by{' '}
-                <strong style={{ color: '#38bdf8', fontWeight: 700 }}>Ayush Kumar</strong>
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.8rem', color: '#64748b' }}>
-              <span>Django 5.x</span>
-              <span>•</span>
-              <span>React 18</span>
-              <span>•</span>
-              <span style={{ color: '#34d399', fontWeight: 600 }}>MongoDB Atlas Active</span>
-            </div>
-          </div>
-
-          {/* Copyright & Legal Row */}
-          <div
-            style={{
-              paddingTop: '0.75rem',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '1rem',
-              fontSize: '0.78rem',
+              fontSize: '0.82rem',
               color: '#64748b',
             }}
           >
             <p>© {new Date().getFullYear()} ResQFood Network. All rights reserved.</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.8rem' }}>
+              <span>Django 5.x</span>
+              <span>•</span>
+              <span>React 18</span>
+              <span>•</span>
+              <span style={{ color: '#34d399', fontWeight: 600 }}>Cloud Synchronized</span>
+            </div>
             <p>Certified FSSAI Surplus Redistribution Protocol</p>
           </div>
         </div>

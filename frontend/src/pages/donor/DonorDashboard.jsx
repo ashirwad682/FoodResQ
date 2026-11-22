@@ -6,6 +6,7 @@ import { pickupService } from '../../services/pickupService';
 import { analyticsService } from '../../services/analyticsService';
 import { StatCard } from '../../components/common/StatCard';
 import { DonationCard } from '../../components/cards/DonationCard';
+import { FoodCollectionDeliveryEvidenceSection } from '../../components/donor/FoodCollectionDeliveryEvidenceSection';
 import {
   PlusCircle,
   Package,
@@ -339,7 +340,7 @@ export const DonorDashboard = () => {
         </div>
       )}
 
-      {/* B. Live Kitchen Impact Metrics (5 Core Cards Connected to MongoDB) */}
+      {/* B. Live Kitchen Impact Metrics (5 Core Cards) */}
       <section>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
@@ -347,7 +348,7 @@ export const DonorDashboard = () => {
               Kitchen Impact & Environmental Telemetry
             </h2>
             <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-              Calculated in real time across verified MongoDB Atlas rescue completions.
+              Calculated in real time across verified rescue completions.
             </p>
           </div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.78rem', color: '#059669', background: '#ecfdf5', padding: '0.3rem 0.8rem', borderRadius: 'var(--radius-full)', fontWeight: 700, border: '1px solid #a7f3d0' }}>
@@ -487,6 +488,9 @@ export const DonorDashboard = () => {
         </section>
       )}
 
+      {/* Dedicated Section: Food Collection & Delivery Evidence */}
+      <FoodCollectionDeliveryEvidenceSection donations={donations} requests={requests} />
+
       {/* D. Surplus Food Inventory with Interactive Category Filters & Search */}
       <section>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
@@ -534,7 +538,7 @@ export const DonorDashboard = () => {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-            Loading kitchen inventory from MongoDB Atlas...
+            Loading kitchen inventory...
           </div>
         ) : filteredDonations.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '3.5rem 1.5rem', borderRadius: 'var(--radius-xl)' }}>

@@ -86,7 +86,7 @@ export const DonationHistory = () => {
               }}
             >
               <ShieldCheck size={15} style={{ color: '#27272a' }} />
-              <span>Verified Shelter Intake • Permanent MongoDB Audit Ledger</span>
+              <span>Verified Shelter Intake • Permanent Cloud Audit Ledger</span>
             </div>
 
             <h1
@@ -254,7 +254,7 @@ export const DonationHistory = () => {
         {/* Audit Log Feed */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-            Loading shelter rescue history ledger from MongoDB...
+            Loading shelter rescue history ledger...
           </div>
         ) : filteredHistory.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
@@ -380,7 +380,7 @@ export const DonationHistory = () => {
                   "{selectedCertificate.donation_title || `Batch #${selectedCertificate.id?.slice(-6)}`}"
                 </div>
                 <div style={{ fontSize: '0.84rem', color: '#0284c7', fontWeight: 800, marginTop: '0.2rem' }}>
-                  ✓ Intake Confirmed & Logged in MongoDB Atlas
+                  ✓ Intake Confirmed & Logged in Cloud Network
                 </div>
               </div>
 

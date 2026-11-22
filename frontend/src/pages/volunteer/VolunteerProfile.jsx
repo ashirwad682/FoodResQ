@@ -54,7 +54,7 @@ export const VolunteerProfile = () => {
         },
       });
       await refreshProfile();
-      setFeedback({ type: 'success', message: 'Courier preferences and vehicle credentials updated in MongoDB Atlas!' });
+      setFeedback({ type: 'success', message: 'Courier preferences and vehicle credentials updated successfully!' });
     } catch (err) {
       setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to update profile.' });
     } finally {

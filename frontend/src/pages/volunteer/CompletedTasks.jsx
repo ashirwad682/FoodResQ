@@ -259,7 +259,7 @@ export const CompletedTasks = () => {
         {/* Ledger List */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-            Loading completed mission records from MongoDB Atlas...
+            Loading completed mission records...
           </div>
         ) : filteredTasks.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
@@ -384,7 +384,7 @@ export const CompletedTasks = () => {
                   "{selectedReceipt.donation_title || `Mission #${selectedReceipt.id?.slice(-6)}`}"
                 </div>
                 <div style={{ fontSize: '0.84rem', color: '#059669', fontWeight: 800, marginTop: '0.2rem' }}>
-                  ✓ Delivery Confirmed in MongoDB Atlas
+                  ✓ Delivery Confirmed & Verified
                 </div>
               </div>
 

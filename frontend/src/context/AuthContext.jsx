@@ -28,6 +28,12 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const demoLogin = async (role) => {
+    const data = await authService.demoLogin(role);
+    setUser(data.user);
+    return data;
+  };
+
   const register = async (userData) => {
     const data = await authService.register(userData);
     setUser(data.user);
@@ -53,6 +59,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user,
         loading,
         login,
+        demoLogin,
         register,
         logout,
         refreshProfile,

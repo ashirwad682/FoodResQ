@@ -6,6 +6,7 @@ import { pickupService } from '../../services/pickupService';
 import { analyticsService } from '../../services/analyticsService';
 import { StatCard } from '../../components/common/StatCard';
 import { DonationCard } from '../../components/cards/DonationCard';
+import { IncomingDeliveriesOtpSection } from '../../components/ngo/IncomingDeliveriesOtpSection';
 import {
   ShoppingBag,
   Sparkles,
@@ -320,73 +321,8 @@ export const NgoDashboard = () => {
         </div>
       )}
 
-      {/* B. Active Inbound Deliveries Alert Card */}
-      {activeDeliveries.length > 0 && (
-        <section
-          style={{
-            background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
-            border: '1px solid #a7f3d0',
-            borderRadius: 'var(--radius-xl)',
-            padding: '1.75rem',
-            boxShadow: '0 8px 24px rgba(16, 185, 129, 0.14)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
-                <Truck size={22} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#065f46' }}>
-                  {activeDeliveries.length} In-Transit Rescue Delivery Inbound
-                </h3>
-                <p style={{ fontSize: '0.84rem', color: '#047857' }}>
-                  Volunteer couriers are en route. Prepare intake temperature check upon arrival.
-                </p>
-              </div>
-            </div>
-            <Link to="/ngo/active-deliveries" className="btn btn-sm" style={{ background: 'var(--brand-rose-gradient)', color: '#fff', borderRadius: 'var(--radius-full)', fontWeight: 800, padding: '0.45rem 1.1rem', border: 'none', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)' }}>
-              Live Courier Tracking →
-            </Link>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            {activeDeliveries.slice(0, 2).map((del) => (
-              <div
-                key={del.id}
-                style={{
-                  background: '#ffffff',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: '1.15rem 1.35rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '1rem',
-                  border: '1px solid #a7f3d0',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>
-                    {del.donation_title || `Rescue Batch #${del.id}`}
-                  </div>
-                  <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                    Courier: <strong>{del.volunteer_name || 'Assigned Courier'}</strong> ({del.volunteer_vehicle || 'Thermal Carrier'}) • Status: <strong>{del.status}</strong>
-                  </div>
-                </div>
-                <Link
-                  to="/ngo/active-deliveries"
-                  className="btn btn-secondary btn-sm"
-                  style={{ borderRadius: 'var(--radius-full)', fontWeight: 700 }}
-                >
-                  Verify Receipt & Confirm
-                </Link>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* B. Dedicated Section: Incoming Deliveries & OTP Verification */}
+      <IncomingDeliveriesOtpSection onRefresh={loadNgoData} />
 
       {/* C. 4 Core Shelter Metrics */}
       <section>
@@ -471,7 +407,7 @@ export const NgoDashboard = () => {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-            Loading available surplus food marketplace from MongoDB...
+            Loading available surplus food marketplace...
           </div>
         ) : filteredFood.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '3.5rem 1.5rem', borderRadius: 'var(--radius-xl)' }}>

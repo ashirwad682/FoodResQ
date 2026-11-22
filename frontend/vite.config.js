@@ -19,6 +19,10 @@ export default defineConfig({
         target: 'http://127.0.0.1:8004',
         changeOrigin: true,
       },
+      '/media': {
+        target: 'http://127.0.0.1:8004',
+        changeOrigin: true,
+      },
     },
   },
   preview: {
@@ -33,6 +37,10 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/static/admin': {
+        target: 'http://127.0.0.1:8004',
+        changeOrigin: true,
+      },
+      '/media': {
         target: 'http://127.0.0.1:8004',
         changeOrigin: true,
       },

@@ -75,15 +75,21 @@ class VolunteerActiveAssignmentView(APIView):
         user = request.user
         active_statuses = [
             PickupAssignmentStatus.ASSIGNED,
+            PickupAssignmentStatus.ARRIVED_AT_DONOR,
+            PickupAssignmentStatus.COLLECTION_EVIDENCE_SUBMITTED,
+            PickupAssignmentStatus.PICKED_UP,
+            PickupAssignmentStatus.IN_TRANSIT,
+            PickupAssignmentStatus.ARRIVED_AT_NGO,
+            PickupAssignmentStatus.HANDOVER_EVIDENCE_SUBMITTED,
+            PickupAssignmentStatus.OTP_VERIFIED,
             PickupAssignmentStatus.EN_ROUTE_PICKUP,
             PickupAssignmentStatus.COLLECTED,
             PickupAssignmentStatus.EN_ROUTE_DELIVERY,
-            PickupAssignmentStatus.DELIVERED,
         ]
         assignment = PickupAssignment.objects.filter(
             volunteer=user,
             status__in=active_statuses
-        ).first()
+        ).order_by('-assigned_at').first()
 
         if not assignment:
             return Response({'active_assignment': None})

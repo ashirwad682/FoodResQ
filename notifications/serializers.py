@@ -12,6 +12,17 @@ class NotificationSerializer(serializers.ModelSerializer):
             'notification_type',
             'is_read',
             'related_donation_id',
+            'related_assignment_id',
+            'data',
             'created_at',
         ]
-        read_only_fields = ['id', 'title', 'message', 'notification_type', 'related_donation_id', 'created_at']
+        read_only_fields = [
+            'id',
+            'title',
+            'message',
+            'notification_type',
+            'related_donation_id',
+            'related_assignment_id',
+            'data',
+            'created_at',
+        ]

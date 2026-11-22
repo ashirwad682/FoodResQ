@@ -71,7 +71,13 @@ export const AvailableFood = () => {
       setSearchParams({});
       loadAvailableFood();
     } catch (err) {
-      alert(err.response?.data?.error || err.response?.data?.detail || 'Failed to submit pickup request.');
+      const errorMsg = err.response?.data?.error || err.response?.data?.detail || 'Failed to submit pickup request.';
+      setBannerMessage({
+        type: 'error',
+        text: errorMsg,
+      });
+      setSelectedDonation(null);
+      loadAvailableFood();
     } finally {
       setSubmitting(false);
     }
@@ -183,7 +189,7 @@ export const AvailableFood = () => {
       {/* Grid of Available Food */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-          Loading available surplus batches from MongoDB Atlas...
+          Loading available surplus batches...
         </div>
       ) : filtered.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
