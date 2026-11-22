@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { resolveMediaUrl } from '../common/DeliveryPhotoEvidenceCard';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -20,9 +21,39 @@ import { formatDate, formatKg } from '../../utils/formatters';
 export const FoodCollectionDeliveryEvidenceSection = ({ donations = [], requests = [] }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Find requests with assignments and verification data
-  const trackedItems = requests.filter((r) => {
-    return r.assignment && ['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED', 'CONFIRMED_BY_NGO'].includes(r.assignment.status || r.donation_details?.status);
+  // Combine items from requests with assignments AND donations that have verification data or are delivered/completed
+  const trackedItems = [];
+  const seenIds = new Set();
+
+  requests.forEach((r) => {
+    if (r.assignment && [
+      'PENDING_VOLUNTEER', 'ASSIGNED', 'ARRIVED_AT_DONOR', 'COLLECTION_EVIDENCE_SUBMITTED',
+      'PICKED_UP', 'IN_TRANSIT', 'ARRIVED_AT_NGO', 'HANDOVER_EVIDENCE_SUBMITTED',
+      'OTP_VERIFIED', 'DELIVERED', 'COMPLETED', 'CONFIRMED_BY_NGO'
+    ].includes(r.assignment.status || r.donation_details?.status)) {
+      seenIds.add(r.donation_details?.id || r.donation);
+      trackedItems.push(r);
+    }
+  });
+
+  donations.forEach((d) => {
+    if ((d.verification || d.status === 'COMPLETED' || d.status === 'DELIVERED') && !seenIds.has(d.id)) {
+      seenIds.add(d.id);
+      trackedItems.push({
+        id: `don-${d.id}`,
+        donation_details: d,
+        organization_details: { name: d.verification?.ngo_name || 'Designated Shelter' },
+        requested_quantity_kg: d.quantity_kg,
+        assignment: {
+          id: d.verification?.assignment,
+          status: d.verification?.verification_status || d.status,
+          volunteer_name: d.verification?.volunteer_name || 'Assigned Courier',
+          volunteer_vehicle: 'Verified Gear',
+          verification: d.verification,
+          proof_image_url: d.verification?.collection_photo_url,
+        }
+      });
+    }
   });
 
   return (
@@ -182,13 +213,17 @@ export const FoodCollectionDeliveryEvidenceSection = ({ donations = [], requests
                     {hasCollectionPhoto ? (
                       <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center' }}>
                         <div
-                          onClick={() => setSelectedImage(ver.collection_photo_url || assign.proof_image_url)}
-                          style={{ position: 'relative', cursor: 'pointer', borderRadius: '0.5rem', overflow: 'hidden' }}
+                          onClick={() => setSelectedImage(resolveMediaUrl(ver.collection_photo_url || assign.proof_image_url))}
+                          style={{ position: 'relative', cursor: 'pointer', borderRadius: '0.5rem', overflow: 'hidden', width: '85px', height: '85px', flexShrink: 0, background: '#0f172a' }}
                         >
                           <img
-                            src={ver.collection_photo_url || assign.proof_image_url}
+                            src={resolveMediaUrl(ver.collection_photo_url || assign.proof_image_url)}
                             alt="Collection Evidence"
-                            style={{ width: '85px', height: '85px', objectFit: 'cover' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80';
+                            }}
                           />
                           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, hover: { opacity: 1 } }}>
                             <Eye size={16} color="#fff" />
@@ -238,13 +273,17 @@ export const FoodCollectionDeliveryEvidenceSection = ({ donations = [], requests
                     {hasHandoverPhoto ? (
                       <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center' }}>
                         <div
-                          onClick={() => setSelectedImage(ver.handover_photo_url)}
-                          style={{ position: 'relative', cursor: 'pointer', borderRadius: '0.5rem', overflow: 'hidden' }}
+                          onClick={() => setSelectedImage(resolveMediaUrl(ver.handover_photo_url))}
+                          style={{ position: 'relative', cursor: 'pointer', borderRadius: '0.5rem', overflow: 'hidden', width: '85px', height: '85px', flexShrink: 0, background: '#0f172a' }}
                         >
                           <img
-                            src={ver.handover_photo_url}
+                            src={resolveMediaUrl(ver.handover_photo_url)}
                             alt="Handover Evidence"
-                            style={{ width: '85px', height: '85px', objectFit: 'cover' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80';
+                            }}
                           />
                         </div>
 

@@ -33,6 +33,17 @@ class VolunteerStatusUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsVolunteer]
 
     @extend_schema(
+        summary="Get Volunteer Live Status",
+        description="Volunteer retrieves current availability status and profile telemetry.",
+        responses={200: VolunteerProfileSerializer}
+    )
+    def get(self, request):
+        user = request.user
+        if not hasattr(user, 'volunteer_profile'):
+            return Response({'error': 'Volunteer profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(VolunteerProfileSerializer(user.volunteer_profile).data, status=status.HTTP_200_OK)
+
+    @extend_schema(
         summary="Update Volunteer Live Status",
         description="Volunteer toggles availability, updates GPS coordinates, or adjusts max rescue distance.",
         request=VolunteerProfileSerializer,

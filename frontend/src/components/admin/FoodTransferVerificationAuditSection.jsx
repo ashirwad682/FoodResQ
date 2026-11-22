@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { pickupService } from '../../services/pickupService';
+import { resolveMediaUrl } from '../common/DeliveryPhotoEvidenceCard';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -272,9 +273,13 @@ export const FoodTransferVerificationAuditSection = () => {
                         background: isCompleted ? '#dcfce7' : '#eff6ff',
                         color: isCompleted ? '#059669' : '#2563eb',
                         border: `1px solid ${isCompleted ? '#86efac' : '#bfdbfe'}`,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35rem',
                       }}
                     >
-                      {item.verification_status}
+                      {isCompleted ? <CheckCircle2 size={13} /> : null}
+                      <span>{isCompleted ? 'DELIVERED & VERIFIED' : item.verification_status}</span>
                     </span>
 
                     <button
@@ -330,10 +335,11 @@ export const FoodTransferVerificationAuditSection = () => {
                       {item.collection_photo_url ? (
                         <>
                           <img
-                            src={item.collection_photo_url}
+                            src={resolveMediaUrl(item.collection_photo_url)}
                             alt="Collection Evidence"
-                            onClick={() => setSelectedPhoto(item.collection_photo_url)}
+                            onClick={() => setSelectedPhoto(resolveMediaUrl(item.collection_photo_url))}
                             style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '0.5rem', cursor: 'pointer', flexShrink: 0 }}
+                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'; }}
                           />
                           <div style={{ fontSize: '0.78rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                             <div style={{ fontWeight: 800, color: '#059669' }}>Stage 1: Donor Collection</div>
@@ -362,10 +368,11 @@ export const FoodTransferVerificationAuditSection = () => {
                       {item.handover_photo_url ? (
                         <>
                           <img
-                            src={item.handover_photo_url}
+                            src={resolveMediaUrl(item.handover_photo_url)}
                             alt="Handover Evidence"
-                            onClick={() => setSelectedPhoto(item.handover_photo_url)}
+                            onClick={() => setSelectedPhoto(resolveMediaUrl(item.handover_photo_url))}
                             style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '0.5rem', cursor: 'pointer', flexShrink: 0 }}
+                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'; }}
                           />
                           <div style={{ fontSize: '0.78rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                             <div style={{ fontWeight: 800, color: '#2563eb' }}>Stage 2: NGO Handover</div>

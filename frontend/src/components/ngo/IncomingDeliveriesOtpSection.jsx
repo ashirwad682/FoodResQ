@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { pickupService } from '../../services/pickupService';
 import { useNotifications } from '../../context/NotificationContext';
+import { resolveMediaUrl } from '../common/DeliveryPhotoEvidenceCard';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -17,21 +18,20 @@ import {
   RefreshCw,
   FileText,
   Package,
+  Eye,
+  X,
+  Camera,
 } from 'lucide-react';
 import { formatDate, formatKg } from '../../utils/formatters';
 
 export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
   const { notifications, fetchNotifications } = useNotifications();
   const [deliveries, setDeliveries] = useState([]);
+  const [selectedPhotoModal, setSelectedPhotoModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [error, setError] = useState(null);
-
-  // OTP Verification Form State per Delivery ID
-  const [otpInputs, setOtpInputs] = useState({});
-  const [ratings, setRatings] = useState({});
-  const [intakeNotes, setIntakeNotes] = useState({});
 
   // Countdown timers per delivery: { [id]: remainingSeconds }
   const [countdowns, setCountdowns] = useState({});
@@ -44,6 +44,7 @@ export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
       setDeliveries(
         list.filter((a) =>
           [
+            'PENDING_VOLUNTEER',
             'ASSIGNED',
             'ARRIVED_AT_DONOR',
             'COLLECTION_EVIDENCE_SUBMITTED',
@@ -54,6 +55,9 @@ export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
             'OTP_VERIFIED',
             'DELIVERED',
             'COLLECTED',
+            'EN_ROUTE_PICKUP',
+            'EN_ROUTE_DELIVERY',
+            'CONFIRMED_BY_NGO',
           ].includes(a.status)
         )
       );
@@ -108,64 +112,6 @@ export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
     return notif?.data?.otp || null;
   };
 
-  const handleOtpChange = (deliveryId, val) => {
-    const cleaned = val.replace(/\D/g, '').slice(0, 6);
-    setOtpInputs((prev) => ({ ...prev, [deliveryId]: cleaned }));
-  };
-
-  const handleVerifyOtp = async (deliveryId) => {
-    const otp = otpInputs[deliveryId];
-    if (!otp || otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP.');
-      return;
-    }
-
-    setActionLoading(deliveryId);
-    setError(null);
-    setFeedback(null);
-    try {
-      const resp = await pickupService.verifyOtp(deliveryId, {
-        otp: otp,
-        rating: ratings[deliveryId] || 5.0,
-        notes: intakeNotes[deliveryId] || 'Food inspected and verified safe by shelter intake supervisor.',
-      });
-      setFeedback({
-        type: 'success',
-        text: 'Food handover verified via 6-digit OTP! Delivery marked DELIVERED and added to your received food history.',
-      });
-      setOtpInputs((prev) => ({ ...prev, [deliveryId]: '' }));
-      await loadDeliveries();
-      if (fetchNotifications) fetchNotifications();
-      if (onRefresh) onRefresh();
-    } catch (err) {
-      setError(err.response?.data?.error || 'OTP verification failed. Please check the code and try again.');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleResendOtp = async (deliveryId) => {
-    setActionLoading(`resend-${deliveryId}`);
-    setError(null);
-    setFeedback(null);
-    try {
-      const resp = await pickupService.generateOtp(deliveryId);
-      setFeedback({
-        type: 'success',
-        text: 'New 60-second OTP generated! Previous OTP invalidated.',
-      });
-      // Pre-fill if returned
-      if (resp.otp) {
-        setOtpInputs((prev) => ({ ...prev, [deliveryId]: resp.otp }));
-      }
-      await loadDeliveries();
-      if (fetchNotifications) fetchNotifications();
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to resend OTP.');
-    } finally {
-      setActionLoading(null);
-    }
-  };
 
   const activeInbound = deliveries.filter((d) => d.status !== 'DELIVERED' && d.status !== 'CONFIRMED_BY_NGO');
   const completedDeliveries = deliveries.filter((d) => d.status === 'DELIVERED' || d.status === 'CONFIRMED_BY_NGO');
@@ -402,9 +348,19 @@ export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
                           </div>
                           {hasCollectionPhoto ? (
                             <img
-                              src={ver.collection_photo_url || item.proof_image_url}
+                              src={resolveMediaUrl(ver.collection_photo_url || item.proof_image_url)}
                               alt="Donor Collection"
-                              style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '0.35rem' }}
+                              onClick={() => setSelectedPhotoModal({
+                                url: resolveMediaUrl(ver.collection_photo_url || item.proof_image_url),
+                                title: 'Stage 1: Donor Collection Evidence',
+                                timestamp: ver.collection_photo_timestamp || ver.created_at,
+                                gps: ver.collection_latitude ? `${ver.collection_latitude}°N, ${ver.collection_longitude}°E` : null
+                              })}
+                              style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '0.35rem', cursor: 'pointer' }}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80';
+                              }}
                             />
                           ) : (
                             <div style={{ height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', fontSize: '0.75rem' }}>
@@ -420,9 +376,19 @@ export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
                           </div>
                           {hasHandoverPhoto ? (
                             <img
-                              src={ver.handover_photo_url}
+                              src={resolveMediaUrl(ver.handover_photo_url)}
                               alt="NGO Handover"
-                              style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '0.35rem' }}
+                              onClick={() => setSelectedPhotoModal({
+                                url: resolveMediaUrl(ver.handover_photo_url),
+                                title: 'Stage 2: NGO Handover Evidence',
+                                timestamp: ver.handover_photo_timestamp || ver.updated_at,
+                                gps: ver.handover_latitude ? `${ver.handover_latitude}°N, ${ver.handover_longitude}°E` : null
+                              })}
+                              style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '0.35rem', cursor: 'pointer' }}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80';
+                              }}
                             />
                           ) : (
                             <div style={{ height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '0.75rem' }}>
@@ -434,7 +400,7 @@ export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
                     </div>
                   </div>
 
-                  {/* Right Column: Six-Digit OTP Verification Box */}
+                  {/* Right Column: Six-Digit OTP Verification Box or Pending Dispatch Status */}
                   <div
                     style={{
                       background: '#f8fafc',
@@ -447,132 +413,95 @@ export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
                       gap: '1.25rem',
                     }}
                   >
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#1e293b' }}>
-                          Your Handover Verification OTP
-                        </span>
-                        <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                          Single-Use (60s)
-                        </span>
-                      </div>
-
-                      {/* Prominent OTP display card (Visible ONLY to NGO account) */}
+                    {item.status === 'PENDING_VOLUNTEER' ? (
                       <div
                         style={{
                           background: '#ffffff',
-                          border: '2px solid #2563eb',
+                          border: '1.5px dashed #cbd5e1',
                           borderRadius: '0.75rem',
-                          padding: '1rem',
+                          padding: '2rem 1.25rem',
                           textAlign: 'center',
-                          boxShadow: '0 4px 12px rgba(37, 99, 235, 0.1)',
-                          marginBottom: '1rem',
-                        }}
-                      >
-                        <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', marginBottom: '0.2rem' }}>
-                          ACTIVE 6-DIGIT VERIFICATION CODE
-                        </div>
-                        <div
-                          style={{
-                            fontSize: '2.1rem',
-                            fontWeight: 900,
-                            letterSpacing: '0.25em',
-                            color: remaining > 0 ? '#1e3a8a' : '#94a3b8',
-                            fontFamily: 'monospace',
-                          }}
-                        >
-                          {remaining > 0 && activeOtp ? activeOtp : remaining <= 0 && activeOtp ? 'EXPIRED' : '------'}
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: remaining > 0 ? '#059669' : '#b91c1c', marginTop: '0.35rem', fontWeight: 700 }}>
-                          {remaining > 0 ? `Valid for ${remaining} seconds` : 'OTP expired. Tap Resend OTP below.'}
-                        </div>
-                      </div>
-
-                      {/* 6-Digit OTP Entry Input */}
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.4rem' }}>
-                          Enter 6-Digit Code to Confirm Food Receipt:
-                        </label>
-                        <input
-                          type="text"
-                          maxLength={6}
-                          value={otpInputs[item.id] || ''}
-                          onChange={(e) => handleOtpChange(item.id, e.target.value)}
-                          placeholder="e.g. 482910"
-                          style={{
-                            width: '100%',
-                            padding: '0.75rem 1rem',
-                            borderRadius: '0.5rem',
-                            border: '1.5px solid #94a3b8',
-                            fontSize: '1.25rem',
-                            fontWeight: 800,
-                            letterSpacing: '0.2em',
-                            textAlign: 'center',
-                            outline: 'none',
-                            color: '#0f172a',
-                            background: '#ffffff',
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Action Buttons: Verify & Resend */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleVerifyOtp(item.id)}
-                        disabled={actionLoading === item.id || !otpInputs[item.id] || otpInputs[item.id]?.length !== 6}
-                        className="btn btn-primary"
-                        style={{
-                          background: '#059669',
-                          border: 'none',
-                          borderRadius: '999px',
-                          padding: '0.75rem 1.5rem',
-                          color: '#ffffff',
-                          fontWeight: 800,
-                          fontSize: '0.9rem',
-                          display: 'inline-flex',
+                          display: 'flex',
+                          flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: '0.5rem',
-                          boxShadow: '0 4px 14px rgba(5, 150, 105, 0.25)',
-                          cursor: actionLoading === item.id || otpInputs[item.id]?.length !== 6 ? 'not-allowed' : 'pointer',
-                          opacity: otpInputs[item.id]?.length === 6 ? 1 : 0.6,
+                          height: '100%',
                         }}
                       >
-                        {actionLoading === item.id ? (
-                          <>
-                            <RefreshCw size={16} className="spin" />
-                            <span>Validating OTP with Backend...</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShieldCheck size={18} />
-                            <span>Verify OTP & Mark Delivered</span>
-                          </>
-                        )}
-                      </button>
+                        <Clock size={36} style={{ color: '#d97706', marginBottom: '0.65rem' }} />
+                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e293b', margin: '0 0 0.35rem' }}>
+                          Awaiting Volunteer Rider Claim
+                        </h4>
+                        <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0, maxWidth: '280px', lineHeight: 1.5 }}>
+                          This approved rescue batch has been dispatched to open courier channels. Once a rider claims the mission, live status and handover OTP verification will activate.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#1e293b' }}>
+                              Your Handover Verification OTP
+                            </span>
+                            <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                              Single-Use (60s)
+                            </span>
+                          </div>
 
-                      <button
-                        type="button"
-                        onClick={() => handleResendOtp(item.id)}
-                        disabled={actionLoading === `resend-${item.id}`}
-                        className="btn btn-outline btn-sm"
-                        style={{
-                          borderRadius: '999px',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.4rem',
-                          fontSize: '0.78rem',
-                          background: '#ffffff',
-                          border: '1px solid #cbd5e1',
-                        }}
-                      >
-                        <RotateCcw size={14} className={actionLoading === `resend-${item.id}` ? 'spin' : ''} />
-                        <span>Resend Fresh 60s OTP</span>
-                      </button>
-                    </div>
+                          {/* Prominent OTP display card (Visible ONLY to NGO account) */}
+                          <div
+                            style={{
+                              background: '#ffffff',
+                              border: '2px solid #2563eb',
+                              borderRadius: '0.75rem',
+                              padding: '1rem',
+                              textAlign: 'center',
+                              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.1)',
+                              marginBottom: '1rem',
+                            }}
+                          >
+                            <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', marginBottom: '0.2rem' }}>
+                              ACTIVE 6-DIGIT VERIFICATION CODE
+                            </div>
+                            <div
+                              style={{
+                                fontSize: '2.1rem',
+                                fontWeight: 900,
+                                letterSpacing: '0.25em',
+                                color: remaining > 0 ? '#1e3a8a' : '#94a3b8',
+                                fontFamily: 'monospace',
+                              }}
+                            >
+                              {remaining > 0 && activeOtp ? activeOtp : remaining <= 0 && activeOtp ? 'EXPIRED' : '------'}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: remaining > 0 ? '#059669' : '#b91c1c', marginTop: '0.35rem', fontWeight: 700 }}>
+                              {remaining > 0 ? `Valid for ${remaining} seconds` : 'OTP will refresh automatically upon courier arrival.'}
+                            </div>
+                          </div>
+
+                          {/* Verification Instructions for Shelter Staff */}
+                          <div
+                            style={{
+                              background: '#f0fdf4',
+                              border: '1px solid #bbf7d0',
+                              borderRadius: '0.65rem',
+                              padding: '0.85rem 1rem',
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '0.65rem',
+                            }}
+                          >
+                            <KeyRound size={18} style={{ color: '#059669', flexShrink: 0, marginTop: '2px' }} />
+                            <div style={{ fontSize: '0.78rem', color: '#166534', lineHeight: 1.5 }}>
+                              <strong style={{ color: '#065f46', display: 'block', marginBottom: '0.2rem' }}>
+                                Handover Protocol
+                              </strong>
+                              When the courier arrives at your shelter with this food batch, inspect the items and share this 6-digit code with the courier. The courier will enter the code on their mobile device to confirm delivery.
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -626,31 +555,107 @@ export const IncomingDeliveriesOtpSection = ({ onRefresh }) => {
                   </div>
 
                   {/* Evidence Thumbnails */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#fff', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid #dcfce7' }}>
-                    {ver.collection_photo_url && (
-                      <img
-                        src={ver.collection_photo_url}
-                        alt="Collection"
-                        title="Donor Collection Proof"
-                        style={{ width: '48px', height: '48px', borderRadius: '4px', objectFit: 'cover' }}
-                      />
-                    )}
-                    {ver.handover_photo_url && (
-                      <img
-                        src={ver.handover_photo_url}
-                        alt="Handover"
-                        title="NGO Handover Proof"
-                        style={{ width: '48px', height: '48px', borderRadius: '4px', objectFit: 'cover' }}
-                      />
-                    )}
-                    <div style={{ fontSize: '0.74rem', color: '#334155' }}>
-                      <div style={{ fontWeight: 700, color: '#059669' }}>Both Photographs Verified</div>
-                      <div style={{ color: '#64748b' }}>Digital chain of custody complete</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', background: '#fff', padding: '0.65rem', borderRadius: '0.5rem', border: '1px solid #dcfce7' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#059669', marginBottom: '0.25rem' }}>Stage 1: Collection</div>
+                      {ver.collection_photo_url ? (
+                        <img
+                          src={resolveMediaUrl(ver.collection_photo_url)}
+                          alt="Collection Proof"
+                          title="Click to zoom: Stage 1 Donor Collection"
+                          onClick={() => setSelectedPhotoModal({
+                            url: resolveMediaUrl(ver.collection_photo_url),
+                            title: `Stage 1: Donor Collection Proof • ${item.donation_title}`,
+                            timestamp: ver.collection_photo_timestamp,
+                            gps: ver.collection_latitude ? `${ver.collection_latitude}°N, ${ver.collection_longitude}°E` : null
+                          })}
+                          style={{ width: '100%', height: '70px', borderRadius: '4px', objectFit: 'cover', cursor: 'pointer', border: '1px solid #e2e8f0' }}
+                          onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80'; }}
+                        />
+                      ) : (
+                        <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', color: '#94a3b8', background: '#f8fafc', borderRadius: '4px' }}>
+                          Verified
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#2563eb', marginBottom: '0.25rem' }}>Stage 2: Handover</div>
+                      {ver.handover_photo_url ? (
+                        <img
+                          src={resolveMediaUrl(ver.handover_photo_url)}
+                          alt="Handover Proof"
+                          title="Click to zoom: Stage 2 NGO Handover"
+                          onClick={() => setSelectedPhotoModal({
+                            url: resolveMediaUrl(ver.handover_photo_url),
+                            title: `Stage 2: NGO Handover Proof • ${item.donation_title}`,
+                            timestamp: ver.handover_photo_timestamp,
+                            gps: ver.handover_latitude ? `${ver.handover_latitude}°N, ${ver.handover_longitude}°E` : null
+                          })}
+                          style={{ width: '100%', height: '70px', borderRadius: '4px', objectFit: 'cover', cursor: 'pointer', border: '1px solid #bfdbfe' }}
+                          onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80'; }}
+                        />
+                      ) : (
+                        <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', color: '#94a3b8', background: '#f8fafc', borderRadius: '4px' }}>
+                          Verified
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Photo Lightbox Modal */}
+      {selectedPhotoModal && (
+        <div
+          onClick={() => setSelectedPhotoModal(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.85)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#fff',
+              borderRadius: '1rem',
+              maxWidth: '680px',
+              width: '100%',
+              overflow: 'hidden',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+              <h4 style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '1rem' }}>{selectedPhotoModal.title}</h4>
+              <button
+                onClick={() => setSelectedPhotoModal(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', color: '#64748b' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: '70vh' }}>
+              <img
+                src={selectedPhotoModal.url}
+                alt={selectedPhotoModal.title}
+                style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain' }}
+              />
+            </div>
+            <div style={{ padding: '0.85rem 1.25rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#64748b' }}>
+              <span>{selectedPhotoModal.timestamp ? `Captured: ${formatDate(selectedPhotoModal.timestamp)}` : 'Verified on-platform'}</span>
+              {selectedPhotoModal.gps && <span>GPS: {selectedPhotoModal.gps}</span>}
+            </div>
           </div>
         </div>
       )}

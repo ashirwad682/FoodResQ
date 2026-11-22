@@ -4,6 +4,7 @@ from rest_framework import permissions, status
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from django.db.models import Sum, Count
 from accounts.models import User, UserRole, DonorProfile, VolunteerProfile
+from accounts.permissions import IsAdminUser
 from organizations.models import Organization
 from donations.models import FoodDonation, DonationStatus, FoodType
 
@@ -192,7 +193,7 @@ class AdminDashboardMetricsView(APIView):
     GET /api/analytics/admin/
     Comprehensive metrics specifically for the Platform Administrator Dashboard.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
 
     @extend_schema(
         summary="Admin Platform Overview Metrics",

@@ -8,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from .models import User, UserRole, DonorProfile, VolunteerProfile
+from .permissions import IsAdminUser
 from .serializers import (
     UserSerializer,
     RegisterSerializer,
@@ -214,13 +215,10 @@ class AdminUsersListView(generics.ListAPIView):
     Admin only: List all registered platform users with profile details. Filter by ?role=VOLUNTEER, ?search=
     """
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
 
     def get_queryset(self):
         user = self.request.user
-        if not (user.is_staff or user.role == UserRole.ADMIN):
-            return User.objects.none()
-
         queryset = User.objects.all().order_by('-created_at')
         role_param = self.request.query_params.get('role')
         if role_param:
