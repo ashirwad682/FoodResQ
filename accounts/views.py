@@ -1,6 +1,8 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db import models
+from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -41,6 +43,55 @@ class LoginView(TokenObtainPairView):
     Login with username/password. Returns JWT access, refresh tokens and user profile.
     """
     serializer_class = CustomTokenObtainPairSerializer
+
+
+class DemoLoginView(APIView):
+    """
+    POST /api/auth/demo-login/
+    LOCALHOST ONLY: Instant 1-click authentication for testing role dashboards.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        host = request.get_host().split(':')[0]
+        # Only permit on localhost / 127.0.0.1 or in debug mode
+        if host not in ['localhost', '127.0.0.1', '0.0.0.0', 'testserver'] and not settings.DEBUG:
+            return Response({'error': 'Demo login is only permitted in local development.'}, status=status.HTTP_403_FORBIDDEN)
+
+        role = request.data.get('role', '').upper()
+        role_map = {
+            UserRole.DONOR: ('donor_spice', 'Donor@12345'),
+            UserRole.NGO: ('ngo_feedhope', 'Ngo@12345'),
+            UserRole.VOLUNTEER: ('vol_arun', 'Volunteer@12345'),
+            UserRole.ADMIN: ('admin', 'Admin@12345'),
+        }
+
+        if role not in role_map:
+            return Response({'error': f"Invalid role '{role}'."}, status=status.HTTP_400_BAD_REQUEST)
+
+        username, default_pass = role_map[role]
+        user = User.objects.filter(username=username).first()
+        if not user:
+            user = User.objects.filter(role=role).first()
+            if not user:
+                user = User.objects.create_user(
+                    username=username,
+                    email=f"{username}@resqfood.local",
+                    password=default_pass,
+                    role=role
+                )
+                if role == UserRole.ADMIN:
+                    user.is_staff = True
+                    user.is_superuser = True
+                    user.save()
+
+        refresh = RefreshToken.for_user(user)
+        user_data = UserSerializer(user).data
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': user_data
+        }, status=status.HTTP_200_OK)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -155,3 +206,33 @@ class ProfileView(APIView):
                 o_serializer.save()
 
         return Response(UserSerializer(user).data)
+
+
+class AdminUsersListView(generics.ListAPIView):
+    """
+    GET /api/auth/users/
+    Admin only: List all registered platform users with profile details. Filter by ?role=VOLUNTEER, ?search=
+    """
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not (user.is_staff or user.role == UserRole.ADMIN):
+            return User.objects.none()
+
+        queryset = User.objects.all().order_by('-created_at')
+        role_param = self.request.query_params.get('role')
+        if role_param:
+            queryset = queryset.filter(role=role_param.upper())
+
+        search_param = self.request.query_params.get('search')
+        if search_param:
+            queryset = queryset.filter(
+                models.Q(username__icontains=search_param) |
+                models.Q(email__icontains=search_param) |
+                models.Q(phone_number__icontains=search_param)
+            )
+
+        return queryset
+

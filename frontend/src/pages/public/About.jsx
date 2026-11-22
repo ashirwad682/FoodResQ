@@ -113,7 +113,7 @@ export const About = () => {
               </div>
             </div>
             <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Responsible for the full end-to-end platform design, Django backend architecture, MongoDB Atlas data pipeline, algorithmic Priority Matching Engine, authentication, and core business workflow.
+              Responsible for the full end-to-end platform design, Django backend architecture, secure cloud data pipeline, algorithmic Priority Matching Engine, authentication, and core business workflow.
             </p>
           </div>
 

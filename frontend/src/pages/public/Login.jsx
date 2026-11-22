@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export const Login = () => {
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,6 +28,7 @@ export const Login = () => {
     typeof window !== 'undefined' &&
     (window.location.hostname === 'localhost' ||
       window.location.hostname === '127.0.0.1' ||
+      window.location.hostname === '::1' ||
       window.location.hostname === '0.0.0.0' ||
       window.location.hostname.endsWith('.localhost'));
 
@@ -118,7 +119,16 @@ export const Login = () => {
     setLoading(true);
 
     try {
-      const data = await login(demo.user, demo.pass);
+      let data;
+      try {
+        data = await login(demo.user, demo.pass);
+      } catch (loginErr) {
+        if (demoLogin) {
+          data = await demoLogin(demo.role);
+        } else {
+          throw loginErr;
+        }
+      }
       const role = data.user.role;
       const destination =
         role === 'DONOR' ? '/donor/dashboard' :
@@ -127,7 +137,8 @@ export const Login = () => {
         role === 'ADMIN' ? '/admin' : '/';
       navigate(destination, { replace: true });
     } catch (err) {
-      setError('Local demo account authentication failed. Verify pre-seeded database records.');
+      const apiMsg = err.response?.data?.detail || err.response?.data?.error || err.message;
+      setError(apiMsg ? `Authentication failed: ${apiMsg}` : 'Authentication failed. Please verify pre-seeded database records.');
       setLoading(false);
     }
   };
@@ -259,12 +270,12 @@ export const Login = () => {
             </p>
           </div>
 
-          {/* Quick Demo Selector — Enabled ONLY on Localhost for Development */}
+          {/* Quick Demo Selector — Enabled ONLY on Localhost for Development & Local Device Testing */}
           {isLocalhost && (
             <div
               style={{
                 background: '#f8fafc',
-                border: '1px solid var(--border)',
+                border: '1px solid #e2e8f0',
                 borderRadius: 'var(--radius-lg)',
                 padding: '1rem',
                 marginBottom: '1.75rem',
@@ -275,39 +286,51 @@ export const Login = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginBottom: '0.75rem',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
+                  marginBottom: '0.85rem',
+                  paddingBottom: '0.65rem',
+                  borderBottom: '1px solid #e2e8f0',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <Sparkles size={15} color="var(--primary)" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Sparkles size={14} color="#059669" />
+                    <span
+                      style={{
+                        fontSize: '0.74rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      Testing Role Switcher
+                    </span>
+                  </div>
                   <span
                     style={{
-                      fontSize: '0.76rem',
+                      fontSize: '0.65rem',
                       fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
-                    1-Click Role Switcher (Pre-Seeded)
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '0.62rem',
-                      fontWeight: 800,
-                      background: 'rgba(24, 24, 27, 0.08)',
-                      color: 'var(--brand-rose)',
-                      border: '1px solid rgba(24, 24, 27, 0.15)',
-                      padding: '0.12rem 0.5rem',
+                      background: '#ecfdf5',
+                      color: '#047857',
+                      border: '1px solid #a7f3d0',
+                      padding: '0.15rem 0.55rem',
                       borderRadius: 'var(--radius-full)',
-                      letterSpacing: '0.04em',
+                      letterSpacing: '0.03em',
                       textTransform: 'uppercase',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
                     }}
                   >
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
                     Localhost Only
                   </span>
                 </div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Auto-logs in</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  Instant 1-Click Login
+                </span>
               </div>
 
               <div
@@ -589,7 +612,7 @@ export const Login = () => {
             }}
           >
             <ShieldCheck size={14} color="var(--primary)" />
-            <span>256-bit JWT Encryption • MongoDB Atlas Cloud Protected</span>
+            <span>256-bit JWT Encryption • Secure Cloud Protected</span>
           </div>
         </div>
       </div>

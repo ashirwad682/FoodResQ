@@ -48,26 +48,103 @@ export const DonateFood = () => {
   });
 
   const [locating, setLocating] = useState(false);
+  const [gpsFeedback, setGpsFeedback] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.');
+      setGpsFeedback({
+        type: 'error',
+        message: 'Geolocation is not supported by your browser.',
+      });
       return;
     }
+
     setLocating(true);
+    setGpsFeedback(null);
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
+        const lat = parseFloat(pos.coords.latitude.toFixed(5));
+        const lng = parseFloat(pos.coords.longitude.toFixed(5));
+        const accuracy = Math.round(pos.coords.accuracy || 0);
+
         setFormData((prev) => ({
           ...prev,
-          pickup_latitude: parseFloat(pos.coords.latitude.toFixed(4)),
-          pickup_longitude: parseFloat(pos.coords.longitude.toFixed(4)),
+          pickup_latitude: lat,
+          pickup_longitude: lng,
         }));
+
+        // Reverse-geocode to human-readable street address via OpenStreetMap Nominatim
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+            {
+              headers: { 'Accept-Language': 'en' },
+              signal: controller.signal,
+            }
+          );
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data && data.display_name) {
+              setFormData((prev) => ({
+                ...prev,
+                pickup_address: data.display_name,
+                pickup_latitude: lat,
+                pickup_longitude: lng,
+              }));
+              setGpsFeedback({
+                type: 'success',
+                message: `Address auto-detected via GPS (±${accuracy}m accuracy)`,
+                lat,
+                lng,
+              });
+              setLocating(false);
+              return;
+            }
+          }
+        } catch (fetchErr) {
+          // If reverse geocoding is blocked or times out, fallback to coordinates
+        }
+
+        // Fallback: If address was empty, populate with readable coordinates
+        setFormData((prev) => ({
+          ...prev,
+          pickup_address: prev.pickup_address.trim() || `GPS Coordinates: ${lat}, ${lng}`,
+          pickup_latitude: lat,
+          pickup_longitude: lng,
+        }));
+
+        setGpsFeedback({
+          type: 'success',
+          message: `GPS coordinates locked: ${lat}, ${lng} (±${accuracy}m accuracy)`,
+          lat,
+          lng,
+        });
         setLocating(false);
       },
-      () => setLocating(false),
-      { timeout: 8000 }
+      (geoError) => {
+        let msg = 'Failed to detect location. Please type your pickup address.';
+        if (geoError.code === 1) {
+          msg = 'Location permission denied. Please allow location access in your browser or enter your address manually.';
+        } else if (geoError.code === 2) {
+          msg = 'Position unavailable. Please check your GPS connection or enter your address manually.';
+        } else if (geoError.code === 3) {
+          msg = 'GPS request timed out. Please try again or enter your address manually.';
+        }
+        setGpsFeedback({ type: 'error', message: msg });
+        setLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000,
+      }
     );
   };
 
@@ -427,7 +504,7 @@ export const DonateFood = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <label className="form-label" style={{ fontWeight: 700, fontSize: '0.84rem', margin: 0 }}>
                     Pickup Street Address *
                   </label>
@@ -436,19 +513,22 @@ export const DonateFood = () => {
                     onClick={detectLocation}
                     disabled={locating}
                     style={{
-                      background: 'none',
-                      border: 'none',
+                      background: locating ? '#f1f5f9' : '#fff1f2',
+                      border: '1px solid #fecdd3',
                       color: 'var(--brand-rose)',
-                      fontSize: '0.78rem',
+                      fontSize: '0.76rem',
                       fontWeight: 700,
-                      cursor: 'pointer',
+                      cursor: locating ? 'not-allowed' : 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '0.3rem',
+                      gap: '0.35rem',
+                      padding: '0.2rem 0.65rem',
+                      borderRadius: 'var(--radius-full)',
+                      transition: 'all 0.15s ease',
                     }}
                   >
-                    <Compass size={14} />
-                    <span>{locating ? 'Detecting GPS...' : 'Auto-detect GPS'}</span>
+                    <Compass size={13} className={locating ? 'spin' : ''} />
+                    <span>{locating ? 'Detecting GPS & Address...' : 'Auto-detect GPS'}</span>
                   </button>
                 </div>
                 <input
@@ -460,6 +540,44 @@ export const DonateFood = () => {
                   onChange={handleChange}
                   required
                 />
+                {gpsFeedback && (
+                  <div
+                    style={{
+                      marginTop: '0.45rem',
+                      padding: '0.45rem 0.75rem',
+                      borderRadius: 'var(--radius-md)',
+                      fontSize: '0.78rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.45rem',
+                      background: gpsFeedback.type === 'success' ? '#ecfdf5' : '#fef2f2',
+                      color: gpsFeedback.type === 'success' ? '#047857' : '#b91c1c',
+                      border: `1px solid ${gpsFeedback.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+                    }}
+                  >
+                    {gpsFeedback.type === 'success' ? (
+                      <CheckCircle2 size={15} style={{ flexShrink: 0, color: '#10b981' }} />
+                    ) : (
+                      <AlertCircle size={15} style={{ flexShrink: 0, color: '#ef4444' }} />
+                    )}
+                    <span style={{ fontWeight: 600 }}>{gpsFeedback.message}</span>
+                    {gpsFeedback.lat && (
+                      <span
+                        style={{
+                          marginLeft: 'auto',
+                          fontSize: '0.72rem',
+                          background: 'rgba(255, 255, 255, 0.7)',
+                          padding: '0.1rem 0.4rem',
+                          borderRadius: '4px',
+                          border: '1px solid #a7f3d0',
+                          fontFamily: 'monospace',
+                        }}
+                      >
+                        [{gpsFeedback.lat}, {gpsFeedback.lng}]
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div>

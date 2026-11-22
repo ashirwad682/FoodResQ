@@ -28,7 +28,7 @@ export const Impact = () => {
     }
   }, []);
 
-  // Initial fetch + Live auto-refresh from MongoDB Atlas every 20 seconds
+  // Initial fetch + Live auto-refresh from live cloud telemetry every 20 seconds
   useEffect(() => {
     fetchAnalytics();
     const interval = setInterval(() => {
@@ -42,7 +42,7 @@ export const Impact = () => {
       <div className="container" style={{ padding: '6rem 0', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)' }}>
           <RefreshCw className="animate-spin" size={20} />
-          <span>Connecting to MongoDB Atlas live impact ledger...</span>
+          <span>Connecting to live impact ledger...</span>
         </div>
       </div>
     );
@@ -87,7 +87,7 @@ export const Impact = () => {
               }}
             >
               <Database size={13} style={{ color: '#27272a' }} />
-              MongoDB Atlas Live Verified Ledger
+              Live Verified Impact Ledger
             </span>
 
             {/* Live Pulsing Sync Indicator */}
@@ -104,7 +104,7 @@ export const Impact = () => {
                 fontWeight: 700,
                 color: '#047857',
               }}
-              title="Continuous live polling connected to MongoDB Atlas"
+              title="Continuous live cloud telemetry polling"
             >
               <span
                 style={{
@@ -124,7 +124,7 @@ export const Impact = () => {
             Real-Time Community Impact
           </h1>
           <p style={{ fontSize: '0.96rem', color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto', lineHeight: 1.55 }}>
-            Every statistic and ranking below is computed dynamically in real-time from verified surplus rescue dispatches in MongoDB Atlas.
+            Every statistic and ranking below is computed dynamically in real-time from verified surplus rescue dispatches.
           </p>
 
           {/* Sync status & Manual refresh button */}
@@ -144,7 +144,7 @@ export const Impact = () => {
                 borderRadius: 'var(--radius-full)',
                 gap: '0.35rem',
               }}
-              title="Query MongoDB database right now"
+              title="Refresh live data right now"
             >
               <RefreshCw size={12} className={isRefreshing ? 'animate-spin' : ''} />
               <span>{isRefreshing ? 'Syncing...' : 'Refresh'}</span>
@@ -329,7 +329,7 @@ export const Impact = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {(leaderboard?.top_donors || []).length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  No donor records found in MongoDB. Register as a donor to join the leaderboard!
+                  No donor records found yet. Register as a donor to join the leaderboard!
                 </div>
               ) : (
                 (leaderboard.top_donors || []).map((donor, idx) => (
@@ -406,7 +406,7 @@ export const Impact = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {(leaderboard?.top_ngos || []).length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  No shelter distributions recorded in MongoDB yet. Claim batches to appear here!
+                  No shelter distributions recorded yet. Claim batches to appear here!
                 </div>
               ) : (
                 (leaderboard.top_ngos || []).map((ngo, idx) => (
@@ -484,7 +484,7 @@ export const Impact = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {(leaderboard?.top_volunteers || []).length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  No volunteer runs logged in MongoDB yet. Volunteer for active dispatches!
+                  No volunteer runs logged yet. Volunteer for active dispatches!
                 </div>
               ) : (
                 (leaderboard.top_volunteers || []).map((vol, idx) => (

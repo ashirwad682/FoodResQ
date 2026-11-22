@@ -52,7 +52,7 @@ export const DonorProfile = () => {
         },
       });
       await refreshProfile();
-      setFeedback({ type: 'success', message: 'Kitchen credentials and dispatch profile updated in MongoDB Atlas!' });
+      setFeedback({ type: 'success', message: 'Kitchen credentials and dispatch profile updated successfully!' });
     } catch (err) {
       setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to update kitchen profile.' });
     } finally {

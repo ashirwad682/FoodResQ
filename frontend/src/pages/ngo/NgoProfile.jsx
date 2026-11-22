@@ -58,7 +58,7 @@ export const NgoProfile = () => {
         },
       });
       await refreshProfile();
-      setFeedback({ type: 'success', message: 'Shelter organization profile updated in MongoDB Atlas!' });
+      setFeedback({ type: 'success', message: 'Shelter organization profile updated successfully!' });
     } catch (err) {
       setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to update organization profile.' });
     } finally {

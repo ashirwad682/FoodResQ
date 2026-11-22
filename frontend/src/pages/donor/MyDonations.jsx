@@ -174,7 +174,7 @@ export const MyDonations = () => {
       {/* Content Grid */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-          Loading kitchen surplus records from MongoDB...
+          Loading kitchen surplus records...
         </div>
       ) : filtered.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>

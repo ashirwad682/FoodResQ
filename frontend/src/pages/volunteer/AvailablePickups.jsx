@@ -104,7 +104,7 @@ export const AvailablePickups = () => {
       {/* Missions Grid */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-          Finding available rescue routes on MongoDB Atlas...
+          Finding available rescue routes...
         </div>
       ) : assignments.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>

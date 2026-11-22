@@ -117,7 +117,7 @@ export const PriorityDonations = () => {
       {/* Grid of Priority Batches */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-          Computing priority weights on MongoDB Atlas...
+          Computing priority weights on live cloud network...
         </div>
       ) : donations.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>

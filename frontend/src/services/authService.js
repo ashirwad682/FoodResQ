@@ -15,6 +15,19 @@ export const authService = {
     return response.data;
   },
 
+  async demoLogin(role) {
+    const response = await api.post('/auth/demo-login/', { role });
+    if (response.data.access) {
+      localStorage.setItem('resqfood_token', response.data.access);
+      localStorage.setItem('resqfood_refresh', response.data.refresh);
+      localStorage.setItem('resqfood_user', JSON.stringify(response.data.user));
+      localStorage.setItem('foodresq_token', response.data.access);
+      localStorage.setItem('foodresq_refresh', response.data.refresh);
+      localStorage.setItem('foodresq_user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
   async register(userData) {
     const response = await api.post('/auth/register/', userData);
     if (response.data.tokens?.access) {
