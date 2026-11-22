@@ -9,6 +9,8 @@ class PickupRequestStatus(models.TextChoices):
     APPROVED = 'APPROVED', 'Approved by Donor'
     REJECTED = 'REJECTED', 'Rejected by Donor'
     CANCELLED = 'CANCELLED', 'Cancelled by NGO'
+    DELIVERED = 'DELIVERED', 'Delivered & Received'
+    COMPLETED = 'COMPLETED', 'Completed & Verified'
 
 
 class PickupAssignmentStatus(models.TextChoices):

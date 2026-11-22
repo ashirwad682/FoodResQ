@@ -164,7 +164,8 @@ export const MyRequests = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {filteredRequests.map((req) => {
-            const isApproved = req.status === 'APPROVED';
+            const isDelivered = req.status === 'DELIVERED' || req.assignment?.status === 'DELIVERED' || req.assignment?.status === 'CONFIRMED_BY_NGO' || req.donation_details?.status === 'COMPLETED';
+            const isApproved = (req.status === 'APPROVED' || req.assignment) && !isDelivered;
             const isPending = req.status === 'PENDING';
             const isRejected = req.status === 'REJECTED';
             const isCancelled = req.status === 'CANCELLED';
@@ -181,7 +182,7 @@ export const MyRequests = () => {
                   flexWrap: 'wrap',
                   gap: '1.25rem',
                   borderLeft: `4px solid ${
-                    isApproved ? '#059669' : isPending ? '#f59e0b' : isCancelled ? '#94a3b8' : '#dc2626'
+                    isDelivered ? '#10b981' : isApproved ? '#059669' : isPending ? '#f59e0b' : isCancelled ? '#94a3b8' : '#dc2626'
                   }`,
                 }}
               >
@@ -193,15 +194,33 @@ export const MyRequests = () => {
                         fontWeight: 800,
                         padding: '0.2rem 0.65rem',
                         borderRadius: 'var(--radius-full)',
-                        background: isApproved ? '#ecfdf5' : isPending ? '#fffbeb' : isCancelled ? '#f1f5f9' : '#fef2f2',
-                        color: isApproved ? '#059669' : isPending ? '#d97706' : isCancelled ? '#64748b' : '#dc2626',
-                        border: `1px solid ${isApproved ? '#a7f3d0' : isPending ? '#fde68a' : isCancelled ? '#cbd5e1' : '#fecaca'}`,
+                        background: isDelivered ? '#dcfce7' : isApproved ? '#ecfdf5' : isPending ? '#fffbeb' : isCancelled ? '#f1f5f9' : '#fef2f2',
+                        color: isDelivered ? '#059669' : isApproved ? '#059669' : isPending ? '#d97706' : isCancelled ? '#64748b' : '#dc2626',
+                        border: `1px solid ${isDelivered ? '#86efac' : isApproved ? '#a7f3d0' : isPending ? '#fde68a' : isCancelled ? '#cbd5e1' : '#fecaca'}`,
                       }}
                     >
-                      {isApproved ? 'CONFIRMED RESERVATION' : req.status}
+                      {isDelivered ? '✓ DELIVERED & RECEIVED' : isApproved ? 'CONFIRMED RESERVATION' : req.status}
                     </span>
 
-                    {isApproved && (
+                    {isDelivered ? (
+                      <span
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: 'var(--radius-full)',
+                          background: '#ecfdf5',
+                          color: '#059669',
+                          border: '1px solid #a7f3d0',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                        }}
+                      >
+                        <ShieldCheck size={12} />
+                        Chain-of-Custody Verified
+                      </span>
+                    ) : isApproved ? (
                       <span
                         style={{
                           fontSize: '0.72rem',
@@ -219,7 +238,7 @@ export const MyRequests = () => {
                         <ShieldCheck size={12} />
                         Exclusive Shelter Batch
                       </span>
-                    )}
+                    ) : null}
 
                     <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                       Requested on {formatDate(req.requested_at || req.created_at)}
@@ -242,11 +261,11 @@ export const MyRequests = () => {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                  {isApproved && (
+                  {(isApproved || isDelivered) && (
                     <>
                       <Link
                         to="/ngo/active-deliveries"
-                        className="btn btn-primary btn-sm"
+                        className={`btn ${isDelivered ? 'btn-secondary' : 'btn-primary'} btn-sm`}
                         style={{
                           borderRadius: 'var(--radius-full)',
                           display: 'inline-flex',
@@ -255,7 +274,7 @@ export const MyRequests = () => {
                         }}
                       >
                         <Truck size={14} />
-                        <span>Track Delivery</span>
+                        <span>{isDelivered ? 'View Delivery & Photos' : 'Track Delivery'}</span>
                       </Link>
 
                       <button

@@ -39,24 +39,44 @@ export const EvidenceCameraModal = ({
     setCameraError(null);
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera access not supported by browser. Please use photo file upload.');
+        throw new Error('Direct camera stream requires a secure context (HTTPS) or device permission. You can still take/upload photos with the button below.');
       }
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
+
+      let mediaStream;
+      try {
+        // First try rear environment camera (optimal for food batch verification)
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+          },
+          audio: false,
+        });
+      } catch (constraintErr) {
+        console.warn('FacingMode environment failed, trying standard video constraint:', constraintErr);
+        // Fallback to any camera available (laptop webcam, front camera)
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+      }
+
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        videoRef.current.play().catch((e) => console.warn('Video auto-play suppressed:', e));
       }
       setCameraActive(true);
     } catch (err) {
       console.warn('Camera stream failed or permission denied:', err);
-      setCameraError(err.message || 'Unable to access camera directly. You can use the upload button.');
+      let errorMsg = 'Unable to access live camera stream. Tap the button below to take or choose a photo from your device.';
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        errorMsg = 'Camera permission was denied. Tap the button below to take or select a photo.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        errorMsg = 'No camera found. Tap the button below to upload an evidence photo.';
+      }
+      setCameraError(errorMsg);
       setCameraActive(false);
     }
   };
@@ -112,35 +132,66 @@ export const EvidenceCameraModal = ({
 
   // Capture Snapshot from Video
   const handleSnap = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current) return;
     const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const width = video.videoWidth || 640;
-    const height = video.videoHeight || 480;
+    const canvas = canvasRef.current || document.createElement('canvas');
+    const width = video.videoWidth || 1280;
+    const height = video.videoHeight || 720;
 
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, width, height);
 
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    // Optimized 0.82 JPEG gives high quality evidence at under 250KB payload
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
     setPreviewUrl(dataUrl);
     setTimestamp(new Date().toISOString());
     stopCamera();
   };
 
-  // File Upload Fallback
+  // File Upload / Mobile Native Camera Fallback with Client-Side Canvas Compression
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = () => {
-      setPreviewUrl(reader.result);
-      setTimestamp(new Date().toISOString());
-      stopCamera();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = canvasRef.current || document.createElement('canvas');
+        const maxDimension = 1280;
+        let { width, height } = img;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        setPreviewUrl(compressedDataUrl);
+        setTimestamp(new Date().toISOString());
+        stopCamera();
+      };
+      img.onerror = () => {
+        setPreviewUrl(event.target.result);
+        setTimestamp(new Date().toISOString());
+        stopCamera();
+      };
+      img.src = event.target.result;
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   // Retake
@@ -480,30 +531,53 @@ export const EvidenceCameraModal = ({
                 <span>Upload Photo</span>
               </button>
 
-              <button
-                type="button"
-                onClick={handleSnap}
-                disabled={!cameraActive}
-                className="btn btn-primary"
-                style={{
-                  background: 'var(--brand-rose-gradient, linear-gradient(135deg, #f43f5e 0%, #e11d48 100%))',
-                  border: 'none',
-                  borderRadius: '999px',
-                  padding: '0.65rem 1.75rem',
-                  color: '#ffffff',
-                  fontWeight: 700,
-                  fontSize: '0.88rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  boxShadow: '0 4px 12px rgba(225, 29, 72, 0.25)',
-                  cursor: cameraActive ? 'pointer' : 'not-allowed',
-                  opacity: cameraActive ? 1 : 0.6,
-                }}
-              >
-                <Camera size={18} />
-                <span>Capture Photo</span>
-              </button>
+              {cameraActive ? (
+                <button
+                  type="button"
+                  onClick={handleSnap}
+                  className="btn btn-primary"
+                  style={{
+                    background: 'var(--brand-rose-gradient, linear-gradient(135deg, #f43f5e 0%, #e11d48 100%))',
+                    border: 'none',
+                    borderRadius: '999px',
+                    padding: '0.65rem 1.75rem',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 4px 12px rgba(225, 29, 72, 0.25)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Camera size={18} />
+                  <span>Capture Photo</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn btn-primary"
+                  style={{
+                    background: 'var(--brand-rose-gradient, linear-gradient(135deg, #f43f5e 0%, #e11d48 100%))',
+                    border: 'none',
+                    borderRadius: '999px',
+                    padding: '0.65rem 1.75rem',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 4px 12px rgba(225, 29, 72, 0.25)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Camera size={18} />
+                  <span>Take / Select Photo</span>
+                </button>
+              )}
             </>
           ) : (
             <>

@@ -27,6 +27,10 @@
       "dest": "api/index.py"
     },
     {
+      "src": "/media/(.*)",
+      "dest": "api/index.py"
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/frontend/assets/$1"
     },

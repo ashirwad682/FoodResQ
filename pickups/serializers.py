@@ -126,6 +126,15 @@ class DeliveryVerificationSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get('request')
+        for key in ['collection_photo_url', 'handover_photo_url']:
+            val = ret.get(key)
+            if val and request and val.startswith('/') and not val.startswith('//'):
+                ret[key] = request.build_absolute_uri(val)
+        return ret
+
     @extend_schema_field(serializers.CharField())
     def get_donor_name(self, obj):
         return obj.donor.get_full_name() or obj.donor.username if obj.donor else ''

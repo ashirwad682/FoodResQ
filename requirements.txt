@@ -7,3 +7,4 @@ django-mongodb-backend>=6.1
 drf-spectacular>=0.29
 pymongo>=4.11
 whitenoise>=6.6.0
+gunicorn>=23.0.0

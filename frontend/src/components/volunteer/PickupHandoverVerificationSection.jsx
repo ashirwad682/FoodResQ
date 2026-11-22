@@ -111,8 +111,14 @@ export const PickupHandoverVerificationSection = ({ activeMission, onRefresh }) 
       setCameraModal({ open: false, stage: 'COLLECTION' });
       if (onRefresh) onRefresh();
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || 'Failed to submit evidence photograph.');
+      console.error('Evidence upload error:', err);
+      const serverMsg =
+        err.response?.data?.error ||
+        err.response?.data?.detail ||
+        (typeof err.response?.data === 'string' && err.response.data.slice(0, 150)) ||
+        err.message ||
+        'Failed to submit evidence photograph.';
+      setError(serverMsg);
     } finally {
       setSubmitting(false);
     }

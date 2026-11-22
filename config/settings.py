@@ -13,6 +13,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*', '.vercel.app', 'localhost', '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://*.onrender.com',
+    'https://*.railway.app',
+    'http://localhost:3000',
+    'http://localhost:3005',
+    'http://localhost:5173',
+    'http://127.0.0.1:8000',
+    'http://127.0.0.1:8004',
+]
+
 INSTALLED_APPS = [
     'config.apps.MongoAdminConfig',
     'config.apps.MongoAuthConfig',
@@ -210,3 +221,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Support evidence photo uploads up to 15MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024
+

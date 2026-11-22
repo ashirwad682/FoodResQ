@@ -37,35 +37,55 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 def save_evidence_image(file_or_b64):
     """
-    Saves an uploaded image file or base64 data URL to media/delivery_evidence/
-    Returns accessible media URL path.
+    Saves an uploaded image file or base64 data URL.
+    Works seamlessly in both local environments and serverless cloud
+    deployments (Vercel, AWS Lambda, Render) where the filesystem is read-only.
+    Returns accessible media URL path or persistent base64 data URL.
     """
-    evidence_dir = os.path.join(settings.MEDIA_ROOT, 'delivery_evidence')
-    os.makedirs(evidence_dir, exist_ok=True)
-    filename = f"evidence_{uuid.uuid4().hex[:16]}.jpg"
+    if not file_or_b64:
+        return ''
 
-    if hasattr(file_or_b64, 'read'):
-        file_path = os.path.join(evidence_dir, filename)
-        with open(file_path, 'wb+') as destination:
-            for chunk in file_or_b64.chunks():
-                destination.write(chunk)
-        return f"{settings.MEDIA_URL}delivery_evidence/{filename}"
-    elif isinstance(file_or_b64, str):
-        if file_or_b64.startswith('data:image'):
-            header, encoded = file_or_b64.split(',', 1)
-            ext = 'jpg'
-            if 'image/png' in header:
-                ext = 'png'
-            elif 'image/webp' in header:
-                ext = 'webp'
-            filename = f"evidence_{uuid.uuid4().hex[:16]}.{ext}"
-            file_path = os.path.join(evidence_dir, filename)
-            with open(file_path, 'wb') as f:
-                f.write(base64.b64decode(encoded))
-            return f"{settings.MEDIA_URL}delivery_evidence/{filename}"
-        elif file_or_b64.startswith('http://') or file_or_b64.startswith('https://') or file_or_b64.startswith('/media/'):
+    # 1. Base64 data URL or external URL: Return directly so it works anywhere without filesystem access
+    if isinstance(file_or_b64, str):
+        if file_or_b64.startswith('data:image') or file_or_b64.startswith('http://') or file_or_b64.startswith('https://'):
             return file_or_b64
+        if file_or_b64.startswith('/media/'):
+            return file_or_b64
+        # If raw base64 string without data prefix
+        if len(file_or_b64) > 100:
+            return f"data:image/jpeg;base64,{file_or_b64}"
+
+    # 2. Uploaded file object (multipart/form-data)
+    if hasattr(file_or_b64, 'read'):
+        try:
+            content = file_or_b64.read()
+            content_type = getattr(file_or_b64, 'content_type', 'image/jpeg') or 'image/jpeg'
+            
+            # Try saving to disk if MEDIA_ROOT is writable (e.g. local development)
+            try:
+                evidence_dir = os.path.join(settings.MEDIA_ROOT, 'delivery_evidence')
+                os.makedirs(evidence_dir, exist_ok=True)
+                ext = 'jpg'
+                if 'png' in content_type:
+                    ext = 'png'
+                elif 'webp' in content_type:
+                    ext = 'webp'
+                filename = f"evidence_{uuid.uuid4().hex[:16]}.{ext}"
+                file_path = os.path.join(evidence_dir, filename)
+                with open(file_path, 'wb+') as destination:
+                    destination.write(content)
+                return f"{settings.MEDIA_URL}delivery_evidence/{filename}"
+            except (OSError, PermissionError) as fs_err:
+                # Read-only filesystem (Vercel, AWS Lambda, serverless container)
+                logger.info(f"Read-only filesystem detected, storing image as inline data URL: {fs_err}")
+                b64_str = base64.b64encode(content).decode('utf-8')
+                return f"data:{content_type};base64,{b64_str}"
+        except Exception as e:
+            logger.warning(f"Failed to process uploaded file: {e}")
+            return ''
+
     return ''
+
 
 
 class CreatePickupRequestView(APIView):
@@ -477,8 +497,19 @@ class ListAvailableAssignmentsView(generics.ListAPIView):
             return PickupAssignment.objects.filter(
                 models.Q(volunteer=user) | models.Q(status=PickupAssignmentStatus.PENDING_VOLUNTEER)
             ).order_by('-assigned_at')
-        elif user.role == UserRole.ADMIN:
+        elif user.role == UserRole.ADMIN or user.is_staff or user.is_superuser:
             return PickupAssignment.objects.all().order_by('-assigned_at')
+        elif user.role == UserRole.NGO:
+            # Shelter / NGO tracks incoming deliveries for their confirmed rescue claims
+            return PickupAssignment.objects.filter(
+                models.Q(pickup_request__requested_by=user) |
+                models.Q(pickup_request__organization__user=user)
+            ).order_by('-assigned_at')
+        elif user.role == UserRole.DONOR:
+            # Donor tracks courier dispatches for their donations
+            return PickupAssignment.objects.filter(
+                pickup_request__donation__donor=user
+            ).order_by('-assigned_at')
         return PickupAssignment.objects.none()
 
 
@@ -677,6 +708,10 @@ class ConfirmDeliveryView(APIView):
         donation = assignment.pickup_request.donation
         donation.status = DonationStatus.COMPLETED
         donation.save()
+
+        pr = assignment.pickup_request
+        pr.status = PickupRequestStatus.DELIVERED
+        pr.save()
 
         # Update stats
         qty = assignment.pickup_request.requested_quantity_kg or donation.quantity_kg
@@ -1215,6 +1250,10 @@ class VerifyHandoverOtpView(APIView):
         donation.status = DonationStatus.COMPLETED
         donation.save()
 
+        pr = assignment.pickup_request
+        pr.status = PickupRequestStatus.DELIVERED
+        pr.save()
+
         qty = assignment.pickup_request.requested_quantity_kg or donation.quantity_kg
         ngo.total_rescued_kg += qty
         ngo.total_pickups_completed += 1
@@ -1276,14 +1315,38 @@ class GetVerificationDetailsView(APIView):
     """
     GET /api/pickups/assignments/{id}/verification/
     Returns verification details, evidence photos, and audit logs.
+    Restricted to assigned volunteer, donor, receiving NGO, and admins.
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
         try:
-            assignment = PickupAssignment.objects.get(pk=pk)
+            assignment = PickupAssignment.objects.select_related('pickup_request__donation', 'pickup_request__organization').get(pk=pk)
         except PickupAssignment.DoesNotExist:
             return Response({'error': 'Assignment not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user
+        is_admin = user.is_staff or user.is_superuser or getattr(user, 'role', '') == UserRole.ADMIN
+        is_assigned_volunteer = (assignment.volunteer_id == user.id)
+
+        pr = assignment.pickup_request
+        is_donor = False
+        if pr and pr.donation and pr.donation.donor_id == user.id:
+            is_donor = True
+
+        is_ngo = False
+        if getattr(user, 'role', '') == UserRole.NGO:
+            if pr:
+                if pr.requested_by_id == user.id:
+                    is_ngo = True
+                elif pr.organization and pr.organization.user_id == user.id:
+                    is_ngo = True
+
+        if not (is_admin or is_assigned_volunteer or is_donor or is_ngo):
+            return Response(
+                {'error': 'Access denied: You are not authorized to view evidence records for this rescue delivery.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         try:
             verification = assignment.verification

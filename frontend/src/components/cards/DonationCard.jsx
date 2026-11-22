@@ -57,32 +57,48 @@ export const DonationCard = ({ donation, actionButton, actionLabel, onAction }) 
                 background:
                   donation.status === 'AVAILABLE'
                     ? '#ecfdf5'
-                    : donation.status === 'COMPLETED'
-                    ? '#f1f5f9'
+                    : donation.status === 'COMPLETED' || donation.status === 'DELIVERED'
+                    ? '#dcfce7'
                     : donation.status === 'REQUESTED'
                     ? '#fffbeb'
                     : '#eff6ff',
                 color:
                   donation.status === 'AVAILABLE'
                     ? '#059669'
-                    : donation.status === 'COMPLETED'
-                    ? '#475569'
+                    : donation.status === 'COMPLETED' || donation.status === 'DELIVERED'
+                    ? '#059669'
                     : donation.status === 'REQUESTED'
                     ? '#d97706'
                     : '#2563eb',
                 border: `1px solid ${
                   donation.status === 'AVAILABLE'
                     ? '#a7f3d0'
-                    : donation.status === 'COMPLETED'
-                    ? '#cbd5e1'
+                    : donation.status === 'COMPLETED' || donation.status === 'DELIVERED'
+                    ? '#86efac'
                     : donation.status === 'REQUESTED'
                     ? '#fde68a'
                     : '#bfdbfe'
                 }`,
               }}
             >
-              {donation.status?.replace('_', ' ')}
+              {donation.status === 'COMPLETED' || donation.status === 'DELIVERED' ? '✓ DELIVERED' : donation.status?.replace('_', ' ')}
             </span>
+
+            {donation.verification && (
+              <span
+                style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.55rem',
+                  borderRadius: 'var(--radius-full)',
+                  background: '#eff6ff',
+                  color: '#2563eb',
+                  border: '1px solid #bfdbfe',
+                }}
+              >
+                📷 Photo Proof
+              </span>
+            )}
 
             {priorityLevel && (
               <span

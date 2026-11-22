@@ -91,47 +91,6 @@ export const About = () => {
             </div>
           </div>
         </div>
-
-        {/* Platform Engineering & Leadership */}
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <span className="badge badge-AVAILABLE" style={{ marginBottom: '0.5rem' }}>Platform Leadership</span>
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 800 }}>Engineering & System Design Team</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            Built with dedication to eliminate urban food waste and streamline non-profit food distribution.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-8">
-          <div className="glass-card" style={{ padding: '2rem', borderTop: '4px solid var(--primary)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--primary-gradient)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem' }}>
-                AK
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Ashirwad Kumar</h3>
-                <div style={{ fontSize: '0.82rem', color: 'var(--primary)', fontWeight: 700 }}>Lead Platform Architect & Core Backend Engineer</div>
-              </div>
-            </div>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Responsible for the full end-to-end platform design, Django backend architecture, secure cloud data pipeline, algorithmic Priority Matching Engine, authentication, and core business workflow.
-            </p>
-          </div>
-
-          <div className="glass-card" style={{ padding: '2rem', borderTop: '4px solid var(--secondary)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem' }}>
-                AK
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Ayush Kumar</h3>
-                <div style={{ fontSize: '0.82rem', color: 'var(--secondary)', fontWeight: 700 }}>Frontend & UI Contributor</div>
-              </div>
-            </div>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Contributed to modern user interface components, frontend layouts, responsive styling, and interactive user experience polish across the platform screens.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

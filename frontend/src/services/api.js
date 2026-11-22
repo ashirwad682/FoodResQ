@@ -1,15 +1,37 @@
 import axios from 'axios';
 
+// Ensure baseURL is normalized properly for both local dev and production deployments
+const getBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!envUrl) return '/api';
+  const trimmed = envUrl.trim().replace(/\/+$/, '');
+  if (trimmed.startsWith('http') && !trimmed.endsWith('/api')) {
+    return `${trimmed}/api`;
+  }
+  return trimmed;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add Bearer token to all outgoing requests if present
+// Interceptor to prevent URL stripping when baseURL has path prefix like /api
 api.interceptors.request.use(
   (config) => {
+    // If baseURL is absolute (http/https) and has a subpath like /api,
+    // and config.url starts with '/', prevent Axios from stripping the subpath
+    if (config.baseURL && config.baseURL.startsWith('http')) {
+      const baseObj = new URL(config.baseURL);
+      const basePath = baseObj.pathname.replace(/\/+$/, '');
+      if (basePath && config.url && config.url.startsWith('/') && !config.url.startsWith(basePath)) {
+        config.url = `${basePath}${config.url}`;
+        config.baseURL = baseObj.origin;
+      }
+    }
+
     const token = localStorage.getItem('resqfood_token') || localStorage.getItem('foodresq_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { donationService } from '../../services/donationService';
 import { matchingService } from '../../services/matchingService';
 import { pickupService } from '../../services/pickupService';
+import { DeliveryPhotoEvidenceCard } from '../../components/common/DeliveryPhotoEvidenceCard';
 import {
   Package,
   Clock,
@@ -290,6 +291,15 @@ export const DonationDetails = () => {
               )}
             </div>
           </div>
+
+          {/* Photographic Chain-of-Custody Evidence */}
+          {donation.verification && (
+            <DeliveryPhotoEvidenceCard
+              verification={donation.verification}
+              donationTitle={donation.title}
+              pickupAddress={donation.pickup_address}
+            />
+          )}
 
           {/* Status Audit Trail Timeline */}
           <div className="card" style={{ padding: '1.75rem' }}>

@@ -12,6 +12,7 @@ class FoodDonationSerializer(serializers.ModelSerializer):
     hours_until_expiry = serializers.FloatField(read_only=True)
     is_expired = serializers.BooleanField(read_only=True)
     priority = serializers.SerializerMethodField(read_only=True)
+    verification = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = FoodDonation
@@ -29,6 +30,7 @@ class FoodDonationSerializer(serializers.ModelSerializer):
             'hours_until_expiry',
             'is_expired',
             'priority',
+            'verification',
             'pickup_address',
             'latitude',
             'longitude',
@@ -95,6 +97,17 @@ class FoodDonationSerializer(serializers.ModelSerializer):
             'organization_name': org_name,
             'phone': donor.phone_number,
         }
+
+    @extend_schema_field(serializers.DictField(allow_null=True))
+    def get_verification(self, obj):
+        try:
+            ver = obj.verifications.order_by('-created_at').first()
+            if ver:
+                from pickups.serializers import DeliveryVerificationSerializer
+                return DeliveryVerificationSerializer(ver, context=self.context).data
+        except Exception:
+            pass
+        return None
 
     def validate_quantity_kg(self, value):
         """Backend validation for food quantity."""
